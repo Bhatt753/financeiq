@@ -24,7 +24,8 @@ HEALTHY_LIMITS = {
     "Shopping": 10, "Education": 10, "Other": 5
 }
 
-DB = "finance_app.db"
+import os
+DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "finance_app.db")
 
 #DATABASE
 
@@ -384,10 +385,10 @@ def goal():
 
 
 
-#APP DETAILS
+#APP DETAILS(local and render too)
+init_db()
 
 if __name__ == "__main__":
-    init_db()
     print("\n🚀 Finance App is running!")
     print("👉 Open: http://127.0.0.1:5000")
     app.run(debug=True)
