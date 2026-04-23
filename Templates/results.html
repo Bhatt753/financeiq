@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Results | FinanceIQ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        .navbar {
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center; 
+        }
+        .navbar h1 { color: #4ade80; font-size: 22px; }
+        .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 20px; font-size: 14px; }
+        .nav-links a:hover { color: #4ade80; }
+        .nav-links .logout { background: rgba(239,68,68,0.2); padding: 6px 14px; border-radius: 8px; color: #fca5a5; }
+        .container { padding: 30px; max-width: 1100px; margin: 0 auto; }
+        .page-title { font-size: 24px; color: #4ade80; margin-bottom: 25px; font-weight: 700; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .metric-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+        }
+        .metric-card .value { font-size: 26px; font-weight: 700; color: #4ade80; }
+        .metric-card .label { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 5px; }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .chart-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 20px;
+        }
+        .chart-card h3 { font-size: 15px; color: rgba(255,255,255,0.7); margin-bottom: 15px; }
+        .advice-section { margin-bottom: 25px; }
+        .advice-title { font-size: 18px; color: rgba(255,255,255,0.8); margin-bottom: 15px; font-weight: 600; }
+        .advice-card {
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .advice-success { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); }
+        .advice-warning { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); }
+        .advice-danger  { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.2); }
+        .advice-info    { background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.2); }
+        .advice-icon { font-size: 20px; }
+        .advice-content h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .advice-success h4 { color: #4ade80; }
+        .advice-warning h4 { color: #fbbf24; }
+        .advice-danger h4  { color: #fca5a5; }
+        .advice-info h4    { color: #93c5fd; }
+        .advice-content p  { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+        .health-score {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            margin-bottom: 25px;
+        }
+        .score-number { font-size: 60px; font-weight: 700; }
+        .score-label { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 5px; }
+        .btn-back {
+            display: inline-block;
+            background: rgba(74,222,128,0.15);
+            border: 1px solid rgba(74,222,128,0.3);
+            color: #4ade80;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+        .btn-goal {
+            display: inline-block;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>💰 FinanceIQ</h1>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/add_data">Add Data</a>
+            <a href="/goal">Goal Planner</a>
+            <a href="/logout" class="logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title">📊 Your Financial Report — {{ month }} {{ year }}</div>
+
+        <!-- Metrics Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="value">₹{{ "{:,.0f}".format(metrics.income) }}</div>
+                <div class="label">Monthly Income</div>
+            </div>
+            <div class="metric-card">
+                <div class="value">₹{{ "{:,.0f}".format(metrics.total_expenses) }}</div>
+                <div class="label">Total Expenses</div>
+            </div>
+            <div class="metric-card">
+                <div class="value" style="color: {% if metrics.savings >= 0 %}#4ade80{% else %}#fca5a5{% endif %}">
+                    ₹{{ "{:,.0f}".format(metrics.savings) }}
+                </div>
+                <div class="label">Monthly Savings</div>
+            </div>
+            <div class="metric-card">
+                <div class="value">{{ metrics.savings_rate }}%</div>
+                <div class="label">Savings Rate</div>
+            </div>
+        </div>
+
+        <!-- Health Score -->
+        <div class="health-score">
+            <div class="score-number" style="color:
+                {% if metrics.health_score >= 80 %}#4ade80
+                {% elif metrics.health_score >= 60 %}#fbbf24
+                {% elif metrics.health_score >= 40 %}#fb923c
+                {% else %}#fca5a5{% endif %}">
+                {{ metrics.health_score }}/100
+            </div>
+            <div class="score-label">
+                💯 Financial Health Score —
+                {% if metrics.health_score >= 80 %}🟢 EXCELLENT
+                {% elif metrics.health_score >= 60 %}🟡 AVERAGE
+                {% elif metrics.health_score >= 40 %}🟠 POOR
+                {% else %}🔴 CRITICAL{% endif %}
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>🍩 Spending by Category</h3>
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>📊 Income vs Expenses vs Savings</h3>
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Advice -->
+        <div class="advice-section">
+            <div class="advice-title">🧠 Practical Financial Advice</div>
+            {% for a in advice %}
+            <div class="advice-card advice-{{ a.type }}">
+                <div class="advice-icon">{{ a.icon }}</div>
+                <div class="advice-content">
+                    <h4>{{ a.title }}</h4>
+                    <p>{{ a.message }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Action Buttons -->
+        <a href="/dashboard" class="btn-back">← Back to Dashboard</a>
+        <a href="/goal" class="btn-goal">🎯 Plan a Savings Goal →</a>
+    </div>
+
+    <script>
+        // Pie Chart
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ metrics.category_totals.keys() | list | tojson }},
+                datasets: [{
+                    data: {{ metrics.category_totals.values() | list | tojson }},
+                    backgroundColor: [
+                        '#4ade80','#60a5fa','#f59e0b','#f87171',
+                        '#a78bfa','#34d399','#fb923c','#e879f9','#94a3b8'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: { legend: { labels: { color: 'rgba(255,255,255,0.7)', font: { size: 12 } } } }
+            }
+        });
+
+        // Bar Chart
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Income', 'Expenses', 'Savings'],
+                datasets: [{
+                    data: [
+                        {{ metrics.income }},
+                        {{ metrics.total_expenses }},
+                        {{ metrics.savings }}
+                    ],
+                    backgroundColor: ['#4ade80', '#f87171', '#60a5fa'],
+                    borderRadius: 8,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    x: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { display: false } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
