@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Entry | FinanceIQ</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        .navbar {
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 { color: #4ade80; font-size: 22px; }
+        .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 20px; font-size: 14px; }
+        .nav-links .logout { background: rgba(239,68,68,0.2); padding: 6px 14px; border-radius: 8px; color: #fca5a5; }
+        .container { padding: 30px; max-width: 900px; margin: 0 auto; }
+        .page-title { font-size: 24px; color: #4ade80; margin-bottom: 25px; font-weight: 700; }
+        .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .card-title { font-size: 16px; color: rgba(255,255,255,0.8); margin-bottom: 20px; font-weight: 600; }
+        .form-group { margin-bottom: 15px; }
+        label { color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 6px; display: block; }
+        input, select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+        input:focus, select:focus { border-color: #4ade80; }
+        select option { background: #1a1a2e; }
+        .expense-row {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr 1fr 0.5fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: end;
+        }
+        .btn-add {
+            background: rgba(74,222,128,0.15);
+            border: 1px solid rgba(74,222,128,0.3);
+            color: #4ade80;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .btn-remove {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .col-header {
+            display: grid;
+            grid-template-columns: 2fr 2fr 1fr 1fr 0.5fr;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .col-header span { color: rgba(255,255,255,0.4); font-size: 12px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>💰 FinanceIQ</h1>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/add_data">Add Data</a>
+            <a href="/goal">Goal Planner</a>
+            <a href="/logout" class="logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title">✏️ Edit — {{ entry.month }} {{ entry.year }}</div>
+
+        <form method="POST">
+            <div class="card">
+                <div class="card-title">💰 Income</div>
+                <div class="form-group">
+                    <label>Monthly Income (₹)</label>
+                    <input type="number" name="income" value="{{ entry.income }}" required>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">💸 Expenses</div>
+                <div class="col-header">
+                    <span>Name</span>
+                    <span>Category</span>
+                    <span>Type</span>
+                    <span>Amount</span>
+                    <span></span>
+                </div>
+
+                <div id="expenses-container">
+                    {% for e in expenses %}
+                    <div class="expense-row">
+                        <input type="text" name="expense_name[]" value="{{ e.name }}" required>
+                        <select name="expense_category[]">
+                            {% for cat in categories %}
+                            <option value="{{ cat }}" {% if cat == e.category %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="expense_type[]">
+                            <option value="Fixed" {% if e.type == 'Fixed' %}selected{% endif %}>Fixed</option>
+                            <option value="Variable" {% if e.type == 'Variable' %}selected{% endif %}>Variable</option>
+                        </select>
+                        <input type="number" name="expense_amount[]" value="{{ e.amount }}" required>
+                        <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" class="btn-add" onclick="addExpense()">+ Add Expense</button>
+            </div>
+
+            <button type="submit" class="btn-submit">💾 Save Changes →</button>
+        </form>
+    </div>
+
+    <script>
+        function addExpense() {
+            const container = document.getElementById('expenses-container');
+            const row = document.createElement('div');
+            row.className = 'expense-row';
+            row.innerHTML = `
+                <input type="text" name="expense_name[]" placeholder="Expense name" required>
+                <select name="expense_category[]">
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+                <select name="expense_type[]">
+                    <option value="Fixed">Fixed</option>
+                    <option value="Variable">Variable</option>
+                </select>
+                <input type="number" name="expense_amount[]" placeholder="Amount" required>
+                <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeRow(btn) {
+            const rows = document.querySelectorAll('.expense-row');
+            if (rows.length > 1) btn.parentElement.remove();
+        }
+    </script>
+</body>
+</html>
