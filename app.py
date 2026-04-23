@@ -384,6 +384,125 @@ def goal():
     return render_template("goal.html")
 
 
+@app.route("/history")
+def history():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    conn    = get_db()
+    history = conn.execute(
+        """SELECT m.*, 
+           GROUP_CONCAT(e.name || ' (' || e.category || ') ₹' || e.amount, ' | ') as expense_list
+           FROM monthly_data m
+           LEFT JOIN expenses e ON m.id = e.user_id 
+           AND m.month = e.month AND m.year = e.year
+           WHERE m.user_id = ?
+           GROUP BY m.id
+           ORDER BY m.year DESC, m.month DESC""",
+        (session["user_id"],)
+    ).fetchall()
+    conn.close()
+
+    return render_template("history.html", history=history)
+
+
+@app.route("/delete_entry/<int:entry_id>")
+def delete_entry(entry_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    conn = get_db()
+    # Verify entry belongs to user
+    entry = conn.execute(
+        "SELECT * FROM monthly_data WHERE id=? AND user_id=?",
+        (entry_id, session["user_id"])
+    ).fetchone()
+
+    if entry:
+        # Delete expenses for this month
+        conn.execute(
+            "DELETE FROM expenses WHERE user_id=? AND month=? AND year=?",
+            (session["user_id"], entry["month"], entry["year"])
+        )
+        # Delete monthly data
+        conn.execute(
+            "DELETE FROM monthly_data WHERE id=?",
+            (entry_id,)
+        )
+        conn.commit()
+
+    conn.close()
+    return redirect(url_for("history"))
+
+@app.route("/edit_entry/<int:entry_id>", methods=["GET", "POST"])
+def edit_entry(entry_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    conn  = get_db()
+    entry = conn.execute(
+        "SELECT * FROM monthly_data WHERE id=? AND user_id=?",
+        (entry_id, session["user_id"])
+    ).fetchone()
+
+    expenses = conn.execute(
+        "SELECT * FROM expenses WHERE user_id=? AND month=? AND year=?",
+        (session["user_id"], entry["month"], entry["year"])
+    ).fetchall()
+
+    if request.method == "POST":
+        income     = float(request.form["income"])
+        names      = request.form.getlist("expense_name[]")
+        categories = request.form.getlist("expense_category[]")
+        types      = request.form.getlist("expense_type[]")
+        amounts    = request.form.getlist("expense_amount[]")
+
+        new_expenses = []
+        for i in range(len(names)):
+            if names[i] and amounts[i]:
+                new_expenses.append({
+                    "name"    : names[i],
+                    "category": categories[i],
+                    "type"    : types[i],
+                    "amount"  : float(amounts[i])
+                })
+
+        metrics = calculate_metrics(income, new_expenses)
+
+        # Update monthly data
+        conn.execute("""
+            UPDATE monthly_data SET
+            income=?, total_expenses=?, savings=?,
+            savings_rate=?, health_score=?
+            WHERE id=?
+        """, (
+            income, metrics["total_expenses"],
+            metrics["savings"], metrics["savings_rate"],
+            metrics["health_score"], entry_id
+        ))
+
+        # Delete old expenses and insert new ones
+        conn.execute(
+            "DELETE FROM expenses WHERE user_id=? AND month=? AND year=?",
+            (session["user_id"], entry["month"], entry["year"])
+        )
+
+        for e in new_expenses:
+            conn.execute("""
+                INSERT INTO expenses (user_id, month, year, name, category, type, amount)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (session["user_id"], entry["month"], entry["year"],
+                  e["name"], e["category"], e["type"], e["amount"]))
+
+        conn.commit()
+        conn.close()
+        return redirect(url_for("history"))
+
+    conn.close()
+    return render_template("edit_entry.html",
+        entry=entry, expenses=expenses, categories=CATEGORIES)
+
+
 
 #APP DETAILS(local and render too)
 init_db()
