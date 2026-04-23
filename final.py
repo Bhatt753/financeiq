@@ -606,7 +606,6 @@ def export_to_csv(user, expenses, metrics, user_id):
     print(f"  📂 3 sheets: Expense_Details, Monthly_Metrics, Category_Summary")
     print(f"  💡 Open this file directly in Power BI!")
 
-
 #MAIN PROGRAM
 
 if __name__ == "__main__":
