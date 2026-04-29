@@ -1,0 +1,485 @@
+/* ============================================================
+   GLOBAL STYLES — Mobile First
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #0f172a;
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+
+.navbar {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar h1 {
+    color: #4ade80;
+    font-size: 20px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.nav-links a:hover {
+    color: #4ade80;
+    background: rgba(74,222,128,0.1);
+}
+
+.nav-links .logout {
+    background: rgba(239,68,68,0.2);
+    color: #fca5a5;
+}
+
+/* Mobile navbar */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 12px 15px;
+    }
+
+    .navbar h1 {
+        font-size: 18px;
+    }
+
+    .nav-links a {
+        font-size: 11px;
+        padding: 5px 7px;
+    }
+
+    .nav-desktop {
+        display: none;
+    }
+}
+
+/* ============================================================
+   BOTTOM NAV (Mobile Only)
+   ============================================================ */
+
+.bottom-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #1e293b;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        z-index: 100;
+        padding: 8px 0;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .bottom-nav a {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        text-decoration: none;
+        color: rgba(255,255,255,0.4);
+        font-size: 10px;
+        transition: all 0.3s;
+    }
+
+    .bottom-nav a.active,
+    .bottom-nav a:hover {
+        color: #4ade80;
+    }
+
+    .bottom-nav .nav-icon {
+        font-size: 20px;
+    }
+
+    /* Add padding so content doesn't hide behind bottom nav */
+    .container {
+        padding-bottom: 80px !important;
+    }
+}
+
+/* ============================================================
+   CONTAINER
+   ============================================================ */
+
+.container {
+    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+    .card {
+        padding: 15px;
+        border-radius: 12px;
+    }
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.btn-primary {
+    background: linear-gradient(135deg, #4ade80, #22c55e);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    display: inline-block;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(74,222,128,0.3);
+}
+
+@media (max-width: 768px) {
+    .btn-primary {
+        width: 100%;
+        text-align: center;
+        padding: 14px;
+        font-size: 16px;
+    }
+}
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+
+input, select {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    color: white;
+    font-size: 16px; /* 16px prevents zoom on iOS */
+    outline: none;
+    transition: all 0.3s;
+}
+
+input:focus, select:focus {
+    border-color: #4ade80;
+    background: rgba(74,222,128,0.08);
+}
+
+select option {
+    background: #1a1a2e;
+}
+
+/* ============================================================
+   METRICS GRID
+   ============================================================ */
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+}
+
+/* ============================================================
+   QUICK LINKS GRID
+   ============================================================ */
+
+.quick-links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .quick-links {
+        grid-template-columns: repeat(1, 1fr);
+        gap: 10px;
+    }
+}
+
+/* ============================================================
+   CHARTS GRID
+   ============================================================ */
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.history-table th {
+    background: rgba(74,222,128,0.15);
+    color: #4ade80;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.history-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.8);
+}
+
+@media (max-width: 768px) {
+    .history-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* ============================================================
+   EXPENSE ROWS (Add Data Form)
+   ============================================================ */
+
+.expense-row {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr 1fr 0.5fr;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: end;
+}
+
+@media (max-width: 768px) {
+    .expense-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        background: rgba(255,255,255,0.03);
+        border-radius: 10px;
+        padding: 12px;
+        position: relative;
+    }
+
+    .expense-row .btn-remove {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+}
+
+/* ============================================================
+   WELCOME BANNER
+   ============================================================ */
+
+.welcome {
+    background: linear-gradient(135deg, rgba(74,222,128,0.1), rgba(34,197,94,0.05));
+    border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .welcome {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .welcome .btn-primary {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* ============================================================
+   LOGIN / REGISTER CARD
+   ============================================================ */
+
+.auth-card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 35px;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .auth-card {
+        padding: 25px 20px;
+        border-radius: 16px;
+        margin: 15px;
+        width: auto;
+    }
+
+    body.auth-page {
+        display: flex;
+        align-items: flex-start;
+        padding-top: 40px;
+        justify-content: center;
+    }
+}
+
+/* ============================================================
+   ADVICE CARDS
+   ============================================================ */
+
+.advice-card {
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+@media (max-width: 768px) {
+    .advice-card {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .advice-content p {
+        font-size: 13px;
+    }
+}
+
+/* ============================================================
+   HEALTH SCORE
+   ============================================================ */
+
+.health-score {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    margin-bottom: 20px;
+}
+
+.score-number {
+    font-size: 56px;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    .score-number {
+        font-size: 42px;
+    }
+}
+
+/* ============================================================
+   FORM ROW
+   ============================================================ */
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge-green { background: rgba(74,222,128,0.2); color: #4ade80; }
+.badge-yellow { background: rgba(251,191,36,0.2); color: #fbbf24; }
+.badge-red { background: rgba(239,68,68,0.2); color: #fca5a5; }

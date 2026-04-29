@@ -2,6 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Goal Planner | FinanceIQ</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -101,6 +106,28 @@
                 <button type="submit" class="btn-submit">🔍 Analyze My Goal →</button>
             </form>
         </div>
+    </div>
+    <div class="bottom-nav">
+        <a href="/dashboard" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="/add_data" class="{% if request.endpoint == 'add_data' %}active{% endif %}">
+            <span class="nav-icon">➕</span>
+            <span>Add Data</span>
+        </a>
+        <a href="/history" class="{% if request.endpoint == 'history' %}active{% endif %}">
+            <span class="nav-icon">📅</span>
+            <span>History</span>
+        </a>
+        <a href="/goal" class="{% if request.endpoint == 'goal' %}active{% endif %}">
+            <span class="nav-icon">🎯</span>
+            <span>Goals</span>
+        </a>
+        <a href="/logout">
+            <span class="nav-icon">🚪</span>
+            <span>Logout</span>
+        </a>
     </div>
 </body>
 </html>
