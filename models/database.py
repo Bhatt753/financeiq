@@ -1,100 +1,173 @@
 # models/database.py
-# All database operations in one place
+# Supports both SQLite (local) and PostgreSQL (production)
 
-import sqlite3
 import os
-from config import Config
+import sqlite3
+
+# Check if we're using PostgreSQL or SQLite
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+
+USE_POSTGRES = DATABASE_URL.startswith("postgres")
+
+if USE_POSTGRES:
+    import psycopg2
+    import psycopg2.extras
 
 
 def get_db():
-    db_path = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        "..",
-        Config.DATABASE_URL
-    )
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    return conn
+    if USE_POSTGRES:
+        conn = psycopg2.connect(DATABASE_URL)
+        return conn
+    else:
+        db_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..",
+            "finance_app.db"
+        )
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+
+def placeholder(n=1):
+    if USE_POSTGRES:
+        return "%s"
+    return "?"
 
 
 def init_db():
     conn = get_db()
     c    = conn.cursor()
 
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            username   TEXT UNIQUE NOT NULL,
-            password   TEXT NOT NULL,
-            name       TEXT NOT NULL,
-            profession TEXT NOT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
+    if USE_POSTGRES:
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id         SERIAL PRIMARY KEY,
+                username   TEXT UNIQUE NOT NULL,
+                password   TEXT NOT NULL,
+                name       TEXT NOT NULL,
+                profession TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
 
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS monthly_data (
-            id             INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id        INTEGER NOT NULL,
-            month          TEXT NOT NULL,
-            year           INTEGER NOT NULL,
-            income         REAL NOT NULL,
-            total_expenses REAL NOT NULL,
-            savings        REAL NOT NULL,
-            savings_rate   REAL NOT NULL,
-            expense_ratio  REAL NOT NULL,
-            fixed_total    REAL NOT NULL DEFAULT 0,
-            variable_total REAL NOT NULL DEFAULT 0,
-            health_score   INTEGER NOT NULL,
-            created_at     TEXT DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_id, month, year)
-        )
-    """)
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS monthly_data (
+                id             SERIAL PRIMARY KEY,
+                user_id        INTEGER NOT NULL,
+                month          TEXT NOT NULL,
+                year           INTEGER NOT NULL,
+                income         REAL NOT NULL,
+                total_expenses REAL NOT NULL,
+                savings        REAL NOT NULL,
+                savings_rate   REAL NOT NULL,
+                expense_ratio  REAL NOT NULL DEFAULT 0,
+                fixed_total    REAL NOT NULL DEFAULT 0,
+                variable_total REAL NOT NULL DEFAULT 0,
+                health_score   INTEGER NOT NULL,
+                created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, month, year)
+            )
+        """)
 
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS expenses (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id    INTEGER NOT NULL,
-            month      TEXT NOT NULL,
-            year       INTEGER NOT NULL,
-            name       TEXT NOT NULL,
-            category   TEXT NOT NULL,
-            type       TEXT NOT NULL,
-            amount     REAL NOT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS expenses (
+                id         SERIAL PRIMARY KEY,
+                user_id    INTEGER NOT NULL,
+                month      TEXT NOT NULL,
+                year       INTEGER NOT NULL,
+                name       TEXT NOT NULL,
+                category   TEXT NOT NULL,
+                type       TEXT NOT NULL,
+                amount     REAL NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
 
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS goals (
-            id               INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id          INTEGER NOT NULL,
-            goal_name        TEXT NOT NULL,
-            goal_amount      REAL NOT NULL,
-            goal_months      INTEGER NOT NULL,
-            current_savings  REAL NOT NULL,
-            difficulty       TEXT NOT NULL,
-            status           TEXT DEFAULT 'active',
-            created_at       TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS goals (
+                id               SERIAL PRIMARY KEY,
+                user_id          INTEGER NOT NULL,
+                goal_name        TEXT NOT NULL,
+                goal_amount      REAL NOT NULL,
+                goal_months      INTEGER NOT NULL,
+                current_savings  REAL NOT NULL,
+                difficulty       TEXT NOT NULL,
+                status           TEXT DEFAULT 'active',
+                created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
 
-    # Add indexes for faster queries
-    c.execute("CREATE INDEX IF NOT EXISTS idx_monthly_user ON monthly_data(user_id)")
-    c.execute("CREATE INDEX IF NOT EXISTS idx_expenses_user ON expenses(user_id)")
+    else:
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                username   TEXT UNIQUE NOT NULL,
+                password   TEXT NOT NULL,
+                name       TEXT NOT NULL,
+                profession TEXT NOT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS monthly_data (
+                id             INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id        INTEGER NOT NULL,
+                month          TEXT NOT NULL,
+                year           INTEGER NOT NULL,
+                income         REAL NOT NULL,
+                total_expenses REAL NOT NULL,
+                savings        REAL NOT NULL,
+                savings_rate   REAL NOT NULL,
+                expense_ratio  REAL NOT NULL DEFAULT 0,
+                fixed_total    REAL NOT NULL DEFAULT 0,
+                variable_total REAL NOT NULL DEFAULT 0,
+                health_score   INTEGER NOT NULL,
+                created_at     TEXT DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, month, year)
+            )
+        """)
+
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS expenses (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER NOT NULL,
+                month      TEXT NOT NULL,
+                year       INTEGER NOT NULL,
+                name       TEXT NOT NULL,
+                category   TEXT NOT NULL,
+                type       TEXT NOT NULL,
+                amount     REAL NOT NULL
+            )
+        """)
 
     conn.commit()
     conn.close()
     print("✅ Database initialized!")
 
 
-# USER QUERIES
+def dict_row(row):
+    if USE_POSTGRES:
+        return dict(row) if row else None
+    return dict(row) if row else None
+
+
+def fetchall_as_dict(rows):
+    if USE_POSTGRES:
+        return [dict(r) for r in rows] if rows else []
+    return rows
+
+
+
+#USER QUERIES
 
 def create_user(username, password, name, profession):
     conn = get_db()
     try:
-        conn.execute(
-            "INSERT INTO users (username, password, name, profession) VALUES (?, ?, ?, ?)",
+        p = placeholder()
+        conn.cursor().execute(
+            f"INSERT INTO users (username, password, name, profession) VALUES ({p},{p},{p},{p})",
             (username, password, name, profession)
         )
         conn.commit()
@@ -105,44 +178,55 @@ def create_user(username, password, name, profession):
         conn.close()
 
 
-def get_user_by_credentials(username, password):
+def get_user_by_username(username):
     conn = get_db()
     try:
-        user = conn.execute(
-            "SELECT * FROM users WHERE username=? AND password=?",
-            (username, password)
-        ).fetchone()
-        return user
+        p = placeholder()
+        c = conn.cursor()
+        if USE_POSTGRES:
+            c.execute(f"SELECT * FROM users WHERE username={p}", (username,))
+            row = c.fetchone()
+            if row:
+                cols = [desc[0] for desc in c.description]
+                return dict(zip(cols, row))
+            return None
+        else:
+            conn.row_factory = sqlite3.Row
+            c = conn.cursor()
+            c.execute(f"SELECT * FROM users WHERE username={p}", (username,))
+            return c.fetchone()
     finally:
         conn.close()
+
 
 #MONTHLY DATA QUERIES
 
 def save_monthly_data(user_id, month, year, income, metrics):
     conn = get_db()
+    p    = placeholder()
     try:
-        # Check if already exists
-        existing = conn.execute(
-            "SELECT id FROM monthly_data WHERE user_id=? AND month=? AND year=?",
-            (user_id, month, year)
-        ).fetchone()
+        c = conn.cursor()
 
-        if existing:
+        c.execute(
+            f"SELECT id FROM monthly_data WHERE user_id={p} AND month={p} AND year={p}",
+            (user_id, month, year)
+        )
+        if c.fetchone():
             return False, "Data for this month already exists. Use edit instead."
 
-        conn.execute("""
+        c.execute(f"""
             INSERT INTO monthly_data
             (user_id, month, year, income, total_expenses, savings,
              savings_rate, expense_ratio, fixed_total, variable_total, health_score)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES ({p},{p},{p},{p},{p},{p},{p},{p},{p},{p},{p})
         """, (
             user_id, month, year, income,
             metrics["total_expenses"],
             metrics["savings"],
             metrics["savings_rate"],
-            metrics["expense_ratio"],
-            metrics["fixed_total"],
-            metrics["variable_total"],
+            metrics.get("expense_ratio", 0),
+            metrics.get("fixed_total", 0),
+            metrics.get("variable_total", 0),
             metrics["health_score"]
         ))
         conn.commit()
@@ -155,15 +239,18 @@ def save_monthly_data(user_id, month, year, income, metrics):
 
 def save_expenses(user_id, month, year, expenses):
     conn = get_db()
+    p    = placeholder()
     try:
+        c = conn.cursor()
         for e in expenses:
-            conn.execute("""
+            c.execute(f"""
                 INSERT INTO expenses (user_id, month, year, name, category, type, amount)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES ({p},{p},{p},{p},{p},{p},{p})
             """, (user_id, month, year, e["name"], e["category"], e["type"], e["amount"]))
         conn.commit()
         return True
     except Exception as e:
+        print(f"Error saving expenses: {e}")
         return False
     finally:
         conn.close()
@@ -171,60 +258,84 @@ def save_expenses(user_id, month, year, expenses):
 
 def get_monthly_history(user_id):
     conn = get_db()
+    p    = placeholder()
     try:
-        return conn.execute(
-            "SELECT * FROM monthly_data WHERE user_id=? ORDER BY year DESC, month DESC",
+        c = conn.cursor()
+        c.execute(
+            f"SELECT * FROM monthly_data WHERE user_id={p} ORDER BY year DESC, month DESC",
             (user_id,)
-        ).fetchall()
+        )
+        rows = c.fetchall()
+        if USE_POSTGRES:
+            cols = [desc[0] for desc in c.description]
+            return [dict(zip(cols, row)) for row in rows]
+        return rows
     finally:
         conn.close()
 
 
 def get_monthly_entry(entry_id, user_id):
     conn = get_db()
+    p    = placeholder()
     try:
-        return conn.execute(
-            "SELECT * FROM monthly_data WHERE id=? AND user_id=?",
+        c = conn.cursor()
+        c.execute(
+            f"SELECT * FROM monthly_data WHERE id={p} AND user_id={p}",
             (entry_id, user_id)
-        ).fetchone()
+        )
+        row = c.fetchone()
+        if USE_POSTGRES and row:
+            cols = [desc[0] for desc in c.description]
+            return dict(zip(cols, row))
+        return row
     finally:
         conn.close()
 
 
 def get_expenses_for_month(user_id, month, year):
     conn = get_db()
+    p    = placeholder()
     try:
-        return conn.execute(
-            "SELECT * FROM expenses WHERE user_id=? AND month=? AND year=?",
+        c = conn.cursor()
+        c.execute(
+            f"SELECT * FROM expenses WHERE user_id={p} AND month={p} AND year={p}",
             (user_id, month, year)
-        ).fetchall()
+        )
+        rows = c.fetchall()
+        if USE_POSTGRES:
+            cols = [desc[0] for desc in c.description]
+            return [dict(zip(cols, row)) for row in rows]
+        return rows
     finally:
         conn.close()
 
 
 def update_monthly_entry(entry_id, income, metrics):
     conn = get_db()
+    p    = placeholder()
     try:
-        conn.execute("""
+        c = conn.cursor()
+        c.execute(f"""
             UPDATE monthly_data SET
-            income=?, total_expenses=?, savings=?,
-            savings_rate=?, expense_ratio=?,
-            fixed_total=?, variable_total=?, health_score=?
-            WHERE id=?
+            income={p}, total_expenses={p}, savings={p},
+            savings_rate={p}, expense_ratio={p},
+            fixed_total={p}, variable_total={p}, health_score={p}
+            WHERE id={p}
         """, (
             income,
             metrics["total_expenses"],
             metrics["savings"],
             metrics["savings_rate"],
-            metrics["expense_ratio"],
-            metrics["fixed_total"],
-            metrics["variable_total"],
+            metrics.get("expense_ratio", 0),
+            metrics.get("fixed_total", 0),
+            metrics.get("variable_total", 0),
             metrics["health_score"],
             entry_id
         ))
         conn.commit()
         return True
     except Exception as e:
+        print(f"Update error: {e}")
         return False
     finally:
         conn.close()
@@ -232,18 +343,35 @@ def update_monthly_entry(entry_id, income, metrics):
 
 def delete_monthly_entry(entry_id, user_id, month, year):
     conn = get_db()
+    p    = placeholder()
     try:
-        conn.execute(
-            "DELETE FROM expenses WHERE user_id=? AND month=? AND year=?",
+        c = conn.cursor()
+        c.execute(
+            f"DELETE FROM expenses WHERE user_id={p} AND month={p} AND year={p}",
             (user_id, month, year)
         )
-        conn.execute(
-            "DELETE FROM monthly_data WHERE id=? AND user_id=?",
+        c.execute(
+            f"DELETE FROM monthly_data WHERE id={p} AND user_id={p}",
             (entry_id, user_id)
         )
         conn.commit()
         return True
     except Exception as e:
+        print(f"Delete error: {e}")
         return False
+    finally:
+        conn.close()
+
+
+def delete_expenses_for_month(user_id, month, year):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"DELETE FROM expenses WHERE user_id={p} AND month={p} AND year={p}",
+            (user_id, month, year)
+        )
+        conn.commit()
     finally:
         conn.close()

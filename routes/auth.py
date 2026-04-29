@@ -1,7 +1,7 @@
 # routes/auth.py
 
 from flask import Blueprint, render_template, request, redirect, session, url_for
-from models.database import create_user, get_user_by_credentials
+from models.database import create_user, get_user_by_username
 from utils.auth import hash_password, verify_password
 from utils.validators import validate_register
 
@@ -46,12 +46,7 @@ def login():
             return render_template("login.html", error="Please enter both fields.")
 
         # Get user by username only, then verify password
-        from models.database import get_db
-        conn = get_db()
-        user = conn.execute(
-            "SELECT * FROM users WHERE username=?", (username,)
-        ).fetchone()
-        conn.close()
+        user = get_user_by_username(username)
 
         if user and verify_password(password, user["password"]):
             session["user_id"]    = user["id"]
