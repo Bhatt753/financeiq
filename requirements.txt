@@ -1,4 +1,6 @@
 flask
+werkzeug
+python-dotenv
 pandas
 openpyxl
 gunicorn
