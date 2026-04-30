@@ -495,3 +495,24 @@ def create_user_with_email(username, password, name, profession, email):
         return False, str(e)
     finally:
         conn.close()
+
+def migrate_db():
+    conn = get_db()
+    c    = conn.cursor()
+    p    = placeholder()
+
+    migrations = [
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id TEXT",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT",
+    ]
+
+    for migration in migrations:
+        try:
+            c.execute(migration)
+            print(f"✅ Migration: {migration}")
+        except Exception as e:
+            print(f"⚠️ Migration skipped: {e}")
+
+    conn.commit()
+    conn.close()

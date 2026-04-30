@@ -1,16 +1,13 @@
-# config.py
-
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
 class Config:
     SECRET_KEY           = os.environ.get("SECRET_KEY", "change-this")
     DATABASE_URL         = os.environ.get("DATABASE_URL", "")
     DEBUG                = os.environ.get("DEBUG", "False") == "True"
     GOOGLE_CLIENT_ID     = os.environ.get("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+
+    # Fix CSRF state mismatch on Render
+    SESSION_COOKIE_SECURE   = True
+    SESSION_COOKIE_SAMESITE = "Lax"
 
     CATEGORIES = [
         "Rent/Housing", "Food & Groceries", "Transport",
