@@ -1,22 +1,17 @@
 # config.py
-# All configuration in one place
 
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  # loads .env file
+load_dotenv()
 
 class Config:
-    # Security
-    SECRET_KEY = os.environ.get("SECRET_KEY", "change-this-in-production")
+    SECRET_KEY           = os.environ.get("SECRET_KEY", "change-this")
+    DATABASE_URL         = os.environ.get("DATABASE_URL", "")
+    DEBUG                = os.environ.get("DEBUG", "False") == "True"
+    GOOGLE_CLIENT_ID     = os.environ.get("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
-    # Database
-    DATABASE_URL = os.environ.get("DATABASE_URL", "finance_app.db")
-
-    # App settings
-    DEBUG = os.environ.get("DEBUG", "False") == "True"
-
-    # Finance constants
     CATEGORIES = [
         "Rent/Housing", "Food & Groceries", "Transport",
         "Utilities", "Healthcare", "Entertainment",

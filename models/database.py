@@ -41,14 +41,17 @@ def init_db():
 
     if USE_POSTGRES:
         c.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id         SERIAL PRIMARY KEY,
-                username   TEXT UNIQUE NOT NULL,
-                password   TEXT NOT NULL,
-                name       TEXT NOT NULL,
-                profession TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
+                  CREATE TABLE IF NOT EXISTS users (
+                    id         SERIAL PRIMARY KEY,
+                    username   TEXT UNIQUE NOT NULL,
+                    password   TEXT,
+                    name       TEXT NOT NULL,
+                    profession TEXT NOT NULL DEFAULT 'Not specified',
+                    email      TEXT UNIQUE,
+                    google_id  TEXT UNIQUE,
+                    avatar     TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
         """)
 
         c.execute("""
@@ -373,5 +376,104 @@ def delete_expenses_for_month(user_id, month, year):
             (user_id, month, year)
         )
         conn.commit()
+    finally:
+        conn.close()
+
+def get_user_by_google_id(google_id):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"SELECT * FROM users WHERE google_id={p}",
+            (google_id,)
+        )
+        row = c.fetchone()
+        if USE_POSTGRES and row:
+            cols = [desc[0] for desc in c.description]
+            return dict(zip(cols, row))
+        return row
+    finally:
+        conn.close()
+
+
+def get_user_by_email(email):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"SELECT * FROM users WHERE email={p}",
+            (email,)
+        )
+        row = c.fetchone()
+        if USE_POSTGRES and row:
+            cols = [desc[0] for desc in c.description]
+            return dict(zip(cols, row))
+        return row
+    finally:
+        conn.close()
+
+#Google 
+def create_google_user(google_id, email, name, avatar):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        # Create username from email
+        username = email.split("@")[0]
+
+        # Make username unique if taken
+        base     = username
+        counter  = 1
+        c        = conn.cursor()
+
+        while True:
+            c.execute(
+                f"SELECT id FROM users WHERE username={p}",
+                (username,)
+            )
+            if not c.fetchone():
+                break
+            username = f"{base}{counter}"
+            counter += 1
+
+        c.execute(f"""
+            INSERT INTO users (username, name, email, google_id, avatar, profession)
+            VALUES ({p},{p},{p},{p},{p},{p})
+        """, (username, name, email, google_id, avatar, "Not specified"))
+
+        conn.commit()
+
+        # Return the created user
+        c.execute(
+            f"SELECT * FROM users WHERE google_id={p}",
+            (google_id,)
+        )
+        row = c.fetchone()
+        if USE_POSTGRES and row:
+            cols = [desc[0] for desc in c.description]
+            return dict(zip(cols, row))
+        return row
+    except Exception as e:
+        print(f"Error creating Google user: {e}")
+        return None
+    finally:
+        conn.close()
+
+
+def update_user_profession(user_id, profession):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"UPDATE users SET profession={p} WHERE id={p}",
+            (profession, user_id)
+        )
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error updating profession: {e}")
+        return False
     finally:
         conn.close()
