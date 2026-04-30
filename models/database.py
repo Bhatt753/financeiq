@@ -477,3 +477,21 @@ def update_user_profession(user_id, profession):
         return False
     finally:
         conn.close()
+
+#gmail login support
+
+def create_user_with_email(username, password, name, profession, email):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(f"""
+            INSERT INTO users (username, password, name, profession, email)
+            VALUES ({p},{p},{p},{p},{p})
+        """, (username, password, name, profession, email))
+        conn.commit()
+        return True, None
+    except Exception as e:
+        return False, str(e)
+    finally:
+        conn.close()

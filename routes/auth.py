@@ -3,7 +3,8 @@
 from flask import Blueprint, render_template, request, redirect, session, url_for
 from authlib.integrations.flask_client import OAuth
 from models.database import (
-    create_user, get_user_by_username,
+    create_user, create_user_with_email,
+    get_user_by_username,
     get_user_by_google_id, get_user_by_email,
     create_google_user, update_user_profession
 )
@@ -62,13 +63,25 @@ def register():
         password   = request.form.get("password", "").strip()
         name       = request.form.get("name", "").strip()
         profession = request.form.get("profession", "").strip()
+        email      = request.form.get("email", "").strip()
 
-        errors = validate_register(username, password, name, profession)
-        if errors:
-            return render_template("register.html", error=errors[0])
+        # Validate
+        if not all([username, password, name, profession, email]):
+            return render_template("register.html", error="All fields are required!")
 
-        success, error = create_user(
-            username, hash_password(password), name, profession
+        if len(password) < 6:
+            return render_template("register.html", error="Password must be at least 6 characters!")
+
+        if "@" not in email:
+            return render_template("register.html", error="Please enter a valid email!")
+
+        # Check if email already exists
+        existing_email = get_user_by_email(email)
+        if existing_email:
+            return render_template("register.html", error="Email already registered! Try logging in.")
+
+        success, error = create_user_with_email(
+            username, hash_password(password), name, profession, email
         )
         if success:
             return redirect(url_for("auth.login"))
