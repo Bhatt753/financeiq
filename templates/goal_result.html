@@ -2,11 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f172a">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Goal Result | FinanceIQ</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -46,19 +41,22 @@
             font-weight: 700;
             margin-bottom: 20px;
         }
-        .easy   { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
-        .medium { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
-        .hard   { background: rgba(239,68,68,0.15);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
-        .advice-item {
+        .achieved { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+        .easy     { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); }
+        .medium   { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+        .hard     { background: rgba(239,68,68,0.15);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+        .section-title { font-size: 15px; color: rgba(255,255,255,0.6); margin-bottom: 12px; font-weight: 600; }
+        .action-item {
             background: rgba(255,255,255,0.03);
             border-left: 3px solid #4ade80;
-            padding: 12px 16px;
+            padding: 14px 16px;
             margin-bottom: 10px;
             border-radius: 0 8px 8px 0;
-            font-size: 14px;
-            color: rgba(255,255,255,0.8);
-            line-height: 1.6;
         }
+        .action-step { font-size: 12px; color: #4ade80; font-weight: 600; margin-bottom: 4px; }
+        .action-title { font-size: 15px; font-weight: 600; color: white; margin-bottom: 4px; }
+        .action-detail { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+        .action-savings { font-size: 12px; color: #4ade80; margin-top: 5px; }
         .rules { margin-top: 10px; }
         .rule {
             display: flex;
@@ -93,7 +91,6 @@
             font-weight: 600;
             margin-right: 10px;
         }
-        .section-title { font-size: 15px; color: rgba(255,255,255,0.6); margin-bottom: 12px; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -112,89 +109,68 @@
 
         <div class="card">
             <div class="goal-header">
-                <div class="goal-name">{{ goal_name }}</div>
-                <div class="goal-amount">Target: ₹{{ "{:,.0f}".format(goal_amount) }} in {{ goal_months }} months</div>
+                <div class="goal-name">{{ result.goal_name }}</div>
+                <div class="goal-amount">
+                    Target: ₹{{ "{:,.0f}".format(result.goal_amount) }}
+                    in {{ result.goal_months }} months
+                </div>
             </div>
 
             <div class="metrics-grid">
                 <div class="metric">
-                    <div class="value">₹{{ "{:,.0f}".format(required_monthly) }}</div>
+                    <div class="value">₹{{ "{:,.0f}".format(result.required_monthly) }}</div>
                     <div class="label">Required/Month</div>
                 </div>
                 <div class="metric">
-                    <div class="value">₹{{ "{:,.0f}".format(current_savings) }}</div>
+                    <div class="value">₹{{ "{:,.0f}".format(result.current_savings) }}</div>
                     <div class="label">Current Savings/Month</div>
                 </div>
                 <div class="metric">
-                    <div class="value" style="color: {% if gap <= 0 %}#4ade80{% else %}#fca5a5{% endif %}">
-                        ₹{{ "{:,.0f}".format([gap, 0]|max) }}
+                    <div class="value" style="color: {% if result.gap <= 0 %}#4ade80{% else %}#fca5a5{% endif %}">
+                        ₹{{ "{:,.0f}".format([result.gap, 0]|max) }}
                     </div>
                     <div class="label">Monthly Gap</div>
                 </div>
                 <div class="metric">
-                    <div class="value">{{ realistic_months or "∞" }}</div>
+                    <div class="value">
+                        {{ result.realistic_months if result.realistic_months else "∞" }}
+                    </div>
                     <div class="label">Realistic Months</div>
                 </div>
             </div>
 
-            <div class="difficulty-badge {{ difficulty | lower }}">
-                ⚙️ Goal Difficulty: {{ difficulty }}
+            <div class="difficulty-badge {{ result.difficulty | lower }}">
+                ⚙️ Goal Difficulty: {{ result.difficulty }}
             </div>
 
-            <div class="section-title">💡 Action Plan</div>
+            <div class="section-title">💡 Your Action Plan</div>
 
-            {% if gap <= 0 %}
-                <div class="advice-item">✅ You are already on track! You save ₹{{ "{:,.0f}".format(current_savings) }}/month which is enough to reach your goal.</div>
-                <div class="advice-item">💡 Open a separate savings account and auto-transfer ₹{{ "{:,.0f}".format(required_monthly) }} every month on salary day.</div>
-            {% elif difficulty == "EASY" %}
-                <div class="advice-item">• You need just ₹{{ "{:,.0f}".format(gap) }} more per month — very achievable!</div>
-                <div class="advice-item">• Skip 2-3 food orders per month to cover this gap.</div>
-                <div class="advice-item">• Or cancel one unused subscription service.</div>
-            {% elif difficulty == "MEDIUM" %}
-                <div class="advice-item">• Cut variable expenses by 15% → saves ₹{{ "{:,.0f}".format(variable_total * 0.15) }}/month</div>
-                <div class="advice-item">• Consider extending timeline to {{ goal_months + 4 }} months → only ₹{{ "{:,.0f}".format(goal_amount / (goal_months + 4)) }}/month needed</div>
-                <div class="advice-item">• Look for freelance or part-time income opportunities</div>
-            {% else %}
-                <div class="advice-item">🔴 STEP 1: Cut variable expenses by 25% → saves ₹{{ "{:,.0f}".format(variable_total * 0.25) }}/month</div>
-                <div class="advice-item">🔴 STEP 2: Extend timeline to {{ goal_months + 6 }} months → only ₹{{ "{:,.0f}".format(goal_amount / (goal_months + 6)) }}/month needed</div>
-                <div class="advice-item">🔴 STEP 3: Increase income by ₹{{ "{:,.0f}".format(gap / 2) }}/month through freelancing or part-time work</div>
-            {% endif %}
+            {% for step in result.action_plan %}
+            <div class="action-item">
+                <div class="action-step">STEP {{ step.step }}</div>
+                <div class="action-title">{{ step.title }}</div>
+                <div class="action-detail">{{ step.detail }}</div>
+                {% if step.savings > 0 %}
+                <div class="action-savings">💰 Saves ₹{{ "{:,.0f}".format(step.savings) }}/month</div>
+                {% endif %}
+            </div>
+            {% endfor %}
         </div>
 
         <div class="card">
             <div class="section-title">📌 Golden Rules for This Goal</div>
             <div class="rules">
-                <div class="rule"><div class="rule-num">1</div> Save ₹{{ "{:,.0f}".format(required_monthly) }} on the SAME day you get your salary</div>
-                <div class="rule"><div class="rule-num">2</div> Keep goal money in a SEPARATE savings account</div>
-                <div class="rule"><div class="rule-num">3</div> Review your progress every month</div>
-                <div class="rule"><div class="rule-num">4</div> Any extra income → put 50% into this goal</div>
+                {% for rule in result.golden_rules %}
+                <div class="rule">
+                    <div class="rule-num">{{ loop.index }}</div>
+                    {{ rule }}
+                </div>
+                {% endfor %}
             </div>
         </div>
 
         <a href="/goal" class="btn-back">← Try Another Goal</a>
         <a href="/dashboard" class="btn-back">🏠 Dashboard</a>
-    </div>
-    <div class="bottom-nav">
-        <a href="/dashboard" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
-            <span class="nav-icon">🏠</span>
-            <span>Home</span>
-        </a>
-        <a href="/add_data" class="{% if request.endpoint == 'add_data' %}active{% endif %}">
-            <span class="nav-icon">➕</span>
-            <span>Add Data</span>
-        </a>
-        <a href="/history" class="{% if request.endpoint == 'history' %}active{% endif %}">
-            <span class="nav-icon">📅</span>
-            <span>History</span>
-        </a>
-        <a href="/goal" class="{% if request.endpoint == 'goal' %}active{% endif %}">
-            <span class="nav-icon">🎯</span>
-            <span>Goals</span>
-        </a>
-        <a href="/logout">
-            <span class="nav-icon">🚪</span>
-            <span>Logout</span>
-        </a>
     </div>
 </body>
 </html>
