@@ -56,6 +56,29 @@ def add_data():
                 categories=Config.CATEGORIES,
                 months=_get_months(),
                 error=errors[0])
+        
+        # Parse loans
+        loan_types       = request.form.getlist("loan_type[]")
+        loan_emis        = request.form.getlist("loan_emi[]")
+        loan_rates       = request.form.getlist("loan_rate[]")
+        loan_outstanding = request.form.getlist("loan_outstanding[]")
+        emergency_fund   = float(request.form.get("emergency_fund", 0) or 0)
+
+        loans = []
+        for i in range(len(loan_types)):
+            try:
+                emi = float(loan_emis[i]) if loan_emis[i] else 0
+                rate = float(loan_rates[i]) if loan_rates[i] else 0
+                outstanding = float(loan_outstanding[i]) if loan_outstanding[i] else 0
+                if emi > 0:
+                    loans.append({
+                        "type"         : loan_types[i],
+                        "emi"          : emi,
+                        "interest_rate": rate,
+                        "outstanding"  : outstanding
+                    })
+            except (ValueError, IndexError):
+                continue
 
         # Build expenses list
         expenses = []

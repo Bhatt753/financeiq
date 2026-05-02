@@ -101,3 +101,55 @@ def calculate_metrics(income, expenses):
         "health_score"    : max(score, 0),
         "score_breakdown" : score_breakdown
     }, None
+
+#loan data
+
+from config import Config
+from services.health_score import calculate_health_score
+
+
+def calculate_metrics(income, expenses, loans=None,
+                      existing_emergency_fund=0):
+
+    if not income or income <= 0:
+        return None, "Income must be greater than zero."
+
+    if not expenses:
+        expenses = []
+
+    total_expenses = sum(e["amount"] for e in expenses)
+    savings        = income - total_expenses
+    fixed_total    = sum(e["amount"] for e in expenses if e["type"] == "Fixed")
+    variable_total = sum(e["amount"] for e in expenses if e["type"] == "Variable")
+
+    category_totals = {}
+    for e in expenses:
+        cat = e["category"]
+        category_totals[cat] = category_totals.get(cat, 0) + e["amount"]
+
+    category_percent = {
+        cat: round((amt / income) * 100, 2)
+        for cat, amt in category_totals.items()
+    }
+
+    save_rate = round((max(savings, 0) / income) * 100, 2)
+    exp_ratio = round((total_expenses / income) * 100, 2)
+
+    # Use new professional health score
+    health_data = calculate_health_score(
+        income, expenses, loans, existing_emergency_fund
+    )
+
+    return {
+        "income"           : income,
+        "total_expenses"   : round(total_expenses, 2),
+        "savings"          : round(savings, 2),
+        "savings_rate"     : save_rate,
+        "expense_ratio"    : exp_ratio,
+        "fixed_total"      : round(fixed_total, 2),
+        "variable_total"   : round(variable_total, 2),
+        "category_totals"  : category_totals,
+        "category_percent" : category_percent,
+        "health_score"     : health_data["final_score"],
+        "health_data"      : health_data,
+    }, None
