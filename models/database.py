@@ -1,5 +1,5 @@
 # models/database.py
-# Supports both SQLite (local) and PostgreSQL (production)
+
 
 import os
 import sqlite3
@@ -148,6 +148,38 @@ def init_db():
     conn.commit()
     conn.close()
     print("✅ Database initialized!")
+
+c.execute("""
+    CREATE TABLE IF NOT EXISTS loans (
+        id              SERIAL PRIMARY KEY,
+        user_id         INTEGER NOT NULL,
+        loan_name       TEXT NOT NULL,
+        loan_type       TEXT NOT NULL,
+        principal       REAL NOT NULL,
+        emi             REAL NOT NULL,
+        interest_rate   REAL NOT NULL,
+        tenure_months   INTEGER NOT NULL,
+        start_month     TEXT NOT NULL,
+        start_year      INTEGER NOT NULL,
+        status          TEXT DEFAULT 'active',
+        created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+""") if USE_POSTGRES else c.execute("""
+    CREATE TABLE IF NOT EXISTS loans (
+        id              INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id         INTEGER NOT NULL,
+        loan_name       TEXT NOT NULL,
+        loan_type       TEXT NOT NULL,
+        principal       REAL NOT NULL,
+        emi             REAL NOT NULL,
+        interest_rate   REAL NOT NULL,
+        tenure_months   INTEGER NOT NULL,
+        start_month     TEXT NOT NULL,
+        start_year      INTEGER NOT NULL,
+        status          TEXT DEFAULT 'active',
+        created_at      TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+""")
 
 
 def dict_row(row):
@@ -516,3 +548,89 @@ def migrate_db():
 
     conn.commit()
     conn.close()
+
+#LOAN QUERIES
+
+
+MONTH_ORDER = {
+    "January": 1, "February": 2, "March": 3,
+    "April": 4, "May": 5, "June": 6,
+    "July": 7, "August": 8, "September": 9,
+    "October": 10, "November": 11, "December": 12
+}
+
+
+def save_loan(user_id, loan_name, loan_type, principal,
+              emi, interest_rate, tenure_months,
+              start_month, start_year):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(f"""
+            INSERT INTO loans
+            (user_id, loan_name, loan_type, principal, emi,
+             interest_rate, tenure_months, start_month, start_year)
+            VALUES ({p},{p},{p},{p},{p},{p},{p},{p},{p})
+        """, (user_id, loan_name, loan_type, principal,
+              emi, interest_rate, tenure_months,
+              start_month, start_year))
+        conn.commit()
+        return True, None
+    except Exception as e:
+        return False, str(e)
+    finally:
+        conn.close()
+
+
+def get_user_loans(user_id):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"SELECT * FROM loans WHERE user_id={p} AND status='active' ORDER BY created_at DESC",
+            (user_id,)
+        )
+        rows = c.fetchall()
+        if USE_POSTGRES:
+            cols = [desc[0] for desc in c.description]
+            return [dict(zip(cols, row)) for row in rows]
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def get_loan_by_id(loan_id, user_id):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"SELECT * FROM loans WHERE id={p} AND user_id={p}",
+            (loan_id, user_id)
+        )
+        row = c.fetchone()
+        if USE_POSTGRES and row:
+            cols = [desc[0] for desc in c.description]
+            return dict(zip(cols, row))
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+def delete_loan(loan_id, user_id):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"UPDATE loans SET status='closed' WHERE id={p} AND user_id={p}",
+            (loan_id, user_id)
+        )
+        conn.commit()
+        return True
+    except Exception as e:
+        return False
+    finally:
+        conn.close()

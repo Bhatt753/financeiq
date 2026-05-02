@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>My Loans | FinanceIQ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        .navbar {
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .navbar h1 { color: #4ade80; font-size: 22px; }
+        .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 20px; font-size: 14px; }
+        .nav-links a:hover { color: #4ade80; }
+        .nav-links .logout { background: rgba(239,68,68,0.2); padding: 6px 14px; border-radius: 8px; color: #fca5a5; }
+        .container { padding: 25px; max-width: 1100px; margin: 0 auto; padding-bottom: 100px; }
+        .page-title { font-size: 24px; color: #4ade80; margin-bottom: 25px; font-weight: 700; }
+        .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+        .card-title { font-size: 16px; color: rgba(255,255,255,0.8); margin-bottom: 18px; font-weight: 600; }
+        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .summary-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+        }
+        .summary-card .value { font-size: 22px; font-weight: 700; color: #4ade80; }
+        .summary-card .label { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+        .loan-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .loan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .loan-name { font-size: 18px; font-weight: 700; color: white; }
+        .loan-type-badge {
+            background: rgba(74,222,128,0.15);
+            color: #4ade80;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .loan-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
+        .loan-metric { text-align: center; }
+        .loan-metric .val { font-size: 16px; font-weight: 700; }
+        .loan-metric .lbl { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+        .progress-bar-wrap {
+            background: rgba(255,255,255,0.08);
+            border-radius: 8px;
+            height: 10px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+        }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 15px;
+        }
+        .btn-delete {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            padding: 7px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .advice-card {
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .advice-success { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); }
+        .advice-warning { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); }
+        .advice-danger  { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.2); }
+        .advice-info    { background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.2); }
+        .advice-icon { font-size: 20px; flex-shrink: 0; }
+        .advice-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .advice-success .advice-title { color: #4ade80; }
+        .advice-warning .advice-title { color: #fbbf24; }
+        .advice-danger .advice-title  { color: #fca5a5; }
+        .advice-info .advice-title    { color: #93c5fd; }
+        .advice-msg   { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+        .advice-action{ font-size: 13px; color: #4ade80; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group { margin-bottom: 12px; }
+        label { color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 6px; display: block; }
+        input, select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+        input:focus, select:focus { border-color: #4ade80; }
+        select option { background: #1a1a2e; }
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.3);
+        }
+        .completing-badge {
+            background: rgba(251,191,36,0.2);
+            color: #fbbf24;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        @media (max-width: 768px) {
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+            .loan-metrics { grid-template-columns: 1fr 1fr; }
+            .form-grid    { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>💰 FinanceIQ</h1>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/add_data">Add Data</a>
+            <a href="/loans">My Loans</a>
+            <a href="/goal">Goals</a>
+            <a href="/logout" class="logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title">🏦 My Loans & EMI Tracker</div>
+
+        {% if loan_analysis.has_loans %}
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="value">₹{{ "{:,.0f}".format(loan_analysis.total_emi) }}</div>
+                <div class="label">Total Monthly EMI</div>
+            </div>
+            <div class="summary-card">
+                <div class="value" style="color: #fca5a5;">
+                    ₹{{ "{:,.0f}".format(loan_analysis.total_outstanding) }}
+                </div>
+                <div class="label">Total Outstanding</div>
+            </div>
+            <div class="summary-card">
+                <div class="value">{{ loan_analysis.loans|length }}</div>
+                <div class="label">Active Loans</div>
+            </div>
+        </div>
+
+        <!-- Individual Loan Cards -->
+        {% for loan in loan_analysis.loans %}
+        <div class="loan-card">
+            <div class="loan-header">
+                <div>
+                    <div class="loan-name">
+                        {{ loan.loan_name }}
+                        {% if loan.months_remaining <= 6 and loan.months_remaining > 0 %}
+                        <span class="completing-badge">⏰ Completing Soon!</span>
+                        {% endif %}
+                        {% if loan.is_completed %}
+                        <span class="completing-badge" style="background:rgba(74,222,128,0.2);color:#4ade80;">✅ Completed</span>
+                        {% endif %}
+                    </div>
+                    <span class="loan-type-badge">{{ loan.loan_type }}</span>
+                </div>
+                <a href="/loans/delete/{{ loan.loan_id }}"
+                   class="btn-delete"
+                   onclick="return confirm('Mark this loan as closed?')">
+                   ✓ Mark Closed
+                </a>
+            </div>
+
+            <!-- Loan Metrics -->
+            <div class="loan-metrics">
+                <div class="loan-metric">
+                    <div class="val">₹{{ "{:,.0f}".format(loan.outstanding) }}</div>
+                    <div class="lbl">Outstanding</div>
+                </div>
+                <div class="loan-metric">
+                    <div class="val">₹{{ "{:,.0f}".format(loan.emi) }}</div>
+                    <div class="lbl">Monthly EMI</div>
+                </div>
+                <div class="loan-metric">
+                    <div class="val">{{ loan.months_remaining }}</div>
+                    <div class="lbl">Months Left</div>
+                </div>
+                <div class="loan-metric">
+                    <div class="val">{{ loan.payoff_date }}</div>
+                    <div class="lbl">Payoff Date</div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill"
+                     style="width: {{ loan.progress_pct }}%;
+                            background: {% if loan.progress_pct >= 75 %}#4ade80
+                                        {% elif loan.progress_pct >= 50 %}#fbbf24
+                                        {% else %}#f87171{% endif %};">
+                </div>
+            </div>
+            <div class="progress-label">
+                <span>{{ loan.progress_pct }}% Paid</span>
+                <span>₹{{ "{:,.0f}".format(loan.principal_paid) }} paid of ₹{{ "{:,.0f}".format(loan.principal) }}</span>
+            </div>
+
+            <!-- Mini Chart -->
+            <canvas id="chart-{{ loop.index }}" height="80"></canvas>
+        </div>
+        {% endfor %}
+
+        <!-- Advice Section -->
+        <div class="card">
+            <div class="card-title">🧠 Smart Loan Advice</div>
+            {% for a in advice %}
+            <div class="advice-card advice-{{ a.type }}">
+                <div class="advice-icon">{{ a.icon }}</div>
+                <div>
+                    <div class="advice-title">{{ a.title }}</div>
+                    <div class="advice-msg">{{ a.message }}</div>
+                    <div class="advice-action">💡 {{ a.action }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+            <div style="font-size: 48px; margin-bottom: 15px;">🎉</div>
+            <h3 style="font-size: 20px; color: #4ade80; margin-bottom: 8px;">No Active Loans!</h3>
+            <p>You are debt free. Add a loan below if you have any EMIs.</p>
+        </div>
+        {% endif %}
+
+        <!-- Add Loan Form -->
+        <div class="card">
+            <div class="card-title">➕ Add a Loan</div>
+            <form method="POST" action="/loans/add">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Loan Name</label>
+                        <input type="text" name="loan_name"
+                               placeholder="e.g. SBI Home Loan" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Loan Type</label>
+                        <select name="loan_type">
+                            {% for lt in loan_types %}
+                            <option value="{{ lt }}">{{ lt }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Principal Amount (₹)</label>
+                        <input type="number" name="principal"
+                               placeholder="e.g. 500000" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Monthly EMI (₹)</label>
+                        <input type="number" name="emi"
+                               placeholder="e.g. 15000" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Interest Rate (% per year)</label>
+                        <input type="number" name="interest_rate"
+                               placeholder="e.g. 8.5"
+                               min="0" max="100" step="0.1" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Loan Tenure (months)</label>
+                        <input type="number" name="tenure_months"
+                               placeholder="e.g. 60" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Loan Start Month</label>
+                        <select name="start_month">
+                            {% for m in months %}
+                            <option value="{{ m }}">{{ m }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Loan Start Year</label>
+                        <input type="number" name="start_year"
+                               value="2024" min="2000" max="2030">
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit">
+                    + Add Loan
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="/dashboard">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="/add_data">
+            <span class="nav-icon">➕</span>
+            <span>Add Data</span>
+        </a>
+        <a href="/loans" class="active">
+            <span class="nav-icon">🏦</span>
+            <span>Loans</span>
+        </a>
+        <a href="/goal">
+            <span class="nav-icon">🎯</span>
+            <span>Goals</span>
+        </a>
+        <a href="/logout">
+            <span class="nav-icon">🚪</span>
+            <span>Logout</span>
+        </a>
+    </div>
+
+    <script>
+    {% if loan_analysis.has_loans %}
+    {% for loan in loan_analysis.loans %}
+    (function() {
+        const ctx = document.getElementById('chart-{{ loop.index }}');
+        if (!ctx) return;
+
+        const data = {{ loan.monthly_breakdown | tojson }};
+        const labels = data.map(d => 'M' + d.month);
+        const balances = data.map(d => d.balance);
+        const currentMonth = {{ loan.months_paid }};
+
+        const colors = balances.map((_, i) =>
+            i < currentMonth ? '#4ade80' : 'rgba(255,255,255,0.1)'
+        );
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Outstanding Balance',
+                    data: balances,
+                    backgroundColor: colors,
+                    borderRadius: 3,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => '₹' + ctx.raw.toLocaleString('en-IN')
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'rgba(255,255,255,0.4)',
+                            callback: (v) => '₹' + (v/1000).toFixed(0) + 'K'
+                        },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    },
+                    x: {
+                        ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    })();
+    {% endfor %}
+    {% endif %}
+    </script>
+</body>
+</html>

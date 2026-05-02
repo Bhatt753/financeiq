@@ -3,6 +3,8 @@
 from flask import Flask
 from config import Config
 from models.database import init_db, migrate_db
+from routes.loans import loans_bp
+app.register_blueprint(loans_bp)
 
 app = Flask(__name__)
 app.secret_key                        = Config.SECRET_KEY
