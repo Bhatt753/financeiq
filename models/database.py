@@ -1,12 +1,9 @@
-# models/database.py
-
+#database
 
 import os
 import sqlite3
 
-# Check if we're using PostgreSQL or SQLite
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
-
 USE_POSTGRES = DATABASE_URL.startswith("postgres")
 
 if USE_POSTGRES:
@@ -41,17 +38,17 @@ def init_db():
 
     if USE_POSTGRES:
         c.execute("""
-                  CREATE TABLE IF NOT EXISTS users (
-                    id         SERIAL PRIMARY KEY,
-                    username   TEXT UNIQUE NOT NULL,
-                    password   TEXT,
-                    name       TEXT NOT NULL,
-                    profession TEXT NOT NULL DEFAULT 'Not specified',
-                    email      TEXT UNIQUE,
-                    google_id  TEXT UNIQUE,
-                    avatar     TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
+            CREATE TABLE IF NOT EXISTS users (
+                id         SERIAL PRIMARY KEY,
+                username   TEXT UNIQUE NOT NULL,
+                password   TEXT,
+                name       TEXT NOT NULL,
+                profession TEXT NOT NULL DEFAULT 'Not specified',
+                email      TEXT UNIQUE,
+                google_id  TEXT UNIQUE,
+                avatar     TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
         """)
 
         c.execute("""
@@ -101,6 +98,23 @@ def init_db():
             )
         """)
 
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS loans (
+                id              SERIAL PRIMARY KEY,
+                user_id         INTEGER NOT NULL,
+                loan_name       TEXT NOT NULL,
+                loan_type       TEXT NOT NULL,
+                principal       REAL NOT NULL,
+                emi             REAL NOT NULL,
+                interest_rate   REAL NOT NULL,
+                tenure_months   INTEGER NOT NULL,
+                start_month     TEXT NOT NULL,
+                start_year      INTEGER NOT NULL,
+                status          TEXT DEFAULT 'active',
+                created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
     else:
         c.execute("""
             CREATE TABLE IF NOT EXISTS users (
@@ -145,29 +159,6 @@ def init_db():
             )
         """)
 
-    conn.commit()
-    conn.close()
-    print("✅ Database initialized!")
-
-# Loans table
-    if USE_POSTGRES:
-        c.execute("""
-            CREATE TABLE IF NOT EXISTS loans (
-                id              SERIAL PRIMARY KEY,
-                user_id         INTEGER NOT NULL,
-                loan_name       TEXT NOT NULL,
-                loan_type       TEXT NOT NULL,
-                principal       REAL NOT NULL,
-                emi             REAL NOT NULL,
-                interest_rate   REAL NOT NULL,
-                tenure_months   INTEGER NOT NULL,
-                start_month     TEXT NOT NULL,
-                start_year      INTEGER NOT NULL,
-                status          TEXT DEFAULT 'active',
-                created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-    else:
         c.execute("""
             CREATE TABLE IF NOT EXISTS loans (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -185,6 +176,9 @@ def init_db():
             )
         """)
 
+    conn.commit()
+    conn.close()
+    print("✅ Database initialized!")
 
 
 def dict_row(row):
@@ -197,8 +191,6 @@ def fetchall_as_dict(rows):
     if USE_POSTGRES:
         return [dict(r) for r in rows] if rows else []
     return rows
-
-
 
 #USER QUERIES
 
@@ -246,7 +238,6 @@ def save_monthly_data(user_id, month, year, income, metrics):
     p    = placeholder()
     try:
         c = conn.cursor()
-
         c.execute(
             f"SELECT id FROM monthly_data WHERE user_id={p} AND month={p} AND year={p}",
             (user_id, month, year)
@@ -416,6 +407,10 @@ def delete_expenses_for_month(user_id, month, year):
     finally:
         conn.close()
 
+
+#GOOGLE AUTH QUERIES
+
+
 def get_user_by_google_id(google_id):
     conn = get_db()
     p    = placeholder()
@@ -451,15 +446,12 @@ def get_user_by_email(email):
     finally:
         conn.close()
 
-#Google 
+
 def create_google_user(google_id, email, name, avatar):
     conn = get_db()
     p    = placeholder()
     try:
-        # Create username from email
         username = email.split("@")[0]
-
-        # Make username unique if taken
         base     = username
         counter  = 1
         c        = conn.cursor()
@@ -481,7 +473,6 @@ def create_google_user(google_id, email, name, avatar):
 
         conn.commit()
 
-        # Return the created user
         c.execute(
             f"SELECT * FROM users WHERE google_id={p}",
             (google_id,)
@@ -515,7 +506,6 @@ def update_user_profession(user_id, profession):
     finally:
         conn.close()
 
-#gmail login support
 
 def create_user_with_email(username, password, name, profession, email):
     conn = get_db()
@@ -533,15 +523,16 @@ def create_user_with_email(username, password, name, profession, email):
     finally:
         conn.close()
 
+
 def migrate_db():
     conn = get_db()
     c    = conn.cursor()
-    p    = placeholder()
 
     migrations = [
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id TEXT",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS profession TEXT DEFAULT 'Not specified'",
     ]
 
     for migration in migrations:
@@ -553,6 +544,7 @@ def migrate_db():
 
     conn.commit()
     conn.close()
+
 
 #LOAN QUERIES
 
