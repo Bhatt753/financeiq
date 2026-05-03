@@ -91,13 +91,13 @@ def register():
     return render_template("register.html")
 
 
-@auth_bp.route("/login/google")
+@auth_bp.route("/login/google", methods=["GET", "POST"])
 def google_login():
     redirect_uri = url_for("auth.google_callback", _external=True)
     return oauth.google.authorize_redirect(redirect_uri)
 
 
-@auth_bp.route("/callback")
+@auth_bp.route("/callback", methods=["GET", "POST"])
 def google_callback():
     try:
         token    = oauth.google.authorize_access_token()
