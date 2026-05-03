@@ -149,37 +149,42 @@ def init_db():
     conn.close()
     print("✅ Database initialized!")
 
-c.execute("""
-    CREATE TABLE IF NOT EXISTS loans (
-        id              SERIAL PRIMARY KEY,
-        user_id         INTEGER NOT NULL,
-        loan_name       TEXT NOT NULL,
-        loan_type       TEXT NOT NULL,
-        principal       REAL NOT NULL,
-        emi             REAL NOT NULL,
-        interest_rate   REAL NOT NULL,
-        tenure_months   INTEGER NOT NULL,
-        start_month     TEXT NOT NULL,
-        start_year      INTEGER NOT NULL,
-        status          TEXT DEFAULT 'active',
-        created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-""") if USE_POSTGRES else c.execute("""
-    CREATE TABLE IF NOT EXISTS loans (
-        id              INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id         INTEGER NOT NULL,
-        loan_name       TEXT NOT NULL,
-        loan_type       TEXT NOT NULL,
-        principal       REAL NOT NULL,
-        emi             REAL NOT NULL,
-        interest_rate   REAL NOT NULL,
-        tenure_months   INTEGER NOT NULL,
-        start_month     TEXT NOT NULL,
-        start_year      INTEGER NOT NULL,
-        status          TEXT DEFAULT 'active',
-        created_at      TEXT DEFAULT CURRENT_TIMESTAMP
-    )
-""")
+# Loans table
+    if USE_POSTGRES:
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS loans (
+                id              SERIAL PRIMARY KEY,
+                user_id         INTEGER NOT NULL,
+                loan_name       TEXT NOT NULL,
+                loan_type       TEXT NOT NULL,
+                principal       REAL NOT NULL,
+                emi             REAL NOT NULL,
+                interest_rate   REAL NOT NULL,
+                tenure_months   INTEGER NOT NULL,
+                start_month     TEXT NOT NULL,
+                start_year      INTEGER NOT NULL,
+                status          TEXT DEFAULT 'active',
+                created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+    else:
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS loans (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id         INTEGER NOT NULL,
+                loan_name       TEXT NOT NULL,
+                loan_type       TEXT NOT NULL,
+                principal       REAL NOT NULL,
+                emi             REAL NOT NULL,
+                interest_rate   REAL NOT NULL,
+                tenure_months   INTEGER NOT NULL,
+                start_month     TEXT NOT NULL,
+                start_year      INTEGER NOT NULL,
+                status          TEXT DEFAULT 'active',
+                created_at      TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
 
 
 def dict_row(row):
