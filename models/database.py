@@ -533,6 +533,7 @@ def migrate_db():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS profession TEXT DEFAULT 'Not specified'",
+        "ALTER TABLE loans ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active'",
     ]
 
     for migration in migrations:
@@ -542,8 +543,49 @@ def migrate_db():
         except Exception as e:
             print(f"⚠️ Migration skipped: {e}")
 
+    # Also add loans table if missing
+    try:
+        if USE_POSTGRES:
+            c.execute("""
+                CREATE TABLE IF NOT EXISTS loans (
+                    id              SERIAL PRIMARY KEY,
+                    user_id         INTEGER NOT NULL,
+                    loan_name       TEXT NOT NULL,
+                    loan_type       TEXT NOT NULL,
+                    principal       REAL NOT NULL,
+                    emi             REAL NOT NULL,
+                    interest_rate   REAL NOT NULL,
+                    tenure_months   INTEGER NOT NULL,
+                    start_month     TEXT NOT NULL,
+                    start_year      INTEGER NOT NULL,
+                    status          TEXT DEFAULT 'active',
+                    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+        else:
+            c.execute("""
+                CREATE TABLE IF NOT EXISTS loans (
+                    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id         INTEGER NOT NULL,
+                    loan_name       TEXT NOT NULL,
+                    loan_type       TEXT NOT NULL,
+                    principal       REAL NOT NULL,
+                    emi             REAL NOT NULL,
+                    interest_rate   REAL NOT NULL,
+                    tenure_months   INTEGER NOT NULL,
+                    start_month     TEXT NOT NULL,
+                    start_year      INTEGER NOT NULL,
+                    status          TEXT DEFAULT 'active',
+                    created_at      TEXT DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+        print("✅ Loans table ready!")
+    except Exception as e:
+        print(f"⚠️ Loans table: {e}")
+
     conn.commit()
     conn.close()
+    print("✅ Migration complete!")
 
 
 #LOAN QUERIES

@@ -144,8 +144,10 @@ def google_callback():
         return redirect(url_for("dashboard.dashboard"))
 
     except Exception as e:
+        import traceback
         print(f"Google OAuth error: {e}")
-        return render_template("login.html", error="Google login failed. Try again.")
+        print(traceback.format_exc())
+        return render_template("login.html", error=f"Google login failed: {str(e)[:100]}")
 
 
 @auth_bp.route("/setup_profile", methods=["GET", "POST"])
