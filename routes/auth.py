@@ -93,6 +93,8 @@ def register():
 
 @auth_bp.route("/login/google", methods=["GET", "POST"])
 def google_login():
+    from flask import session
+    session.clear()  # ← Clear old session before new login
     redirect_uri = url_for("auth.google_callback", _external=True)
     return oauth.google.authorize_redirect(redirect_uri)
 

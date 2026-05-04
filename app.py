@@ -7,6 +7,8 @@ app = Flask(__name__)
 app.secret_key                        = Config.SECRET_KEY
 app.config["SESSION_COOKIE_SECURE"]   = Config.SESSION_COOKIE_SECURE
 app.config["SESSION_COOKIE_SAMESITE"] = Config.SESSION_COOKIE_SAMESITE
+app.config["SESSION_COOKIE_HTTPONLY"]    = True
+app.config["PERMANENT_SESSION_LIFETIME"] = 3600
 
 # Import blueprints AFTER app is created
 from routes.auth      import auth_bp, init_oauth

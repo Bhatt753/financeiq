@@ -534,6 +534,7 @@ def migrate_db():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS profession TEXT DEFAULT 'Not specified'",
         "ALTER TABLE loans ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active'",
+        "ALTER TABLE users ALTER COLUMN password DROP NOT NULL",
     ]
 
     for migration in migrations:
