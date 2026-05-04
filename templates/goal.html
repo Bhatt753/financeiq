@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Goal Planner | FinanceIQ</title>
@@ -18,30 +16,52 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky; top: 0; z-index: 100;
         }
         .navbar h1 { color: #4ade80; font-size: 22px; }
         .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 20px; font-size: 14px; }
+        .nav-links a:hover { color: #4ade80; }
         .nav-links .logout { background: rgba(239,68,68,0.2); padding: 6px 14px; border-radius: 8px; color: #fca5a5; }
-        .container { padding: 30px; max-width: 600px; margin: 0 auto; }
+        .container { padding: 25px; max-width: 900px; margin: 0 auto; padding-bottom: 100px; }
         .page-title { font-size: 24px; color: #4ade80; margin-bottom: 25px; font-weight: 700; }
         .card {
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 16px;
-            padding: 30px;
+            padding: 22px;
+            margin-bottom: 20px;
         }
-        .form-group { margin-bottom: 20px; }
-        label { color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 8px; display: block; }
-        input {
+        .card-title { font-size: 16px; color: rgba(255,255,255,0.8); margin-bottom: 16px; font-weight: 600; }
+        .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+        .data-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        .data-card .value { font-size: 20px; font-weight: 700; color: #4ade80; }
+        .data-card .label { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+        .no-data-banner {
+            background: rgba(251,191,36,0.1);
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            color: #fbbf24;
+            font-size: 14px;
+        }
+        .form-group { margin-bottom: 16px; }
+        label { color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 6px; display: block; }
+        input, select {
             width: 100%;
-            padding: 12px 16px;
+            padding: 11px 14px;
             background: rgba(255,255,255,0.07);
             border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 10px;
+            border-radius: 8px;
             color: white;
             font-size: 15px;
             outline: none;
-            transition: all 0.3s;
         }
         input:focus { border-color: #4ade80; }
         .btn-submit {
@@ -54,11 +74,50 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
+            margin-top: 5px;
         }
-        .btn-submit:hover { transform: translateY(-2px); }
-        .hint { color: rgba(255,255,255,0.3); font-size: 12px; margin-top: 5px; }
+        .loan-alert {
+            background: rgba(96,165,250,0.1);
+            border: 1px solid rgba(96,165,250,0.3);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #93c5fd;
+        }
+        .active-goal {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .goal-name { font-size: 15px; font-weight: 600; color: white; }
+        .goal-meta { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+        .btn-view {
+            background: rgba(74,222,128,0.15);
+            border: 1px solid rgba(74,222,128,0.3);
+            color: #4ade80;
+            padding: 7px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .error-msg {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .data-grid { grid-template-columns: 1fr 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -67,62 +126,135 @@
         <div class="nav-links">
             <a href="/dashboard">Dashboard</a>
             <a href="/add_data">Add Data</a>
-            <a href="/goal">Goal Planner</a>
+            <a href="/loans">Loans</a>
+            <a href="/my_goals">My Goals</a>
             <a href="/logout" class="logout">Logout</a>
         </div>
     </nav>
 
     <div class="container">
-        <div class="page-title">🎯 Future Savings Planner</div>
+        <div class="page-title">🎯 Smart Goal Planner</div>
 
+        {% if error %}
+        <div class="error-msg">⚠️ {{ error }}</div>
+        {% endif %}
+
+        <!-- Auto-fetched Financial Snapshot -->
+        {% if has_data %}
         <div class="card">
+            <div class="card-title">📊 Your Current Financial Snapshot</div>
+            <div class="data-grid">
+                <div class="data-card">
+                    <div class="value">₹{{ "{:,.0f}".format(income) }}</div>
+                    <div class="label">Monthly Income</div>
+                </div>
+                <div class="data-card">
+                    <div class="value" style="color: {% if savings > 0 %}#4ade80{% else %}#fca5a5{% endif %}">
+                        ₹{{ "{:,.0f}".format(savings) }}
+                    </div>
+                    <div class="label">Monthly Savings</div>
+                </div>
+                <div class="data-card">
+                    <div class="value" style="color: #fbbf24;">
+                        ₹{{ "{:,.0f}".format(total_emi) }}
+                    </div>
+                    <div class="label">Monthly EMIs</div>
+                </div>
+            </div>
+            <p style="font-size: 12px; color: rgba(255,255,255,0.3);">
+                📅 Based on your latest monthly data
+            </p>
+        </div>
+        {% else %}
+        <div class="no-data-banner">
+            ⚠️ No monthly data found! Please
+            <a href="/add_data" style="color: #fbbf24; font-weight: 600;">
+                add your monthly data first
+            </a>
+            for accurate goal analysis.
+        </div>
+        {% endif %}
+
+        <!-- Loan Alerts -->
+        {% if completing_loans %}
+        {% for loan in completing_loans %}
+        <div class="loan-alert">
+            🎉 <strong>{{ loan.loan_name }}</strong> completes in
+            <strong>{{ loan.months_remaining }} months</strong>!
+            This will free up ₹{{ "{:,.0f}".format(loan.emi) }}/month
+            for your goals.
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Add New Goal Form -->
+        <div class="card">
+            <div class="card-title">➕ Set a New Goal</div>
             <form method="POST" action="/goal">
                 <div class="form-group">
                     <label>What do you want to save for?</label>
-                    <input type="text" name="goal_name" placeholder="e.g. New Bike, Laptop, Emergency Fund" required>
+                    <input type="text" name="goal_name"
+                           placeholder="e.g. New Bike, Laptop, Trip to Goa"
+                           required>
                 </div>
                 <div class="form-group">
                     <label>Total Amount Needed (₹)</label>
-                    <input type="number" name="goal_amount" placeholder="e.g. 100000" required min="1">
+                    <input type="number" name="goal_amount"
+                           placeholder="e.g. 100000" required min="1">
                 </div>
                 <div class="form-group">
                     <label>In how many months?</label>
-                    <input type="number" name="goal_months" placeholder="e.g. 12" required min="1">
+                    <input type="number" name="goal_months"
+                           placeholder="e.g. 12" required min="1">
                 </div>
-                <div class="form-group">
-                    <label>Your Monthly Income (₹)</label>
-                    <input type="number" name="income" placeholder="e.g. 50000" required min="1">
-                </div>
-                <div class="form-group">
-                    <label>Your Current Monthly Savings (₹)</label>
-                    <input type="number" name="savings" placeholder="e.g. 10000" required min="0">
-                    <div class="hint">How much do you save each month after expenses?</div>
-                </div>
-                <div class="form-group">
-                    <label>Your Monthly Variable Expenses (₹)</label>
-                    <input type="number" name="variable_total" placeholder="e.g. 15000" required min="0">
-                    <div class="hint">Shopping, entertainment, food orders etc.</div>
-                </div>
-                <button type="submit" class="btn-submit">🔍 Analyze My Goal →</button>
+                <button type="submit" class="btn-submit">
+                    🔍 Analyze My Goal →
+                </button>
             </form>
         </div>
+
+        <!-- Active Goals -->
+        {% if active_goals %}
+        <div class="card">
+            <div class="card-title">
+                📋 Your Active Goals
+                <a href="/my_goals" style="float:right; font-size:13px; color:#4ade80; text-decoration:none;">
+                    View All →
+                </a>
+            </div>
+            {% for g in active_goals %}
+            <div class="active-goal">
+                <div>
+                    <div class="goal-name">{{ g.goal_name }}</div>
+                    <div class="goal-meta">
+                        ₹{{ "{:,.0f}".format(g.goal_amount) }}
+                        in {{ g.goal_months }} months
+                    </div>
+                </div>
+                <a href="/my_goals" class="btn-view">View Progress</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
+
+    <!-- Bottom Nav -->
     <div class="bottom-nav">
-        <a href="/dashboard" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <a href="/dashboard">
             <span class="nav-icon">🏠</span>
             <span>Home</span>
         </a>
-        <a href="/add_data" class="{% if request.endpoint == 'add_data' %}active{% endif %}">
+        <a href="/add_data">
             <span class="nav-icon">➕</span>
             <span>Add Data</span>
         </a>
-        <a href="/history" class="{% if request.endpoint == 'history' %}active{% endif %}">
-            <span class="nav-icon">📅</span>
-            <span>History</span>
-        </a>
-        <a href="/goal" class="{% if request.endpoint == 'goal' %}active{% endif %}">
+        <a href="/goal" class="active">
             <span class="nav-icon">🎯</span>
             <span>Goals</span>
+        </a>
+        <a href="/loans">
+            <span class="nav-icon">🏦</span>
+            <span>Loans</span>
         </a>
         <a href="/logout">
             <span class="nav-icon">🚪</span>

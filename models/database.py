@@ -674,3 +674,104 @@ def delete_loan(loan_id, user_id):
         return False
     finally:
         conn.close()
+
+# GOAL QUERIES
+
+
+def save_goal(user_id, goal_name, goal_amount, goal_months):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(f"""
+            INSERT INTO goals
+            (user_id, goal_name, goal_amount, goal_months,
+             current_savings, difficulty, status)
+            VALUES ({p},{p},{p},{p},{p},{p},{p})
+        """, (user_id, goal_name, goal_amount, goal_months,
+              0, "PENDING", "active"))
+        conn.commit()
+        if USE_POSTGRES:
+            c.execute(
+                f"SELECT * FROM goals WHERE user_id={p} ORDER BY created_at DESC LIMIT 1",
+                (user_id,)
+            )
+            row = c.fetchone()
+            cols = [desc[0] for desc in c.description]
+            return dict(zip(cols, row))
+        return True
+    except Exception as e:
+        print(f"Error saving goal: {e}")
+        return None
+    finally:
+        conn.close()
+
+
+def get_user_goals(user_id):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"SELECT * FROM goals WHERE user_id={p} AND status='active' ORDER BY created_at DESC",
+            (user_id,)
+        )
+        rows = c.fetchall()
+        if USE_POSTGRES:
+            cols = [desc[0] for desc in c.description]
+            return [dict(zip(cols, row)) for row in rows]
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def get_goal_by_id(goal_id, user_id):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"SELECT * FROM goals WHERE id={p} AND user_id={p}",
+            (goal_id, user_id)
+        )
+        row = c.fetchone()
+        if USE_POSTGRES and row:
+            cols = [desc[0] for desc in c.description]
+            return dict(zip(cols, row))
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
+def complete_goal(goal_id, user_id):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"UPDATE goals SET status='completed' WHERE id={p} AND user_id={p}",
+            (goal_id, user_id)
+        )
+        conn.commit()
+        return True
+    except Exception as e:
+        return False
+    finally:
+        conn.close()
+
+
+def delete_goal(goal_id, user_id):
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"DELETE FROM goals WHERE id={p} AND user_id={p}",
+            (goal_id, user_id)
+        )
+        conn.commit()
+        return True
+    except Exception as e:
+        return False
+    finally:
+        conn.close()

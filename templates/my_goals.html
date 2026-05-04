@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>My Goals | FinanceIQ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        .navbar {
+            background: rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .navbar h1 { color: #4ade80; font-size: 22px; }
+        .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 20px; font-size: 14px; }
+        .nav-links a:hover { color: #4ade80; }
+        .nav-links .logout { background: rgba(239,68,68,0.2); padding: 6px 14px; border-radius: 8px; color: #fca5a5; }
+        .container { padding: 25px; max-width: 900px; margin: 0 auto; padding-bottom: 100px; }
+        .page-title { font-size: 24px; color: #4ade80; margin-bottom: 25px; font-weight: 700; }
+        .goal-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .goal-name { font-size: 20px; font-weight: 700; color: white; }
+        .goal-amount { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+        .goal-actions { display: flex; gap: 8px; }
+        .btn-complete {
+            background: rgba(74,222,128,0.15);
+            border: 1px solid rgba(74,222,128,0.3);
+            color: #4ade80;
+            padding: 7px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .btn-delete {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            padding: 7px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+        .metric { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px; text-align: center; }
+        .metric .val { font-size: 18px; font-weight: 700; color: #4ade80; }
+        .metric .lbl { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+        .progress-wrap { background: rgba(255,255,255,0.08); border-radius: 8px; height: 10px; margin-bottom: 6px; }
+        .progress-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, #4ade80, #22c55e); }
+        .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
+        .empty-state { text-align: center; padding: 50px; color: rgba(255,255,255,0.3); }
+        .btn-add-goal {
+            display: block;
+            text-align: center;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            padding: 13px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .metrics-row { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>💰 FinanceIQ</h1>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/add_data">Add Data</a>
+            <a href="/loans">Loans</a>
+            <a href="/my_goals">My Goals</a>
+            <a href="/logout" class="logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title">📋 My Goals</div>
+
+        {% if goals %}
+            {% for goal in goals %}
+            <div class="goal-card">
+                <div class="goal-header">
+                    <div>
+                        <div class="goal-name">{{ goal.goal_name }}</div>
+                        <div class="goal-amount">
+                            Target: ₹{{ "{:,.0f}".format(goal.goal_amount) }}
+                            in {{ goal.goal_months }} months
+                        </div>
+                    </div>
+                    <div class="goal-actions">
+                        <a href="/goals/complete/{{ goal.id }}" class="btn-complete"
+                           onclick="return confirm('Mark as completed?')">
+                           ✅ Done
+                        </a>
+                        <a href="/goals/delete/{{ goal.id }}" class="btn-delete"
+                           onclick="return confirm('Delete this goal?')">
+                           🗑️
+                        </a>
+                    </div>
+                </div>
+
+                <div class="metrics-row">
+                    <div class="metric">
+                        <div class="val">₹{{ "{:,.0f}".format(savings) }}</div>
+                        <div class="lbl">Monthly Savings</div>
+                    </div>
+                    <div class="metric">
+                        <div class="val">
+                            {{ (goal.goal_amount / savings)|round|int if savings > 0 else "∞" }}
+                        </div>
+                        <div class="lbl">Months to Goal</div>
+                    </div>
+                    <div class="metric">
+                        <div class="val">{{ goal.progress_pct }}%</div>
+                        <div class="lbl">Progress</div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-wrap">
+                    <div class="progress-fill"
+                         style="width: {{ goal.progress_pct }}%">
+                    </div>
+                </div>
+                <div class="progress-label">
+                    <span>₹{{ "{:,.0f}".format(goal.saved_so_far) }} saved</span>
+                    <span>₹{{ "{:,.0f}".format(goal.remaining) }} remaining</span>
+                </div>
+
+                <!-- Mini Chart -->
+                <canvas id="goal-chart-{{ loop.index }}" height="80"></canvas>
+            </div>
+            {% endfor %}
+
+        {% else %}
+        <div class="empty-state">
+            <div style="font-size: 48px; margin-bottom: 15px;">🎯</div>
+            <h3 style="font-size: 20px; color: white; margin-bottom: 8px;">No Active Goals</h3>
+            <p>Set your first savings goal to start tracking progress!</p>
+        </div>
+        {% endif %}
+
+        <a href="/goal" class="btn-add-goal">+ Set a New Goal</a>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <a href="/dashboard">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="/add_data">
+            <span class="nav-icon">➕</span>
+            <span>Add Data</span>
+        </a>
+        <a href="/goal">
+            <span class="nav-icon">🎯</span>
+            <span>Goals</span>
+        </a>
+        <a href="/loans">
+            <span class="nav-icon">🏦</span>
+            <span>Loans</span>
+        </a>
+        <a href="/logout">
+            <span class="nav-icon">🚪</span>
+            <span>Logout</span>
+        </a>
+    </div>
+
+    <script>
+    {% for goal in goals %}
+    (function() {
+        const ctx = document.getElementById('goal-chart-{{ loop.index }}');
+        if (!ctx) return;
+
+        const goalAmount = {{ goal.goal_amount }};
+        const monthlySav = {{ savings }};
+        const months     = {{ goal.goal_months }};
+
+        const labels = [];
+        const data   = [];
+        let   acc    = 0;
+
+        for (let i = 1; i <= months; i++) {
+            acc += monthlySav;
+            labels.push('M' + i);
+            data.push(Math.min(acc, goalAmount));
+        }
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Projected Savings',
+                        data: data,
+                        borderColor: '#4ade80',
+                        backgroundColor: 'rgba(74,222,128,0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Target',
+                        data: Array(months).fill(goalAmount),
+                        borderColor: 'rgba(252,165,165,0.5)',
+                        borderDash: [5, 5],
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'rgba(255,255,255,0.5)',
+                            font: { size: 11 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => '₹' + ctx.raw.toLocaleString('en-IN')
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: 'rgba(255,255,255,0.4)',
+                            callback: (v) => '₹' + (v/1000).toFixed(0) + 'K'
+                        },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    },
+                    x: {
+                        ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 } },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    })();
+    {% endfor %}
+    </script>
+</body>
+</html>
