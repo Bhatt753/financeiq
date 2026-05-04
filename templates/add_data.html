@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,46 +10,119 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Add Data | FinanceIQ</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: white;
+            min-height: 100vh;
+        }
+
         .navbar {
-            background: rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .navbar h1 { color: #4ade80; font-size: 22px; }
-        .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 20px; font-size: 14px; }
-        .nav-links a:hover { color: #4ade80; }
-        .nav-links .logout { background: rgba(239,68,68,0.2); padding: 6px 14px; border-radius: 8px; color: #fca5a5; }
-        .container { padding: 30px; max-width: 900px; margin: 0 auto; }
-        .page-title { font-size: 24px; color: #4ade80; margin-bottom: 25px; font-weight: 700; }
+
+        .navbar h1 {
+            color: #4ade80;
+            font-size: 22px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 14px;
+        }
+
+        .nav-links a:hover {
+            color: #4ade80;
+        }
+
+        .nav-links .logout {
+            background: rgba(239, 68, 68, 0.2);
+            padding: 6px 14px;
+            border-radius: 8px;
+            color: #fca5a5;
+        }
+
+        .container {
+            padding: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #4ade80;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
         .card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
             padding: 25px;
             margin-bottom: 20px;
         }
-        .card-title { font-size: 16px; color: rgba(255,255,255,0.8); margin-bottom: 20px; font-weight: 600; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .form-group { margin-bottom: 15px; }
-        label { color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 6px; display: block; }
-        input, select {
+
+        .card-title {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input,
+        select {
             width: 100%;
             padding: 10px 14px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 8px;
             color: white;
             font-size: 14px;
             outline: none;
             transition: all 0.3s;
         }
-        input:focus, select:focus { border-color: #4ade80; }
-        select option { background: #1a1a2e; }
+
+        input:focus,
+        select:focus {
+            border-color: #4ade80;
+        }
+
+        select option {
+            background: #1a1a2e;
+        }
+
         .expense-row {
             display: grid;
             grid-template-columns: 2fr 2fr 1fr 1fr 0.5fr;
@@ -56,6 +130,7 @@
             margin-bottom: 10px;
             align-items: end;
         }
+
         .loan-row {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
@@ -63,9 +138,10 @@
             margin-bottom: 10px;
             align-items: end;
         }
+
         .btn-add {
-            background: rgba(74,222,128,0.15);
-            border: 1px solid rgba(74,222,128,0.3);
+            background: rgba(74, 222, 128, 0.15);
+            border: 1px solid rgba(74, 222, 128, 0.3);
             color: #4ade80;
             padding: 10px 20px;
             border-radius: 8px;
@@ -74,16 +150,21 @@
             transition: all 0.3s;
             margin-bottom: 20px;
         }
-        .btn-add:hover { background: rgba(74,222,128,0.25); }
+
+        .btn-add:hover {
+            background: rgba(74, 222, 128, 0.25);
+        }
+
         .btn-remove {
-            background: rgba(239,68,68,0.15);
-            border: 1px solid rgba(239,68,68,0.3);
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
             color: #fca5a5;
             padding: 10px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
         }
+
         .btn-submit {
             width: 100%;
             padding: 14px;
@@ -96,40 +177,51 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(74,222,128,0.3); }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 222, 128, 0.3);
+        }
+
         .col-header {
             display: grid;
             grid-template-columns: 2fr 2fr 1fr 1fr 0.5fr;
             gap: 10px;
             margin-bottom: 8px;
         }
+
         .loan-header {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
             gap: 10px;
             margin-bottom: 8px;
         }
-        .col-header span, .loan-header span {
-            color: rgba(255,255,255,0.4);
+
+        .col-header span,
+        .loan-header span {
+            color: rgba(255, 255, 255, 0.4);
             font-size: 12px;
         }
+
         .hint {
-            color: rgba(255,255,255,0.3);
+            color: rgba(255, 255, 255, 0.3);
             font-size: 12px;
             margin-top: 5px;
         }
+
         .optional-badge {
-            background: rgba(74,222,128,0.1);
-            border: 1px solid rgba(74,222,128,0.2);
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.2);
             color: #4ade80;
             font-size: 11px;
             padding: 2px 8px;
             border-radius: 10px;
             margin-left: 8px;
         }
+
         .error-msg {
-            background: rgba(239,68,68,0.15);
-            border: 1px solid rgba(239,68,68,0.3);
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
             color: #fca5a5;
             padding: 10px 15px;
             border-radius: 8px;
@@ -138,6 +230,7 @@
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <h1>💰 FinanceIQ</h1>
@@ -164,8 +257,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Monthly Income (₹)</label>
-                        <input type="number" name="income"
-                               placeholder="e.g. 50000" required min="1">
+                        <input type="number" name="income" placeholder="e.g. 50000" required min="1">
                     </div>
                     <div class="form-group">
                         <label>Month</label>
@@ -196,8 +288,7 @@
 
                 <div id="expenses-container">
                     <div class="expense-row">
-                        <input type="text" name="expense_name[]"
-                               placeholder="e.g. Rent" required>
+                        <input type="text" name="expense_name[]" placeholder="e.g. Rent" required>
                         <select name="expense_category[]">
                             {% for cat in categories %}
                             <option value="{{ cat }}">{{ cat }}</option>
@@ -207,40 +298,54 @@
                             <option value="Fixed">Fixed</option>
                             <option value="Variable">Variable</option>
                         </select>
-                        <input type="number" name="expense_amount[]"
-                               placeholder="Amount" required min="1">
-                        <button type="button" class="btn-remove"
-                                onclick="removeRow(this)">✕</button>
+                        <input type="number" name="expense_amount[]" placeholder="Amount" required min="1">
+                        <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
                     </div>
                 </div>
 
-                <button type="button" class="btn-add"
-                        onclick="addExpense()">+ Add Another Expense</button>
+                <button type="button" class="btn-add" onclick="addExpense()">+ Add Another Expense</button>
             </div>
 
+            <!-- Loans Section -->
             <!-- Loans Section -->
             <div class="card">
                 <div class="card-title">
                     🏦 Loans & EMIs
                     <span class="optional-badge">Optional</span>
                 </div>
-                <p class="hint" style="margin-bottom: 15px;">
-                    Adding loan details improves your financial health score accuracy.
-                    Leave empty if you have no loans.
+
+                {% if existing_loans %}
+                <!-- Show existing loans from database -->
+                <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 12px;">
+                    Your saved loans are already included in health score calculation.
                 </p>
-
-                <div class="loan-header">
-                    <span>Loan Type</span>
-                    <span>Monthly EMI (₹)</span>
-                    <span>Interest Rate %</span>
-                    <span>Outstanding (₹)</span>
-                    <span></span>
+                {% for loan in existing_loans %}
+                <div
+                    style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-size: 14px; font-weight: 600; color: white;">{{ loan.loan_name }}</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.4);">
+                            EMI: ₹{{ "{:,.0f}".format(loan.emi) }}/month •
+                            {{ loan.interest_rate }}% interest
+                        </div>
+                    </div>
+                    <span
+                        style="background: rgba(74,222,128,0.15); color: #4ade80; padding: 4px 10px; border-radius: 6px; font-size: 12px;">Active</span>
                 </div>
+                {% endfor %}
+                <a href="/loans"
+                    style="display: block; text-align: center; margin-top: 10px; color: #4ade80; font-size: 13px; text-decoration: none;">
+                    Manage Loans →
+                </a>
 
-                <div id="loans-container"></div>
-
-                <button type="button" class="btn-add"
-                        onclick="addLoan()">+ Add a Loan / EMI</button>
+                {% else %}
+                <!-- No loans saved yet -->
+                <p style="color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 15px;">
+                    No loans saved yet. Add loans in
+                    <a href="/loans" style="color: #4ade80;">Loan Tracker</a>
+                    for accurate health score.
+                </p>
+                {% endif %}
             </div>
 
             <!-- Emergency Fund Section -->
@@ -251,9 +356,7 @@
                 </div>
                 <div class="form-group">
                     <label>Existing Emergency Fund Amount (₹)</label>
-                    <input type="number" name="emergency_fund"
-                           placeholder="e.g. 50000"
-                           min="0" value="0">
+                    <input type="number" name="emergency_fund" placeholder="e.g. 50000" min="0" value="0">
                     <div class="hint">
                         Money set aside specifically for emergencies (FD, liquid fund, savings account)
                     </div>
@@ -348,4 +451,5 @@
         }
     </script>
 </body>
+
 </html>
