@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,41 +10,62 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Dashboard | FinanceIQ</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', sans-serif;
             background: #0f172a;
             color: white;
             min-height: 100vh;
         }
+
         .navbar {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .navbar h1 { color: #4ade80; font-size: 22px; }
+
+        .navbar h1 {
+            color: #4ade80;
+            font-size: 22px;
+        }
+
         .nav-links a {
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             margin-left: 20px;
             font-size: 14px;
             transition: color 0.3s;
         }
-        .nav-links a:hover { color: #4ade80; }
+
+        .nav-links a:hover {
+            color: #4ade80;
+        }
+
         .nav-links .logout {
-            background: rgba(239,68,68,0.2);
+            background: rgba(239, 68, 68, 0.2);
             padding: 6px 14px;
             border-radius: 8px;
             color: #fca5a5;
         }
-        .container { padding: 30px; max-width: 1200px; margin: 0 auto; }
+
+        .container {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         .welcome {
-            background: linear-gradient(135deg, rgba(74,222,128,0.1), rgba(34,197,94,0.05));
-            border: 1px solid rgba(74,222,128,0.2);
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(74, 222, 128, 0.2);
             border-radius: 16px;
             padding: 25px 30px;
             margin-bottom: 30px;
@@ -51,8 +73,17 @@
             justify-content: space-between;
             align-items: center;
         }
-        .welcome h2 { font-size: 24px; color: #4ade80; }
-        .welcome p { color: rgba(255,255,255,0.6); margin-top: 5px; }
+
+        .welcome h2 {
+            font-size: 24px;
+            color: #4ade80;
+        }
+
+        .welcome p {
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+        }
+
         .btn-primary {
             background: linear-gradient(135deg, #4ade80, #22c55e);
             color: white;
@@ -63,22 +94,29 @@
             font-size: 15px;
             transition: all 0.3s;
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(74,222,128,0.3); }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 222, 128, 0.3);
+        }
+
         .section-title {
             font-size: 18px;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.8);
             margin-bottom: 20px;
             font-weight: 600;
         }
+
         .history-table {
             width: 100%;
             border-collapse: collapse;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 16px;
             overflow: hidden;
         }
+
         .history-table th {
-            background: rgba(74,222,128,0.15);
+            background: rgba(74, 222, 128, 0.15);
             color: #4ade80;
             padding: 14px 20px;
             text-align: left;
@@ -86,52 +124,91 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         .history-table td {
             padding: 14px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            color: rgba(255,255,255,0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 14px;
         }
-        .history-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+        .history-table tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
         .badge {
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
         }
-        .badge-green { background: rgba(74,222,128,0.2); color: #4ade80; }
-        .badge-yellow { background: rgba(251,191,36,0.2); color: #fbbf24; }
-        .badge-red { background: rgba(239,68,68,0.2); color: #fca5a5; }
+
+        .badge-green {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .badge-yellow {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .badge-red {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255, 255, 255, 0.4);
         }
-        .empty-state h3 { font-size: 20px; margin-bottom: 10px; }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
         .quick-links {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             margin-bottom: 30px;
         }
+
         .quick-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
             padding: 20px;
             text-decoration: none;
             transition: all 0.3s;
             text-align: center;
         }
+
         .quick-card:hover {
             border-color: #4ade80;
             transform: translateY(-3px);
         }
-        .quick-card .icon { font-size: 30px; margin-bottom: 10px; }
-        .quick-card h3 { color: white; font-size: 15px; margin-bottom: 5px; }
-        .quick-card p { color: rgba(255,255,255,0.5); font-size: 13px; }
+
+        .quick-card .icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .quick-card h3 {
+            color: white;
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .quick-card p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+        }
     </style>
 </head>
+
 <body>
     <nav class="navbar">
         <h1>💰 FinanceIQ</h1>
@@ -163,8 +240,18 @@
                 <h3>Goal Planner</h3>
                 <p>Plan your savings goals</p>
             </a>
+            <a href="/my_goals" class="quick-card">
+                <div class="icon">🏆</div>
+                <h3>My Goals</h3>
+                <p>Track your savings goals</p>
+            </a>
+            <a href="/loans" class="quick-card">
+                <div class="icon">🏦</div>
+                <h3>Loan Tracker</h3>
+                <p>Track your EMIs and loans</p>
+            </a>
             <a href="/history" class="quick-card">
-                <div class="icon">&#128197;</div>
+                <div class="icon">📅</div>
                 <h3>View History</h3>
                 <p>See your monthly progress</p>
             </a>
@@ -239,4 +326,5 @@
         </a>
     </div>
 </body>
+
 </html>
