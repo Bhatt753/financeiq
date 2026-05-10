@@ -42,3 +42,55 @@ def delete_entry(entry_id):
     if entry:
         delete_monthly_entry(entry_id, session["user_id"], entry["month"], entry["year"])
     return redirect(url_for("dashboard.history"))
+
+
+@dashboard_bp.route("/health")
+@login_required
+def health():
+    from models.database import get_user_loans
+    from services.health_score import calculate_health_score
+
+    user_id = session["user_id"]
+    history = get_monthly_history(user_id)
+
+    if not history:
+        return render_template("health.html",
+            has_data = False,
+            score    = None,
+            month    = "",
+            year     = ""
+        )
+
+    latest       = history[0]
+    expenses_raw = get_expenses_for_month(user_id, latest["month"], latest["year"])
+    user_loans   = get_user_loans(user_id)
+
+    expenses = []
+    for e in expenses_raw:
+        expenses.append({
+            "name"    : e["name"] if isinstance(e, dict) else e[4],
+            "category": e["category"] if isinstance(e, dict) else e[5],
+            "type"    : e["type"] if isinstance(e, dict) else e[6],
+            "amount"  : e["amount"] if isinstance(e, dict) else e[7],
+        })
+
+    loans = []
+    for loan in user_loans:
+        loans.append({
+            "type"         : loan["loan_type"],
+            "emi"          : loan["emi"],
+            "interest_rate": loan["interest_rate"],
+            "outstanding"  : loan.get("principal", 0)
+        })
+
+    health_data = calculate_health_score(
+        latest["income"], expenses, loans, 0
+    )
+
+    return render_template("health.html",
+        has_data = True,
+        score    = health_data,
+        month    = latest["month"],
+        year     = latest["year"],
+        income   = latest["income"]
+    )
