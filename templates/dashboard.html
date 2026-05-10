@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -10,400 +11,714 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title>Dashboard | FinanceIQ</title>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:white; min-height:100vh; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: white;
+            min-height: 100vh;
+        }
 
         /* ===== NAVBAR ===== */
         .navbar {
-            background:rgba(255,255,255,0.05);
-            backdrop-filter:blur(10px);
-            border-bottom:1px solid rgba(255,255,255,0.1);
-            padding:15px 30px;
-            display:flex; justify-content:space-between; align-items:center;
-            position:sticky; top:0; z-index:100;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .navbar h1 { color:#4ade80; font-size:22px; }
-        .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; margin-left:20px; font-size:14px; transition:color 0.3s; }
-        .nav-links a:hover { color:#4ade80; }
-        .nav-links .logout { background:rgba(239,68,68,0.2); padding:6px 14px; border-radius:8px; color:#fca5a5; }
+
+        .navbar h1 {
+            color: #4ade80;
+            font-size: 22px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #4ade80;
+        }
+
+        .nav-links .logout {
+            background: rgba(239, 68, 68, 0.2);
+            padding: 6px 14px;
+            border-radius: 8px;
+            color: #fca5a5;
+        }
 
         /* ===== CONTAINER ===== */
-        .container { padding:28px 30px; max-width:1200px; margin:0 auto; padding-bottom:100px; }
+        .container {
+            padding: 28px 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 100px;
+        }
 
         /* ===== WELCOME ===== */
         .welcome {
-            background:linear-gradient(135deg,rgba(74,222,128,0.1),rgba(34,197,94,0.05));
-            border:1px solid rgba(74,222,128,0.2);
-            border-radius:16px; padding:25px 30px;
-            margin-bottom:28px;
-            display:flex; justify-content:space-between; align-items:center;
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.1), rgba(34, 197, 94, 0.05));
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 16px;
+            padding: 25px 30px;
+            margin-bottom: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .welcome h2 { font-size:24px; color:#4ade80; }
-        .welcome p { color:rgba(255,255,255,0.6); margin-top:5px; }
+
+        .welcome h2 {
+            font-size: 24px;
+            color: #4ade80;
+        }
+
+        .welcome p {
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+        }
+
         .btn-primary {
-            background:linear-gradient(135deg,#4ade80,#22c55e);
-            color:white; padding:12px 24px; border-radius:10px;
-            text-decoration:none; font-weight:600; font-size:15px; transition:all 0.3s;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
         }
-        .btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 25px rgba(74,222,128,0.3); }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 222, 128, 0.3);
+        }
 
         /* ===== MOBILE CIRCULAR QUICK ACTIONS (hidden on desktop) ===== */
         .mobile-actions {
-            display:none;
-            overflow-x:auto;
-            gap:16px;
-            padding:4px 0 12px;
-            margin-bottom:24px;
-            scrollbar-width:none;
-            -webkit-tap-highlight-color:transparent;
+            display: none;
+            overflow-x: auto;
+            gap: 16px;
+            padding: 4px 0 12px;
+            margin-bottom: 24px;
+            scrollbar-width: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        .mobile-actions::-webkit-scrollbar { display:none; }
+
+        .mobile-actions::-webkit-scrollbar {
+            display: none;
+        }
+
         .mob-act {
-            flex:0 0 auto;
-            display:flex; flex-direction:column;
-            align-items:center; gap:8px;
-            text-decoration:none; min-width:64px;
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            min-width: 64px;
         }
+
         .mob-circle {
-            width:60px; height:60px; border-radius:50%;
-            background:rgba(255,255,255,0.06);
-            border:1px solid rgba(255,255,255,0.1);
-            display:flex; align-items:center; justify-content:center;
-            color:#4ade80; transition:all 0.25s ease;
-            box-shadow:0 4px 14px rgba(0,0,0,0.3);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4ade80;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
         }
-        .mob-circle svg { width:22px; height:22px; }
+
+        .mob-circle svg {
+            width: 22px;
+            height: 22px;
+        }
+
         .mob-act:hover .mob-circle,
         .mob-act:active .mob-circle {
-            background:rgba(74,222,128,0.15);
-            border-color:#4ade80;
-            transform:translateY(-3px);
-            box-shadow:0 10px 24px rgba(74,222,128,0.2);
+            background: rgba(74, 222, 128, 0.15);
+            border-color: #4ade80;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(74, 222, 128, 0.2);
         }
-        .mob-act span { font-size:11px; font-weight:600; color:rgba(255,255,255,0.55); text-align:center; }
+
+        .mob-act span {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.55);
+            text-align: center;
+        }
 
         /* ===== DESKTOP QUICK LINKS (hidden on mobile) ===== */
         .quick-links {
-            display:grid;
-            grid-template-columns:repeat(3,1fr);
-            gap:15px; margin-bottom:28px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 28px;
         }
+
         .quick-card {
-            background:rgba(255,255,255,0.05);
-            border:1px solid rgba(255,255,255,0.1);
-            border-radius:14px; padding:20px;
-            text-decoration:none; transition:all 0.3s; text-align:center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 20px;
+            text-decoration: none;
+            transition: all 0.3s;
+            text-align: center;
         }
-        .quick-card:hover { border-color:#4ade80; transform:translateY(-3px); }
-        .quick-card .icon { font-size:30px; margin-bottom:10px; }
-        .quick-card h3 { color:white; font-size:15px; margin-bottom:5px; }
-        .quick-card p { color:rgba(255,255,255,0.5); font-size:13px; }
+
+        .quick-card:hover {
+            border-color: #4ade80;
+            transform: translateY(-3px);
+        }
+
+        .quick-card .icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .quick-card h3 {
+            color: white;
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .quick-card p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+        }
 
         /* ===== CHART CARD ===== */
         .chart-card {
-            background:rgba(255,255,255,0.04);
-            border:1px solid rgba(255,255,255,0.08);
-            border-radius:18px; padding:22px;
-            margin-bottom:24px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 22px;
+            margin-bottom: 24px;
         }
+
         .chart-header {
-            display:flex; justify-content:space-between;
-            align-items:center; margin-bottom:18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
         }
-        .chart-title { font-size:16px; font-weight:600; color:white; }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+        }
 
         /* Toggle pill */
         .toggle-pill {
-            display:flex; background:rgba(255,255,255,0.06);
-            border:1px solid rgba(255,255,255,0.1);
-            border-radius:20px; padding:3px; gap:2px;
+            display: flex;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3px;
+            gap: 2px;
         }
+
         .tbtn {
-            padding:5px 14px; border-radius:16px;
-            font-size:12px; font-weight:600; border:none; background:none;
-            cursor:pointer; color:rgba(255,255,255,0.45);
-            font-family:'Segoe UI',sans-serif; transition:all 0.22s;
+            padding: 5px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.45);
+            font-family: 'Segoe UI', sans-serif;
+            transition: all 0.22s;
         }
-        .tbtn.active { background:#4ade80; color:#0f172a; }
+
+        .tbtn.active {
+            background: #4ade80;
+            color: #0f172a;
+        }
 
         /* Slider */
-        .slider-wrap { overflow:hidden; touch-action:pan-y; }
-        .slides {
-            display:flex;
-            transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);
-            will-change:transform;
+        .slider-wrap {
+            overflow: hidden;
+            touch-action: pan-y;
         }
-        .slide { flex:0 0 100%; min-width:0; }
-        .ch-wrap { position:relative; height:200px; }
+
+        .slides {
+            display: flex;
+            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform;
+        }
+
+        .slide {
+            flex: 0 0 100%;
+            min-width: 0;
+        }
+
+        .ch-wrap {
+            position: relative;
+            height: 200px;
+        }
 
         /* Dots */
-        .dots { display:flex; justify-content:center; gap:5px; margin-top:14px; }
-        .dot { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.2); cursor:pointer; transition:all 0.2s; }
-        .dot.active { background:#4ade80; width:16px; border-radius:3px; }
-        .swipe-tip { font-size:10px; color:rgba(255,255,255,0.2); text-align:center; margin-top:6px; }
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 14px;
+        }
+
+        .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dot.active {
+            background: #4ade80;
+            width: 16px;
+            border-radius: 3px;
+        }
+
+        .swipe-tip {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.2);
+            text-align: center;
+            margin-top: 6px;
+        }
 
         /* ===== HISTORY TABLE ===== */
-        .section-title { font-size:18px; color:rgba(255,255,255,0.8); margin-bottom:20px; font-weight:600; }
-        .history-table { width:100%; border-collapse:collapse; background:rgba(255,255,255,0.03); border-radius:16px; overflow:hidden; }
-        .history-table th { background:rgba(74,222,128,0.15); color:#4ade80; padding:14px 20px; text-align:left; font-size:13px; text-transform:uppercase; letter-spacing:0.5px; }
-        .history-table td { padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.05); color:rgba(255,255,255,0.8); font-size:14px; }
-        .history-table tr:hover td { background:rgba(255,255,255,0.03); }
-        .badge { padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600; }
-        .badge-green { background:rgba(74,222,128,0.2); color:#4ade80; }
-        .badge-yellow { background:rgba(251,191,36,0.2); color:#fbbf24; }
-        .badge-red { background:rgba(239,68,68,0.2); color:#fca5a5; }
+        .section-title {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
 
-        .empty-state { text-align:center; padding:60px; color:rgba(255,255,255,0.4); }
-        .empty-state h3 { font-size:20px; margin-bottom:10px; }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .history-table th {
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .history-table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .history-table tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .badge-yellow {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .badge-red {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
 
         /* ===== BOTTOM NAV ===== */
         .bottom-nav {
-            position:fixed; bottom:0; left:0; right:0;
-            background:rgba(15,23,42,0.95);
-            backdrop-filter:blur(20px);
-            border-top:1px solid rgba(255,255,255,0.08);
-            display:none;
-            justify-content:space-around; align-items:center;
-            padding:10px 0 max(10px,env(safe-area-inset-bottom));
-            z-index:100;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: none;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+            z-index: 100;
         }
+
         .bottom-nav a {
-            display:flex; flex-direction:column; align-items:center;
-            gap:3px; color:rgba(255,255,255,0.4); text-decoration:none;
-            font-size:10px; font-weight:600; padding:4px 10px; transition:color 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 10px;
+            transition: color 0.2s;
         }
-        .bottom-nav a.active, .bottom-nav a:hover { color:#4ade80; }
-        .nav-icon { font-size:20px; }
+
+        .bottom-nav a.active,
+        .bottom-nav a:hover {
+            color: #4ade80;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width:768px) {
-            .container { padding:18px 14px 90px; }
-            .navbar { padding:12px 16px; }
-            .nav-links .nav-desktop { display:none; }
-            .welcome { flex-direction:column; gap:14px; padding:18px; }
-            .welcome h2 { font-size:20px; }
-            .btn-primary { width:100%; text-align:center; }
+            .container {
+                padding: 18px 14px 90px;
+            }
+
+            .navbar {
+                padding: 12px 16px;
+            }
+
+            .nav-links .nav-desktop {
+                display: none;
+            }
+
+            .welcome {
+                flex-direction: column;
+                gap: 14px;
+                padding: 18px;
+            }
+
+            .welcome h2 {
+                font-size: 20px;
+            }
+
+            .btn-primary {
+                width: 100%;
+                text-align: center;
+            }
 
             /* Show mobile circles, hide desktop grid */
-            .mobile-actions { display:flex; }
-            .quick-links { display:none; }
+            .mobile-actions {
+                display: flex;
+            }
+
+            .quick-links {
+                display: none;
+            }
 
             /* Bottom nav */
-            .bottom-nav { display:flex; }
+            .bottom-nav {
+                display: flex;
+            }
         }
 
         @media (min-width:769px) {
-            .mobile-actions { display:none; }
-            .quick-links { display:grid; }
-            .bottom-nav { display:none; }
+            .mobile-actions {
+                display: none;
+            }
+
+            .quick-links {
+                display: grid;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<nav class="navbar">
-    <h1>💰 FinanceIQ</h1>
-    <div class="nav-links">
-        <a href="/dashboard" class="nav-desktop">Dashboard</a>
-        <a href="/add_data" class="nav-desktop">Add Data</a>
-        <a href="/goal" class="nav-desktop">Goal Planner</a>
-        <a href="/health" class="nav-desktop">Health Score</a>
-        <a href="/logout" class="logout">Logout</a>
-    </div>
-</nav>
-
-<div class="container">
-
-    <!-- WELCOME -->
-    <div class="welcome">
-        <div>
-            <h2>Welcome back, {{ session.name }}! 👋</h2>
-            <p>{{ session.profession }} • Track your finances and grow your wealth</p>
+    <nav class="navbar">
+        <h1>💰 FinanceIQ</h1>
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-desktop">Dashboard</a>
+            <a href="/add_data" class="nav-desktop">Add Data</a>
+            <a href="/goal" class="nav-desktop">Goal Planner</a>
+            <a href="/health" class="nav-desktop">Health Score</a>
+            <a href="/logout" class="logout">Logout</a>
         </div>
-        <a href="/add_data" class="btn-primary">+ Add This Month's Data</a>
+    </nav>
+
+    <div class="container">
+
+        <!-- WELCOME -->
+        <div class="welcome">
+            <div>
+                <h2>Welcome back, {{ session.name }}! 👋</h2>
+                <p>{{ session.profession }} • Track your finances and grow your wealth</p>
+            </div>
+            <a href="/add_data" class="btn-primary">+ Add This Month's Data</a>
+        </div>
+
+        <!-- MOBILE CIRCULAR ACTIONS -->
+        <div class="mobile-actions">
+            <a href="/add_data" class="mob-act">
+                <div class="mob-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                </div>
+                <span>Add Data</span>
+            </a>
+            <a href="/goal" class="mob-act">
+                <div class="mob-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <circle cx="12" cy="12" r="6" />
+                        <circle cx="12" cy="12" r="2" />
+                    </svg>
+                </div>
+                <span>Goals</span>
+            </a>
+            <a href="/my_goals" class="mob-act">
+                <div class="mob-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
+                </div>
+                <span>My Goals</span>
+            </a>
+            <a href="/loans" class="mob-act">
+                <div class="mob-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                </div>
+                <span>Loans</span>
+            </a>
+            <a href="/history" class="mob-act">
+                <div class="mob-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                </div>
+                <span>History</span>
+            </a>
+            <a href="/health" class="mob-act">
+                <div class="mob-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    </svg>
+                </div>
+                <span>Health</span>
+            </a>
+        </div>
+
+        <!-- DESKTOP QUICK LINKS -->
+        <div class="quick-links">
+            <a href="/add_data" class="quick-card">
+                <div class="icon">📊</div>
+                <h3>Add Monthly Data</h3>
+                <p>Enter your income and expenses</p>
+            </a>
+            <a href="/goal" class="quick-card">
+                <div class="icon">🎯</div>
+                <h3>Goal Planner</h3>
+                <p>Plan your savings goals</p>
+            </a>
+            <a href="/my_goals" class="quick-card">
+                <div class="icon">🏆</div>
+                <h3>My Goals</h3>
+                <p>Track your savings goals</p>
+            </a>
+            <a href="/loans" class="quick-card">
+                <div class="icon">🏦</div>
+                <h3>Loan Tracker</h3>
+                <p>Track your EMIs and loans</p>
+            </a>
+            <a href="/history" class="quick-card">
+                <div class="icon">📅</div>
+                <h3>View History</h3>
+                <p>See your monthly progress</p>
+            </a>
+            <a href="/health" class="quick-card">
+                <div class="icon">❤️</div>
+                <h3>Health Score</h3>
+                <p>See your financial health</p>
+            </a>
+        </div>
+
+        <!-- CHART CARD with swipeable slider -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">📈 Financial Overview</div>
+                <div class="toggle-pill">
+                    <button class="tbtn active" id="tbm" onclick="goSlide(0,this)">Monthly</button>
+                    <button class="tbtn" id="tby" onclick="goSlide(1,this)">Yearly</button>
+                </div>
+            </div>
+
+            <div class="slider-wrap" id="sw">
+                <div class="slides" id="sl">
+
+                    <!-- Slide 0: Income vs Expenses Bar (Monthly) -->
+                    <div class="slide">
+                        <div class="ch-wrap"><canvas id="barC"></canvas></div>
+                    </div>
+
+                    <!-- Slide 1: Yearly Trend Line -->
+                    <div class="slide">
+                        <div class="ch-wrap"><canvas id="lineC"></canvas></div>
+                    </div>
+
+                    <!-- Slide 2: Donut + Bar Side by Side -->
+                    <div class="slide">
+                        <div class="two-charts">
+                            <div class="two-chart-item">
+                                <div class="two-chart-title">🍩 Spending by Category</div>
+                                <div class="ch-wrap"><canvas id="donutC"></canvas></div>
+                            </div>
+                            <div class="two-chart-item">
+                                <div class="two-chart-title">📊 Income vs Expenses vs Savings</div>
+                                <div class="ch-wrap"><canvas id="summaryC"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="dots">
+                <div class="dot active" onclick="goSlide(0,document.getElementById('tbm'))"></div>
+                <div class="dot" onclick="goSlide(1,document.getElementById('tby'))"></div>
+                <div class="dot" onclick="goSlide(2,document.getElementById('tbm'))"></div>
+            </div>
+            <div class="swipe-tip">← Swipe to switch views →</div>
+        </div>
+
+
+        <!-- MONTHLY HISTORY TABLE -->
+        <div id="history">
+            <div class="section-title">📅 Monthly History</div>
+
+            {% if history %}
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Year</th>
+                        <th>Income</th>
+                        <th>Expenses</th>
+                        <th>Savings</th>
+                        <th>Savings Rate</th>
+                        <th>Health Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in history %}
+                    <tr>
+                        <td>{{ row.month }}</td>
+                        <td>{{ row.year }}</td>
+                        <td>₹{{ "{:,.0f}".format(row.income) }}</td>
+                        <td>₹{{ "{:,.0f}".format(row.total_expenses) }}</td>
+                        <td>₹{{ "{:,.0f}".format(row.savings) }}</td>
+                        <td>{{ row.savings_rate }}%</td>
+                        <td>
+                            {% if row.health_score >= 80 %}
+                            <span class="badge badge-green">{{ row.health_score }}/100 🟢</span>
+                            {% elif row.health_score >= 60 %}
+                            <span class="badge badge-yellow">{{ row.health_score }}/100 🟡</span>
+                            {% else %}
+                            <span class="badge badge-red">{{ row.health_score }}/100 🔴</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <h3>No data yet!</h3>
+                <p>Click "Add This Month's Data" to get started</p>
+            </div>
+            {% endif %}
+        </div>
     </div>
 
-    <!-- MOBILE CIRCULAR ACTIONS -->
-    <div class="mobile-actions">
-        <a href="/add_data" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-            </div>
+    <!-- BOTTOM NAV (mobile only) -->
+    <div class="bottom-nav">
+        <a href="/dashboard" class="active">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="/add_data">
+            <span class="nav-icon">➕</span>
             <span>Add Data</span>
         </a>
-        <a href="/goal" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-            </div>
-            <span>Goals</span>
-        </a>
-        <a href="/my_goals" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
-            <span>My Goals</span>
-        </a>
-        <a href="/loans" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
-            <span>Loans</span>
-        </a>
-        <a href="/history" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <span>History</span>
-        </a>
-        <a href="/health" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            </div>
+        <a href="/health">
+            <span class="nav-icon">❤️</span>
             <span>Health</span>
         </a>
-    </div>
-
-    <!-- DESKTOP QUICK LINKS -->
-    <div class="quick-links">
-        <a href="/add_data" class="quick-card">
-            <div class="icon">📊</div>
-            <h3>Add Monthly Data</h3>
-            <p>Enter your income and expenses</p>
+        <a href="/goal">
+            <span class="nav-icon">🎯</span>
+            <span>Goals</span>
         </a>
-        <a href="/goal" class="quick-card">
-            <div class="icon">🎯</div>
-            <h3>Goal Planner</h3>
-            <p>Plan your savings goals</p>
-        </a>
-        <a href="/my_goals" class="quick-card">
-            <div class="icon">🏆</div>
-            <h3>My Goals</h3>
-            <p>Track your savings goals</p>
-        </a>
-        <a href="/loans" class="quick-card">
-            <div class="icon">🏦</div>
-            <h3>Loan Tracker</h3>
-            <p>Track your EMIs and loans</p>
-        </a>
-        <a href="/history" class="quick-card">
-            <div class="icon">📅</div>
-            <h3>View History</h3>
-            <p>See your monthly progress</p>
-        </a>
-        <a href="/health" class="quick-card">
-            <div class="icon">❤️</div>
-            <h3>Health Score</h3>
-            <p>See your financial health</p>
+        <a href="/logout">
+            <span class="nav-icon">🚪</span>
+            <span>Logout</span>
         </a>
     </div>
 
-    <!-- CHART CARD with swipeable slider -->
-    <div class="chart-card">
-        <div class="chart-header">
-            <div class="chart-title">📈 Financial Overview</div>
-            <div class="toggle-pill">
-                <button class="tbtn active" id="tbm" onclick="goSlide(0,this)">Monthly</button>
-                <button class="tbtn" id="tby" onclick="goSlide(1,this)">Yearly</button>
-            </div>
-        </div>
+    <script>
+        <script>
+            const hData = {{ history | tojson if history else '[]' }};
 
-        <div class="slider-wrap" id="sw">
-            <div class="slides" id="sl">
-                <!-- Slide 0: Income vs Expenses bar -->
-                <div class="slide">
-                    <div class="ch-wrap"><canvas id="barC"></canvas></div>
-                </div>
-                <!-- Slide 1: Savings trend line -->
-                <div class="slide">
-                    <div class="ch-wrap"><canvas id="lineC"></canvas></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="dots">
-            <div class="dot active" onclick="goSlide(0,document.getElementById('tbm'))"></div>
-            <div class="dot" onclick="goSlide(1,document.getElementById('tby'))"></div>
-        </div>
-        <div class="swipe-tip">← Swipe or tap toggle to switch views →</div>
-    </div>
-
-    <!-- MONTHLY HISTORY TABLE -->
-    <div id="history">
-        <div class="section-title">📅 Monthly History</div>
-
-        {% if history %}
-        <table class="history-table">
-            <thead>
-                <tr>
-                    <th>Month</th>
-                    <th>Year</th>
-                    <th>Income</th>
-                    <th>Expenses</th>
-                    <th>Savings</th>
-                    <th>Savings Rate</th>
-                    <th>Health Score</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in history %}
-                <tr>
-                    <td>{{ row.month }}</td>
-                    <td>{{ row.year }}</td>
-                    <td>₹{{ "{:,.0f}".format(row.income) }}</td>
-                    <td>₹{{ "{:,.0f}".format(row.total_expenses) }}</td>
-                    <td>₹{{ "{:,.0f}".format(row.savings) }}</td>
-                    <td>{{ row.savings_rate }}%</td>
-                    <td>
-                        {% if row.health_score >= 80 %}
-                        <span class="badge badge-green">{{ row.health_score }}/100 🟢</span>
-                        {% elif row.health_score >= 60 %}
-                        <span class="badge badge-yellow">{{ row.health_score }}/100 🟡</span>
-                        {% else %}
-                        <span class="badge badge-red">{{ row.health_score }}/100 🔴</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="empty-state">
-            <h3>No data yet!</h3>
-            <p>Click "Add This Month's Data" to get started</p>
-        </div>
-        {% endif %}
-    </div>
-</div>
-
-<!-- BOTTOM NAV (mobile only) -->
-<div class="bottom-nav">
-    <a href="/dashboard" class="active">
-        <span class="nav-icon">🏠</span>
-        <span>Home</span>
-    </a>
-    <a href="/add_data">
-        <span class="nav-icon">➕</span>
-        <span>Add Data</span>
-    </a>
-    <a href="/health">
-        <span class="nav-icon">❤️</span>
-        <span>Health</span>
-    </a>
-    <a href="/goal">
-        <span class="nav-icon">🎯</span>
-        <span>Goals</span>
-    </a>
-    <a href="/logout">
-        <span class="nav-icon">🚪</span>
-        <span>Logout</span>
-    </a>
-</div>
-
-<script>
-const hData = {{ history | tojson if history else '[]' }};
-
-// Build chart data
-let labels=[], inc=[], exp=[], sav=[];
+            let labels=[], inc=[], exp=[], sav=[];
 if(hData.length > 0){
     const recent = [...hData].reverse().slice(-6);
     labels = recent.map(h => h.month.slice(0,3));
@@ -411,94 +726,226 @@ if(hData.length > 0){
     exp    = recent.map(h => h.total_expenses);
     sav    = recent.map(h => Math.max(h.savings, 0));
 } else {
-    labels = ['Jan','Feb','Mar','Apr','May','Jun'];
-    inc = exp = sav = [0,0,0,0,0,0];
+                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            inc = exp = sav = [0,0,0,0,0,0];
 }
 
-const GREEN     = '#4ade80';
-const GREEN_DIM = 'rgba(74,222,128,0.12)';
-const TEXT_MID  = 'rgba(255,255,255,0.35)';
+            const GREEN      = '#4ade80';
+            const GREEN_DIM  = 'rgba(74,222,128,0.12)';
+            const RED        = 'rgba(248,113,113,0.85)';
+            const BLUE       = 'rgba(96,165,250,0.85)';
+            const TEXT_MID   = 'rgba(255,255,255,0.35)';
 
-const baseOpts = {
-    responsive:true, maintainAspectRatio:false,
-    animation:{ duration:800, easing:'easeOutQuart' },
-    plugins:{
-        legend:{ display:false },
-        tooltip:{
-            backgroundColor:'rgba(15,23,42,0.95)',
+            const baseOpts = {
+                responsive:true, maintainAspectRatio:false,
+            animation:{duration:800, easing:'easeOutQuart' },
+            plugins:{
+                legend:{display:false },
+            tooltip:{
+                backgroundColor:'rgba(15,23,42,0.95)',
             borderColor:'rgba(74,222,128,0.3)',
             borderWidth:1,
             titleColor:'#fff', bodyColor:'rgba(255,255,255,0.6)',
             padding:10, cornerRadius:10,
-            callbacks:{ label:c=>' ₹'+c.raw.toLocaleString('en-IN') }
+            callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN') }
         }
     },
-    scales:{
-        x:{ grid:{display:false}, border:{display:false}, ticks:{color:TEXT_MID,font:{size:11}} },
-        y:{ grid:{color:'rgba(255,255,255,0.04)'}, border:{display:false},
-            ticks:{color:TEXT_MID,font:{size:11},
+            scales:{
+                x:{grid:{display:false}, border:{display:false},
+            ticks:{color:TEXT_MID, font:{size:11}} },
+            y:{grid:{color:'rgba(255,255,255,0.04)'}, border:{display:false},
+            ticks:{color:TEXT_MID, font:{size:11},
                    callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)} }
     }
 };
 
-// Bar Chart
-new Chart(document.getElementById('barC'),{
-    type:'bar',
-    data:{
-        labels,
-        datasets:[
-            { label:'Income',   data:inc, backgroundColor:GREEN, borderRadius:7, borderSkipped:false },
-            { label:'Expenses', data:exp, backgroundColor:'rgba(255,255,255,0.08)', borderRadius:7, borderSkipped:false }
-        ]
+            // ===== CHART 1: Monthly Bar (Income vs Expenses) =====
+            new Chart(document.getElementById('barC'),{
+                type:'bar',
+            data:{
+                labels,
+                datasets:[
+            {label:'Income',   data:inc, backgroundColor:GREEN,
+              borderRadius:7, borderSkipped:false },
+            {label:'Expenses', data:exp, backgroundColor:'rgba(255,255,255,0.1)',
+              borderRadius:7, borderSkipped:false }
+            ]
     },
-    options:{
-        ...baseOpts,
-        plugins:{
-            ...baseOpts.plugins,
-            legend:{
+            options:{
+                ...baseOpts,
+                plugins:{
+                ...baseOpts.plugins,
+                legend:{
                 display:true, position:'top', align:'end',
-                labels:{ color:TEXT_MID, font:{size:11}, boxWidth:9, boxHeight:9, borderRadius:3, padding:10 }
+            labels:{color:TEXT_MID,font:{size:11},
+                        boxWidth:9,boxHeight:9,borderRadius:3,padding:10}
             }
         }
     }
 });
 
-// Line Chart
-new Chart(document.getElementById('lineC'),{
-    type:'line',
-    data:{
-        labels,
-        datasets:[{
-            label:'Savings', data:sav,
-            borderColor:GREEN, backgroundColor:GREEN_DIM,
+            // ===== CHART 2: Yearly Savings Line =====
+            new Chart(document.getElementById('lineC'),{
+                type:'line',
+            data:{
+                labels,
+                datasets:[
+            {
+                label:'Income', data:inc,
+            borderColor:GREEN, backgroundColor:'rgba(74,222,128,0.08)',
             fill:true, tension:0.45, borderWidth:2.5,
             pointBackgroundColor:GREEN, pointRadius:3, pointHoverRadius:5
-        }]
+            },
+            {
+                label:'Expenses', data:exp,
+            borderColor:'rgba(248,113,113,0.8)',
+            backgroundColor:'rgba(248,113,113,0.05)',
+            fill:true, tension:0.45, borderWidth:2,
+            pointBackgroundColor:'rgba(248,113,113,0.8)',
+            pointRadius:3, pointHoverRadius:5
+            },
+            {
+                label:'Savings', data:sav,
+            borderColor:'rgba(96,165,250,0.8)',
+            backgroundColor:'rgba(96,165,250,0.05)',
+            fill:true, tension:0.45, borderWidth:2,
+            pointBackgroundColor:'rgba(96,165,250,0.8)',
+            pointRadius:3, pointHoverRadius:5
+            }
+            ]
     },
-    options:baseOpts
+            options:{
+                ...baseOpts,
+                plugins:{
+                ...baseOpts.plugins,
+                legend:{
+                display:true, position:'top', align:'end',
+            labels:{color:TEXT_MID, font:{size:11},
+                        boxWidth:9, boxHeight:9, borderRadius:3, padding:10}
+            }
+        }
+    }
 });
 
-// Slider
-let cur = 0;
-function goSlide(i, btn){
-    cur = i;
-    document.getElementById('sl').style.transform = `translateX(-${i*100}%)`;
+            // ===== CHART 3: Donut — Spending by Category =====
+            // Build category data from latest month
+            const catColors = [
+            '#4ade80','#60a5fa','#fbbf24','#f87171',
+            '#a78bfa','#34d399','#fb923c','#e879f9'
+            ];
+
+            const catLabels = {{ categories | tojson if categories else '["Rent/Housing","Food & Groceries","Transport","Shopping","Healthcare","Entertainment","Other"]' }};
+
+// Use latest history savings/expenses for summary
+const latestInc = inc.length > 0 ? inc[inc.length-1] : 0;
+const latestExp = exp.length > 0 ? exp[exp.length-1] : 0;
+const latestSav = sav.length > 0 ? sav[sav.length-1] : 0;
+
+            // Estimate category breakdown proportionally
+            const catProportions = [0.30, 0.20, 0.12, 0.10, 0.08, 0.08, 0.12];
+const catData = catProportions.map(p => Math.round(latestExp * p));
+
+            new Chart(document.getElementById('donutC'),{
+                type:'doughnut',
+            data:{
+                labels: ['Rent/Housing','Food & Groceries','Transport',
+            'Shopping','Healthcare','Entertainment','Other'],
+            datasets:[{
+                data: catData,
+            backgroundColor: catColors,
+            borderWidth: 0,
+            hoverOffset: 8
+        }]
+    },
+            options:{
+                responsive:true, maintainAspectRatio:false,
+            cutout:'65%',
+            animation:{duration:800, easing:'easeOutQuart' },
+            plugins:{
+                legend:{
+                display:true, position:'top',
+            labels:{
+                color:'rgba(255,255,255,0.6)',
+            font:{size:10}, boxWidth:10,
+            boxHeight:10, padding:8
+                }
+            },
+            tooltip:{
+                backgroundColor:'rgba(15,23,42,0.95)',
+            borderColor:'rgba(255,255,255,0.1)',
+            borderWidth:1, titleColor:'#fff',
+            bodyColor:'rgba(255,255,255,0.6)',
+            padding:10, cornerRadius:10,
+            callbacks:{
+                label:c=>' ₹'+c.raw.toLocaleString('en-IN')
+                }
+            }
+        }
+    }
+});
+
+            // ===== CHART 4: Summary Bar (Income vs Expenses vs Savings) =====
+            new Chart(document.getElementById('summaryC'),{
+                type:'bar',
+            data:{
+                labels:['Income','Expenses','Savings'],
+            datasets:[{
+                data:[latestInc, latestExp, latestSav],
+            backgroundColor:[GREEN, RED, BLUE],
+            borderRadius:10,
+            borderSkipped:false
+        }]
+    },
+            options:{
+                responsive:true, maintainAspectRatio:false,
+            animation:{duration:800, easing:'easeOutQuart'},
+            plugins:{
+                legend:{display:false},
+            tooltip:{
+                backgroundColor:'rgba(15,23,42,0.95)',
+            borderColor:'rgba(255,255,255,0.1)',
+            borderWidth:1, titleColor:'#fff',
+            bodyColor:'rgba(255,255,255,0.6)',
+            padding:10, cornerRadius:10,
+            callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN')}
+            }
+        },
+            scales:{
+                x:{grid:{display:false}, border:{display:false},
+            ticks:{color:TEXT_MID, font:{size:11}}},
+            y:{grid:{color:'rgba(255,255,255,0.04)'}, border:{display:false},
+            ticks:{color:TEXT_MID, font:{size:11},
+                      callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}
+        }
+    }
+});
+
+            // ===== SLIDER =====
+            let cur = 0;
+            function goSlide(i, btn){
+                cur = i;
+            document.getElementById('sl').style.transform = `translateX(-${i * 100}%)`;
     document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.dot').forEach((d,j) => d.classList.toggle('active', j===i));
+            if(btn) btn.classList.add('active');
+    document.querySelectorAll('.dot').forEach((d,j) =>
+            d.classList.toggle('active', j===i));
 }
 
-// Touch swipe
-const sw = document.getElementById('sw');
-let tx = 0;
-sw.addEventListener('touchstart', e=>{ tx=e.changedTouches[0].clientX; },{passive:true});
+            // Touch swipe
+            const sw = document.getElementById('sw');
+            let tx = 0;
+sw.addEventListener('touchstart', e=>{tx = e.changedTouches[0].clientX; },{passive:true});
 sw.addEventListener('touchend', e=>{
     const d = tx - e.changedTouches[0].clientX;
-    if(Math.abs(d)>40){
-        const n = d>0 ? Math.min(cur+1,1) : Math.max(cur-1,0);
-        goSlide(n, document.getElementById(n===0?'tbm':'tby'));
+    if(Math.abs(d) > 40){
+        const n = d>0 ? Math.min(cur+1,2) : Math.max(cur-1,0);
+            goSlide(n, null);
+            // sync toggle button
+            if(n===0) document.getElementById('tbm').classList.add('active');
+            if(n===1) document.getElementById('tby').classList.add('active');
     }
 },{passive:true});
-</script>
+    </script>
 </body>
+
 </html>
