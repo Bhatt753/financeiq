@@ -14,12 +14,10 @@
         body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:white; min-height:100vh; }
 
         .navbar {
-            background:rgba(255,255,255,0.05);
-            backdrop-filter:blur(10px);
+            background:rgba(255,255,255,0.05); backdrop-filter:blur(10px);
             border-bottom:1px solid rgba(255,255,255,0.1);
-            padding:15px 30px;
-            display:flex; justify-content:space-between; align-items:center;
-            position:sticky; top:0; z-index:100;
+            padding:15px 30px; display:flex; justify-content:space-between;
+            align-items:center; position:sticky; top:0; z-index:100;
         }
         .navbar h1 { color:#4ade80; font-size:22px; }
         .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; margin-left:20px; font-size:14px; transition:color 0.3s; }
@@ -30,8 +28,8 @@
 
         .welcome {
             background:linear-gradient(135deg,rgba(74,222,128,0.1),rgba(34,197,94,0.05));
-            border:1px solid rgba(74,222,128,0.2);
-            border-radius:16px; padding:25px 30px; margin-bottom:28px;
+            border:1px solid rgba(74,222,128,0.2); border-radius:16px;
+            padding:25px 30px; margin-bottom:28px;
             display:flex; justify-content:space-between; align-items:center;
         }
         .welcome h2 { font-size:24px; color:#4ade80; }
@@ -95,22 +93,35 @@
         .tbtn.active { background:#4ade80; color:#0f172a; }
 
         .slider-wrap { overflow:hidden; touch-action:pan-y; width:100%; }
-        .slides {
-            display:flex;
-            transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);
-            will-change:transform;
-        }
+        .slides { display:flex; transition:transform 0.45s cubic-bezier(0.22,1,0.36,1); will-change:transform; }
         .slide { flex:0 0 100%; min-width:100%; padding:4px 0; }
-
         .ch-wrap { position:relative; height:260px; width:100%; }
-
-        .two-charts { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-        .two-chart-title { font-size:12px; font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:8px; }
 
         .dots { display:flex; justify-content:center; gap:5px; margin-top:14px; }
         .dot { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.2); cursor:pointer; transition:all 0.2s; }
         .dot.active { background:#4ade80; width:16px; border-radius:3px; }
         .swipe-tip { font-size:10px; color:rgba(255,255,255,0.2); text-align:center; margin-top:6px; }
+
+        /* SPENDING SECTION — below chart on desktop */
+        .spending-section {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:20px;
+            margin-bottom:28px;
+        }
+
+        .spending-card {
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:18px; padding:22px;
+        }
+
+        .spending-card-title {
+            font-size:15px; font-weight:600; color:rgba(255,255,255,0.8);
+            margin-bottom:18px; display:flex; align-items:center; gap:8px;
+        }
+
+        .spending-ch-wrap { position:relative; height:260px; width:100%; }
 
         /* HISTORY */
         .section-title { font-size:18px; color:rgba(255,255,255,0.8); margin-bottom:20px; font-weight:600; }
@@ -151,8 +162,9 @@
             .mobile-actions { display:flex; }
             .quick-links { display:none; }
             .bottom-nav { display:flex; }
-            .two-charts { grid-template-columns:1fr; }
             .ch-wrap { height:200px; }
+            .spending-section { grid-template-columns:1fr; }
+            .spending-ch-wrap { height:220px; }
         }
 
         @media (min-width:769px) {
@@ -177,6 +189,7 @@
 
 <div class="container">
 
+    <!-- WELCOME -->
     <div class="welcome">
         <div>
             <h2>Welcome back, {{ session.name }}! 👋</h2>
@@ -235,45 +248,56 @@
         <a href="/health" class="quick-card"><div class="icon">❤️</div><h3>Health Score</h3><p>See your financial health</p></a>
     </div>
 
-    <!-- CHART CARD -->
+    <!-- MAIN CHART CARD with slider — 3 slides -->
     <div class="chart-card">
         <div class="chart-header">
             <div class="chart-title">📈 Financial Overview</div>
             <div class="toggle-pill">
                 <button class="tbtn active" id="tbm" onclick="goSlide(0,this)">Monthly</button>
                 <button class="tbtn" id="tby" onclick="goSlide(1,this)">Yearly</button>
+                <button class="tbtn" id="tbs" onclick="goSlide(2,this)">Summary</button>
             </div>
         </div>
 
         <div class="slider-wrap" id="sw">
             <div class="slides" id="sl">
+
+                <!-- Slide 0: Monthly Bar -->
                 <div class="slide">
                     <div class="ch-wrap"><canvas id="barC"></canvas></div>
                 </div>
+
+                <!-- Slide 1: Yearly Line -->
                 <div class="slide">
                     <div class="ch-wrap"><canvas id="lineC"></canvas></div>
                 </div>
+
+                <!-- Slide 2: Summary Bar -->
                 <div class="slide">
-                    <div class="two-charts">
-                        <div class="two-chart-item">
-                            <div class="two-chart-title">🍩 Spending by Category</div>
-                            <div class="ch-wrap"><canvas id="donutC"></canvas></div>
-                        </div>
-                        <div class="two-chart-item">
-                            <div class="two-chart-title">📊 Income vs Expenses vs Savings</div>
-                            <div class="ch-wrap"><canvas id="summaryC"></canvas></div>
-                        </div>
-                    </div>
+                    <div class="ch-wrap"><canvas id="summaryC"></canvas></div>
                 </div>
+
             </div>
         </div>
 
         <div class="dots">
             <div class="dot active" onclick="goSlide(0,document.getElementById('tbm'))"></div>
             <div class="dot" onclick="goSlide(1,document.getElementById('tby'))"></div>
-            <div class="dot" onclick="goSlide(2,document.getElementById('tbm'))"></div>
+            <div class="dot" onclick="goSlide(2,document.getElementById('tbs'))"></div>
         </div>
         <div class="swipe-tip">← Swipe to switch views →</div>
+    </div>
+
+    <!-- SPENDING SECTION — separate below on desktop, swipeable on mobile -->
+    <div class="spending-section">
+        <div class="spending-card">
+            <div class="spending-card-title">🍩 Spending by Category</div>
+            <div class="spending-ch-wrap"><canvas id="donutC"></canvas></div>
+        </div>
+        <div class="spending-card">
+            <div class="spending-card-title">💡 Practical Financial Advice</div>
+            <div id="advice-list" style="padding-top:8px;"></div>
+        </div>
     </div>
 
     <!-- HISTORY TABLE -->
@@ -346,7 +370,6 @@ if(hData.length > 0){
 }
 
 const GREEN    = '#4ade80';
-const GREEN_DIM= 'rgba(74,222,128,0.12)';
 const RED      = 'rgba(248,113,113,0.85)';
 const BLUE     = 'rgba(96,165,250,0.85)';
 const TEXT_MID = 'rgba(255,255,255,0.35)';
@@ -358,9 +381,8 @@ const baseOpts = {
         legend:{display:false},
         tooltip:{
             backgroundColor:'rgba(15,23,42,0.95)',
-            borderColor:'rgba(74,222,128,0.3)',
-            borderWidth:1, titleColor:'#fff',
-            bodyColor:'rgba(255,255,255,0.6)',
+            borderColor:'rgba(74,222,128,0.3)', borderWidth:1,
+            titleColor:'#fff', bodyColor:'rgba(255,255,255,0.6)',
             padding:10, cornerRadius:10,
             callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN')}
         }
@@ -373,6 +395,11 @@ const baseOpts = {
     }
 };
 
+const legendOpts = {
+    display:true, position:'top', align:'end',
+    labels:{color:TEXT_MID,font:{size:11},boxWidth:9,boxHeight:9,borderRadius:3,padding:10}
+};
+
 // Chart 1 — Monthly Bar
 new Chart(document.getElementById('barC'),{
     type:'bar',
@@ -380,10 +407,7 @@ new Chart(document.getElementById('barC'),{
         {label:'Income',   data:inc, backgroundColor:GREEN, borderRadius:7, borderSkipped:false},
         {label:'Expenses', data:exp, backgroundColor:'rgba(255,255,255,0.1)', borderRadius:7, borderSkipped:false}
     ]},
-    options:{...baseOpts, plugins:{...baseOpts.plugins,
-        legend:{display:true, position:'top', align:'end',
-            labels:{color:TEXT_MID,font:{size:11},boxWidth:9,boxHeight:9,borderRadius:3,padding:10}}
-    }}
+    options:{...baseOpts, plugins:{...baseOpts.plugins, legend:legendOpts}}
 });
 
 // Chart 2 — Yearly Line
@@ -400,59 +424,29 @@ new Chart(document.getElementById('lineC'),{
          backgroundColor:'rgba(96,165,250,0.05)', fill:true, tension:0.45,
          borderWidth:2, pointBackgroundColor:'rgba(96,165,250,0.8)', pointRadius:3, pointHoverRadius:5}
     ]},
-    options:{...baseOpts, plugins:{...baseOpts.plugins,
-        legend:{display:true, position:'top', align:'end',
-            labels:{color:TEXT_MID,font:{size:11},boxWidth:9,boxHeight:9,borderRadius:3,padding:10}}
-    }}
+    options:{...baseOpts, plugins:{...baseOpts.plugins, legend:legendOpts}}
 });
 
-// Chart 3 — Donut
+// Chart 3 — Summary Bar
 const latestInc = inc.length > 0 ? inc[inc.length-1] : 0;
 const latestExp = exp.length > 0 ? exp[exp.length-1] : 0;
 const latestSav = sav.length > 0 ? sav[sav.length-1] : 0;
-const catData = [0.30,0.20,0.12,0.10,0.08,0.08,0.12].map(p=>Math.round(latestExp*p));
 
-new Chart(document.getElementById('donutC'),{
-    type:'doughnut',
-    data:{
-        labels:['Rent/Housing','Food & Groceries','Transport','Shopping','Healthcare','Entertainment','Other'],
-        datasets:[{data:catData,
-            backgroundColor:['#4ade80','#60a5fa','#fbbf24','#f87171','#a78bfa','#34d399','#fb923c'],
-            borderWidth:0, hoverOffset:8}]
-    },
-    options:{
-        responsive:true, maintainAspectRatio:false,
-        cutout:'65%',
-        animation:{duration:800, easing:'easeOutQuart'},
-        plugins:{
-            legend:{display:true, position:'top',
-                labels:{color:'rgba(255,255,255,0.6)',font:{size:10},boxWidth:10,boxHeight:10,padding:8}},
-            tooltip:{backgroundColor:'rgba(15,23,42,0.95)',borderColor:'rgba(255,255,255,0.1)',
-                borderWidth:1, titleColor:'#fff', bodyColor:'rgba(255,255,255,0.6)',
-                padding:10, cornerRadius:10,
-                callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN')}}
-        }
-    }
-});
-
-// Chart 4 — Summary Bar
 new Chart(document.getElementById('summaryC'),{
     type:'bar',
     data:{
         labels:['Income','Expenses','Savings'],
-        datasets:[{data:[latestInc,latestExp,latestSav],
-            backgroundColor:[GREEN,RED,BLUE], borderRadius:10, borderSkipped:false}]
+        datasets:[{
+            data:[latestInc, latestExp, latestSav],
+            backgroundColor:[GREEN, RED, BLUE],
+            borderRadius:12, borderSkipped:false
+        }]
     },
     options:{
         responsive:true, maintainAspectRatio:false,
         animation:{duration:800, easing:'easeOutQuart'},
-        plugins:{
-            legend:{display:false},
-            tooltip:{backgroundColor:'rgba(15,23,42,0.95)',borderColor:'rgba(255,255,255,0.1)',
-                borderWidth:1, titleColor:'#fff', bodyColor:'rgba(255,255,255,0.6)',
-                padding:10, cornerRadius:10,
-                callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN')}}
-        },
+        plugins:{legend:{display:false},
+            tooltip:{...baseOpts.plugins.tooltip}},
         scales:{
             x:{grid:{display:false}, border:{display:false}, ticks:{color:TEXT_MID,font:{size:11}}},
             y:{grid:{color:'rgba(255,255,255,0.04)'}, border:{display:false},
@@ -460,6 +454,52 @@ new Chart(document.getElementById('summaryC'),{
                       callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}
         }
     }
+});
+
+// Chart 4 — Donut (separate section)
+const catData = [0.30,0.20,0.12,0.10,0.08,0.08,0.12].map(p=>Math.round(latestExp*p));
+new Chart(document.getElementById('donutC'),{
+    type:'doughnut',
+    data:{
+        labels:['Rent/Housing','Food & Groceries','Transport','Shopping','Healthcare','Entertainment','Other'],
+        datasets:[{
+            data:catData,
+            backgroundColor:['#4ade80','#60a5fa','#fbbf24','#f87171','#a78bfa','#34d399','#fb923c'],
+            borderWidth:0, hoverOffset:8
+        }]
+    },
+    options:{
+        responsive:true, maintainAspectRatio:false, cutout:'65%',
+        animation:{duration:800, easing:'easeOutQuart'},
+        plugins:{
+            legend:{display:true, position:'top',
+                labels:{color:'rgba(255,255,255,0.6)',font:{size:10},boxWidth:10,boxHeight:10,padding:8}},
+            tooltip:{
+                backgroundColor:'rgba(15,23,42,0.95)',borderColor:'rgba(255,255,255,0.1)',
+                borderWidth:1, titleColor:'#fff', bodyColor:'rgba(255,255,255,0.6)',
+                padding:10, cornerRadius:10,
+                callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN')}
+            }
+        }
+    }
+});
+
+// Advice list
+const adviceList = document.getElementById('advice-list');
+const tips = [
+    {icon:'💰', text:'Save at least 20% of your income every month.'},
+    {icon:'🏦', text:'Keep 6 months of expenses as emergency fund.'},
+    {icon:'📉', text:'Keep EMIs below 30% of your monthly income.'},
+    {icon:'📈', text:'Invest early — time in market beats timing the market.'},
+    {icon:'🎯', text:'Set specific savings goals with deadlines.'},
+];
+tips.forEach(t => {
+    adviceList.innerHTML += `
+        <div style="display:flex;gap:10px;align-items:flex-start;
+                    padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+            <span style="font-size:18px;flex-shrink:0">${t.icon}</span>
+            <span style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.5">${t.text}</span>
+        </div>`;
 });
 
 // Slider
@@ -480,9 +520,8 @@ sw.addEventListener('touchend', e=>{
     const d = tx - e.changedTouches[0].clientX;
     if(Math.abs(d) > 40){
         const n = d>0 ? Math.min(cur+1,2) : Math.max(cur-1,0);
-        goSlide(n, null);
-        if(n===0) document.getElementById('tbm').classList.add('active');
-        if(n===1) document.getElementById('tby').classList.add('active');
+        const btns = ['tbm','tby','tbs'];
+        goSlide(n, document.getElementById(btns[n]));
     }
 },{passive:true});
 </script>
