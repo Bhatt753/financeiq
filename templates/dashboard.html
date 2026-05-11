@@ -76,7 +76,8 @@
         /* CHART CARD */
         .chart-card {
             background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
-            border-radius:18px; padding:22px; margin-bottom:24px; overflow:hidden; width:100%;
+            border-radius:18px; padding:22px; margin-bottom:24px;
+            overflow:hidden; width:100%;
         }
         .chart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
         .chart-title { font-size:16px; font-weight:600; color:white; }
@@ -92,17 +93,31 @@
         }
         .tbtn.active { background:#4ade80; color:#0f172a; }
 
-        .slider-wrap { overflow:hidden; touch-action:pan-y; width:100%; }
-        .slides { display:flex; transition:transform 0.45s cubic-bezier(0.22,1,0.36,1); will-change:transform; }
-        .slide { flex:0 0 100%; min-width:100%; padding:4px 0; }
+        /* KEY FIX: touch-action:none allows horizontal swipe */
+        .slider-wrap {
+            overflow:hidden;
+            touch-action:none;
+            width:100%;
+            cursor:grab;
+        }
+        .slider-wrap:active { cursor:grabbing; }
+        .slides {
+            display:flex;
+            transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);
+            will-change:transform;
+        }
+        .slide { flex:0 0 100%; min-width:100%; }
         .ch-wrap { position:relative; height:260px; width:100%; }
 
-        .dots { display:flex; justify-content:center; gap:5px; margin-top:14px; }
-        .dot { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.2); cursor:pointer; transition:all 0.2s; }
-        .dot.active { background:#4ade80; width:16px; border-radius:3px; }
+        .chart-dots { display:flex; justify-content:center; gap:6px; margin-top:14px; }
+        .chart-dot {
+            width:6px; height:6px; border-radius:50%;
+            background:rgba(255,255,255,0.2); cursor:pointer; transition:all 0.25s;
+        }
+        .chart-dot.active { background:#4ade80; width:18px; border-radius:3px; }
         .swipe-tip { font-size:10px; color:rgba(255,255,255,0.2); text-align:center; margin-top:6px; }
 
-        /* SPENDING SECTION */
+        /* DESKTOP SPENDING */
         .spending-section {
             display:grid; grid-template-columns:1fr 1fr;
             gap:20px; margin-bottom:28px;
@@ -114,9 +129,9 @@
         }
         .spending-card-title {
             font-size:15px; font-weight:600; color:rgba(255,255,255,0.8);
-            margin-bottom:18px; display:flex; align-items:center; gap:8px;
+            margin-bottom:18px;
         }
-        .spending-ch-wrap { position:relative; height:260px; width:100%; }
+        .spending-ch-wrap { position:relative; height:280px; width:100%; }
 
         /* MOBILE SPENDING SLIDER */
         .mobile-spending-card {
@@ -125,14 +140,18 @@
             border:1px solid rgba(255,255,255,0.08);
             border-radius:18px; padding:22px; margin-bottom:24px; overflow:hidden;
         }
-        .mobile-spending-header {
-            display:flex; justify-content:space-between;
-            align-items:center; margin-bottom:18px;
+        .mob-slider-wrap {
+            overflow:hidden;
+            touch-action:none;
+            width:100%;
         }
-        .mob-slider-wrap { overflow:hidden; touch-action:pan-y; width:100%; }
-        .mob-slides { display:flex; transition:transform 0.45s cubic-bezier(0.22,1,0.36,1); will-change:transform; }
-        .mob-slide { flex:0 0 100%; min-width:100%; padding:4px 0; }
-        .mob-ch-wrap { position:relative; height:240px; width:100%; }
+        .mob-slides {
+            display:flex;
+            transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);
+            will-change:transform;
+        }
+        .mob-slide { flex:0 0 100%; min-width:100%; }
+        .mob-ch-wrap { position:relative; height:260px; width:100%; }
 
         /* HISTORY */
         .section-title { font-size:18px; color:rgba(255,255,255,0.8); margin-bottom:20px; font-weight:600; }
@@ -174,7 +193,6 @@
             .quick-links { display:none; }
             .bottom-nav { display:flex; }
             .ch-wrap { height:200px; }
-            /* Hide desktop spending, show mobile spending slider */
             .spending-section { display:none; }
             .mobile-spending-card { display:block; }
         }
@@ -203,7 +221,6 @@
 
 <div class="container">
 
-    <!-- WELCOME -->
     <div class="welcome">
         <div>
             <h2>Welcome back, {{ session.name }}! 👋</h2>
@@ -215,39 +232,27 @@
     <!-- MOBILE CIRCULAR ACTIONS -->
     <div class="mobile-actions">
         <a href="/add_data" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-            </div>
+            <div class="mob-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
             <span>Add Data</span>
         </a>
         <a href="/goal" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-            </div>
+            <div class="mob-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
             <span>Goals</span>
         </a>
         <a href="/my_goals" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
+            <div class="mob-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
             <span>My Goals</span>
         </a>
         <a href="/loans" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
+            <div class="mob-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
             <span>Loans</span>
         </a>
         <a href="/history" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
+            <div class="mob-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
             <span>History</span>
         </a>
         <a href="/health" class="mob-act">
-            <div class="mob-circle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            </div>
+            <div class="mob-circle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
             <span>Health</span>
         </a>
     </div>
@@ -262,7 +267,7 @@
         <a href="/health" class="quick-card"><div class="icon">❤️</div><h3>Health Score</h3><p>See your financial health</p></a>
     </div>
 
-    <!-- MAIN CHART CARD — Monthly & Yearly only -->
+    <!-- MAIN CHART CARD -->
     <div class="chart-card">
         <div class="chart-header">
             <div class="chart-title">📈 Financial Overview</div>
@@ -274,25 +279,19 @@
 
         <div class="slider-wrap" id="sw">
             <div class="slides" id="sl">
-                <!-- Slide 0: Monthly Bar -->
-                <div class="slide">
-                    <div class="ch-wrap"><canvas id="barC"></canvas></div>
-                </div>
-                <!-- Slide 1: Yearly Line -->
-                <div class="slide">
-                    <div class="ch-wrap"><canvas id="lineC"></canvas></div>
-                </div>
+                <div class="slide"><div class="ch-wrap"><canvas id="barC"></canvas></div></div>
+                <div class="slide"><div class="ch-wrap"><canvas id="lineC"></canvas></div></div>
             </div>
         </div>
 
-        <div class="dots">
-            <div class="dot active" onclick="goSlide(0,document.getElementById('tbm'))"></div>
-            <div class="dot" onclick="goSlide(1,document.getElementById('tby'))"></div>
+        <div class="chart-dots" id="main-dots">
+            <div class="chart-dot active" onclick="goSlide(0,document.getElementById('tbm'))"></div>
+            <div class="chart-dot" onclick="goSlide(1,document.getElementById('tby'))"></div>
         </div>
         <div class="swipe-tip">← Swipe to switch views →</div>
     </div>
 
-    <!-- DESKTOP SPENDING SECTION — side by side -->
+    <!-- DESKTOP SPENDING -->
     <div class="spending-section">
         <div class="spending-card">
             <div class="spending-card-title">🍩 Spending by Category</div>
@@ -304,9 +303,9 @@
         </div>
     </div>
 
-    <!-- MOBILE SPENDING SLIDER — swipeable -->
+    <!-- MOBILE SPENDING SLIDER -->
     <div class="mobile-spending-card">
-        <div class="mobile-spending-header">
+        <div class="chart-header">
             <div class="chart-title">🍩 Spending</div>
             <div class="toggle-pill">
                 <button class="tbtn active" id="stb0" onclick="goMobSlide(0,this)">Category</button>
@@ -315,22 +314,18 @@
         </div>
         <div class="mob-slider-wrap" id="msw">
             <div class="mob-slides" id="msl">
-                <div class="mob-slide">
-                    <div class="mob-ch-wrap"><canvas id="donutC2"></canvas></div>
-                </div>
-                <div class="mob-slide">
-                    <div class="mob-ch-wrap"><canvas id="summaryC2"></canvas></div>
-                </div>
+                <div class="mob-slide"><div class="mob-ch-wrap"><canvas id="donutC2"></canvas></div></div>
+                <div class="mob-slide"><div class="mob-ch-wrap"><canvas id="summaryC2"></canvas></div></div>
             </div>
         </div>
-        <div class="dots" style="margin-top:12px;">
-            <div class="dot active" id="msd0" onclick="goMobSlide(0,document.getElementById('stb0'))"></div>
-            <div class="dot" id="msd1" onclick="goMobSlide(1,document.getElementById('stb1'))"></div>
+        <div class="chart-dots" id="mob-dots">
+            <div class="chart-dot active" onclick="goMobSlide(0,document.getElementById('stb0'))"></div>
+            <div class="chart-dot" onclick="goMobSlide(1,document.getElementById('stb1'))"></div>
         </div>
         <div class="swipe-tip">← Swipe to switch →</div>
     </div>
 
-    <!-- HISTORY TABLE -->
+    <!-- HISTORY -->
     <div id="history">
         <div class="section-title">📅 Monthly History</div>
         {% if history %}
@@ -394,173 +389,154 @@ if(hData.length > 0){
     sav    = recent.map(h => Math.max(h.savings,0));
 } else {
     labels = ['Jan','Feb','Mar','Apr','May','Jun'];
-    inc = [0,0,0,0,0,0];
-    exp = [0,0,0,0,0,0];
-    sav = [0,0,0,0,0,0];
+    inc=[0,0,0,0,0,0]; exp=[0,0,0,0,0,0]; sav=[0,0,0,0,0,0];
 }
 
-const GREEN    = '#4ade80';
-const RED      = 'rgba(248,113,113,0.85)';
-const BLUE     = 'rgba(96,165,250,0.85)';
-const TEXT_MID = 'rgba(255,255,255,0.35)';
+const GREEN='#4ade80', RED='rgba(248,113,113,0.85)',
+      BLUE='rgba(96,165,250,0.85)', TM='rgba(255,255,255,0.35)';
 
-const baseOpts = {
-    responsive:true, maintainAspectRatio:false,
-    animation:{duration:800, easing:'easeOutQuart'},
-    plugins:{
-        legend:{display:false},
-        tooltip:{
-            backgroundColor:'rgba(15,23,42,0.95)',
-            borderColor:'rgba(74,222,128,0.3)', borderWidth:1,
-            titleColor:'#fff', bodyColor:'rgba(255,255,255,0.6)',
-            padding:10, cornerRadius:10,
-            callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN')}
-        }
-    },
-    scales:{
-        x:{grid:{display:false}, border:{display:false}, ticks:{color:TEXT_MID,font:{size:11}}},
-        y:{grid:{color:'rgba(255,255,255,0.04)'}, border:{display:false},
-           ticks:{color:TEXT_MID,font:{size:11},
-                  callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}
-    }
+const tt = {
+    backgroundColor:'rgba(15,23,42,0.95)',
+    borderColor:'rgba(74,222,128,0.3)', borderWidth:1,
+    titleColor:'#fff', bodyColor:'rgba(255,255,255,0.6)',
+    padding:10, cornerRadius:10,
+    callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN')}
 };
 
-const legendOpts = {
-    display:true, position:'top', align:'end',
-    labels:{color:TEXT_MID,font:{size:11},boxWidth:9,boxHeight:9,borderRadius:3,padding:10}
+const scl = {
+    x:{grid:{display:false},border:{display:false},ticks:{color:TM,font:{size:11}}},
+    y:{grid:{color:'rgba(255,255,255,0.04)'},border:{display:false},
+       ticks:{color:TM,font:{size:11},callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}
 };
+
+const leg = {display:true,position:'top',align:'end',
+    labels:{color:TM,font:{size:11},boxWidth:9,boxHeight:9,borderRadius:3,padding:10}};
 
 // Chart 1 — Monthly Bar
 new Chart(document.getElementById('barC'),{
     type:'bar',
-    data:{labels, datasets:[
-        {label:'Income',   data:inc, backgroundColor:GREEN, borderRadius:7, borderSkipped:false},
-        {label:'Expenses', data:exp, backgroundColor:'rgba(255,255,255,0.1)', borderRadius:7, borderSkipped:false}
+    data:{labels,datasets:[
+        {label:'Income',   data:inc,backgroundColor:GREEN,borderRadius:7,borderSkipped:false},
+        {label:'Expenses', data:exp,backgroundColor:'rgba(255,255,255,0.1)',borderRadius:7,borderSkipped:false}
     ]},
-    options:{...baseOpts, plugins:{...baseOpts.plugins, legend:legendOpts}}
+    options:{responsive:true,maintainAspectRatio:false,
+        animation:{duration:800,easing:'easeOutQuart'},
+        plugins:{legend:leg,tooltip:tt},scales:scl}
 });
 
 // Chart 2 — Yearly Line
 new Chart(document.getElementById('lineC'),{
     type:'line',
-    data:{labels, datasets:[
-        {label:'Income',   data:inc, borderColor:GREEN,
-         backgroundColor:'rgba(74,222,128,0.08)', fill:true, tension:0.45,
-         borderWidth:2.5, pointBackgroundColor:GREEN, pointRadius:3, pointHoverRadius:5},
-        {label:'Expenses', data:exp, borderColor:'rgba(248,113,113,0.8)',
-         backgroundColor:'rgba(248,113,113,0.05)', fill:true, tension:0.45,
-         borderWidth:2, pointBackgroundColor:'rgba(248,113,113,0.8)', pointRadius:3},
-        {label:'Savings',  data:sav, borderColor:'rgba(96,165,250,0.8)',
-         backgroundColor:'rgba(96,165,250,0.05)', fill:true, tension:0.45,
-         borderWidth:2, pointBackgroundColor:'rgba(96,165,250,0.8)', pointRadius:3}
+    data:{labels,datasets:[
+        {label:'Income',  data:inc,borderColor:GREEN,backgroundColor:'rgba(74,222,128,0.08)',
+         fill:true,tension:0.45,borderWidth:2.5,pointBackgroundColor:GREEN,pointRadius:3},
+        {label:'Expenses',data:exp,borderColor:'rgba(248,113,113,0.8)',
+         backgroundColor:'rgba(248,113,113,0.05)',fill:true,tension:0.45,borderWidth:2,
+         pointBackgroundColor:'rgba(248,113,113,0.8)',pointRadius:3},
+        {label:'Savings', data:sav,borderColor:'rgba(96,165,250,0.8)',
+         backgroundColor:'rgba(96,165,250,0.05)',fill:true,tension:0.45,borderWidth:2,
+         pointBackgroundColor:'rgba(96,165,250,0.8)',pointRadius:3}
     ]},
-    options:{...baseOpts, plugins:{...baseOpts.plugins, legend:legendOpts}}
+    options:{responsive:true,maintainAspectRatio:false,
+        animation:{duration:800,easing:'easeOutQuart'},
+        plugins:{legend:leg,tooltip:tt},scales:scl}
 });
 
-const latestInc = inc.length > 0 ? inc[inc.length-1] : 0;
-const latestExp = exp.length > 0 ? exp[exp.length-1] : 0;
-const latestSav = sav.length > 0 ? sav[sav.length-1] : 0;
+const latestInc = inc.length>0?inc[inc.length-1]:0;
+const latestExp = exp.length>0?exp[exp.length-1]:0;
+const latestSav = sav.length>0?sav[sav.length-1]:0;
 const catData   = [0.30,0.20,0.12,0.10,0.08,0.08,0.12].map(p=>Math.round(latestExp*p));
-
 const catColors = ['#4ade80','#60a5fa','#fbbf24','#f87171','#a78bfa','#34d399','#fb923c'];
 const catLabels = ['Rent/Housing','Food & Groceries','Transport','Shopping','Healthcare','Entertainment','Other'];
 
-const donutConfig = {
+const dCfg = {
     type:'doughnut',
-    data:{
-        labels:catLabels,
-        datasets:[{data:catData, backgroundColor:catColors, borderWidth:0, hoverOffset:8}]
-    },
-    options:{
-        responsive:true, maintainAspectRatio:false, cutout:'65%',
-        animation:{duration:800, easing:'easeOutQuart'},
+    data:{labels:catLabels,datasets:[{data:catData,backgroundColor:catColors,borderWidth:0,hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+        animation:{duration:800,easing:'easeOutQuart'},
         plugins:{
-            legend:{display:true, position:'top',
-                labels:{color:'rgba(255,255,255,0.6)',font:{size:10},boxWidth:10,boxHeight:10,padding:8}},
-            tooltip:{
-                backgroundColor:'rgba(15,23,42,0.95)',borderColor:'rgba(255,255,255,0.1)',
-                borderWidth:1, titleColor:'#fff', bodyColor:'rgba(255,255,255,0.6)',
-                padding:10, cornerRadius:10,
-                callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN')}
-            }
+            legend:{display:true,position:'top',labels:{color:'rgba(255,255,255,0.6)',font:{size:10},boxWidth:10,boxHeight:10,padding:8}},
+            tooltip:{...tt}
         }
     }
 };
 
-const summaryConfig = {
+const sCfg = {
     type:'bar',
-    data:{
-        labels:['Income','Expenses','Savings'],
-        datasets:[{
-            data:[latestInc, latestExp, latestSav],
-            backgroundColor:[GREEN, RED, BLUE],
-            borderRadius:12, borderSkipped:false
-        }]
-    },
-    options:{
-        responsive:true, maintainAspectRatio:false,
-        animation:{duration:800, easing:'easeOutQuart'},
-        plugins:{legend:{display:false}, tooltip:{...baseOpts.plugins.tooltip}},
-        scales:{
-            x:{grid:{display:false}, border:{display:false}, ticks:{color:TEXT_MID,font:{size:11}}},
-            y:{grid:{color:'rgba(255,255,255,0.04)'}, border:{display:false},
-               ticks:{color:TEXT_MID,font:{size:11},
-                      callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}
-        }
-    }
+    data:{labels:['Income','Expenses','Savings'],
+        datasets:[{data:[latestInc,latestExp,latestSav],
+            backgroundColor:[GREEN,RED,BLUE],borderRadius:12,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+        animation:{duration:800,easing:'easeOutQuart'},
+        plugins:{legend:{display:false},tooltip:tt},
+        scales:scl}
 };
 
-// Desktop charts
-if(document.getElementById('donutC'))   new Chart(document.getElementById('donutC'),   donutConfig);
-if(document.getElementById('summaryC')) new Chart(document.getElementById('summaryC'), summaryConfig);
+// Render all charts
+new Chart(document.getElementById('donutC'),   JSON.parse(JSON.stringify(dCfg)));
+new Chart(document.getElementById('summaryC'), JSON.parse(JSON.stringify(sCfg)));
+new Chart(document.getElementById('donutC2'),  JSON.parse(JSON.stringify(dCfg)));
+new Chart(document.getElementById('summaryC2'),JSON.parse(JSON.stringify(sCfg)));
 
-// Mobile charts
-if(document.getElementById('donutC2'))   new Chart(document.getElementById('donutC2'),   donutConfig);
-if(document.getElementById('summaryC2')) new Chart(document.getElementById('summaryC2'), summaryConfig);
-
-// Main slider
+// ===== MAIN SLIDER =====
 let cur = 0;
+const sl  = document.getElementById('sl');
+const mainDots = document.querySelectorAll('#main-dots .chart-dot');
+
 function goSlide(i, btn){
     cur = i;
-    document.getElementById('sl').style.transform = `translateX(-${i*100}%)`;
-    document.querySelectorAll('#sw .tbtn').forEach(b => b.classList.remove('active'));
+    sl.style.transform = `translateX(-${i*100}%)`;
+    document.querySelectorAll('#tbm,#tby').forEach(b=>b.classList.remove('active'));
     if(btn) btn.classList.add('active');
-    document.querySelectorAll('#sw ~ .dots .dot').forEach((d,j) => d.classList.toggle('active', j===i));
+    mainDots.forEach((d,j)=>d.classList.toggle('active',j===i));
 }
 
-// Touch swipe — main
+// Main swipe — using pointer events for better mobile support
+let startX=0, isDragging=false;
 const sw = document.getElementById('sw');
-let tx = 0;
-sw.addEventListener('touchstart', e=>{ tx=e.changedTouches[0].clientX; },{passive:true});
-sw.addEventListener('touchend', e=>{
-    const d = tx - e.changedTouches[0].clientX;
-    if(Math.abs(d) > 40){
-        const n = d>0 ? Math.min(cur+1,1) : Math.max(cur-1,0);
+
+sw.addEventListener('pointerdown', e=>{
+    startX = e.clientX; isDragging=true;
+    sw.setPointerCapture(e.pointerId);
+},{passive:true});
+
+sw.addEventListener('pointerup', e=>{
+    if(!isDragging) return;
+    isDragging=false;
+    const diff = startX - e.clientX;
+    if(Math.abs(diff) > 40){
+        const n = diff>0 ? Math.min(cur+1,1) : Math.max(cur-1,0);
         goSlide(n, document.getElementById(n===0?'tbm':'tby'));
     }
 },{passive:true});
 
-// Mobile spending slider
+// ===== MOBILE SPENDING SLIDER =====
 let mcur = 0;
+const msl = document.getElementById('msl');
+const mobDots = document.querySelectorAll('#mob-dots .chart-dot');
+
 function goMobSlide(i, btn){
     mcur = i;
-    document.getElementById('msl').style.transform = `translateX(-${i*100}%)`;
-    document.querySelectorAll('#msw ~ * .tbtn, .mobile-spending-card .tbtn')
-        .forEach(b => b.classList.remove('active'));
+    msl.style.transform = `translateX(-${i*100}%)`;
+    document.querySelectorAll('#stb0,#stb1').forEach(b=>b.classList.remove('active'));
     if(btn) btn.classList.add('active');
-    [document.getElementById('msd0'), document.getElementById('msd1')]
-        .forEach((d,j) => d && d.classList.toggle('active', j===i));
+    mobDots.forEach((d,j)=>d.classList.toggle('active',j===i));
 }
 
-// Touch swipe — mobile spending
+let mStartX=0, mDragging=false;
 const msw = document.getElementById('msw');
-let mtx = 0;
 if(msw){
-    msw.addEventListener('touchstart', e=>{ mtx=e.changedTouches[0].clientX; },{passive:true});
-    msw.addEventListener('touchend', e=>{
-        const d = mtx - e.changedTouches[0].clientX;
-        if(Math.abs(d) > 40){
-            const n = d>0 ? Math.min(mcur+1,1) : Math.max(mcur-1,0);
+    msw.addEventListener('pointerdown', e=>{
+        mStartX=e.clientX; mDragging=true;
+        msw.setPointerCapture(e.pointerId);
+    },{passive:true});
+
+    msw.addEventListener('pointerup', e=>{
+        if(!mDragging) return;
+        mDragging=false;
+        const diff = mStartX - e.clientX;
+        if(Math.abs(diff) > 40){
+            const n = diff>0 ? Math.min(mcur+1,1) : Math.max(mcur-1,0);
             goMobSlide(n, document.getElementById(n===0?'stb0':'stb1'));
         }
     },{passive:true});
