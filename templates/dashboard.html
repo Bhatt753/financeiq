@@ -45,7 +45,7 @@
         .mobile-actions {
             display:none; overflow-x:auto; gap:16px;
             padding:4px 0 12px; margin-bottom:24px;
-            scrollbar-width:none; -webkit-tap-highlight-color:transparent;
+            scrollbar-width:none;
         }
         .mobile-actions::-webkit-scrollbar { display:none; }
         .mob-act { flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none; min-width:64px; }
@@ -58,7 +58,7 @@
         .mob-circle svg { width:22px; height:22px; }
         .mob-act:hover .mob-circle, .mob-act:active .mob-circle {
             background:rgba(74,222,128,0.15); border-color:#4ade80;
-            transform:translateY(-3px); box-shadow:0 10px 24px rgba(74,222,128,0.2);
+            transform:translateY(-3px);
         }
         .mob-act span { font-size:11px; font-weight:600; color:rgba(255,255,255,0.55); text-align:center; }
 
@@ -79,7 +79,7 @@
             border-radius:18px; padding:22px; margin-bottom:24px;
             overflow:hidden; width:100%;
         }
-        .chart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+        .chart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px; }
         .chart-title { font-size:16px; font-weight:600; color:white; }
 
         .toggle-pill {
@@ -87,71 +87,44 @@
             border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:3px; gap:2px;
         }
         .tbtn {
-            padding:5px 14px; border-radius:16px; font-size:12px; font-weight:600;
+            padding:5px 12px; border-radius:16px; font-size:11px; font-weight:600;
             border:none; background:none; cursor:pointer; color:rgba(255,255,255,0.45);
             font-family:'Segoe UI',sans-serif; transition:all 0.22s;
         }
         .tbtn.active { background:#4ade80; color:#0f172a; }
 
-        /* KEY FIX: touch-action:none allows horizontal swipe */
-        .slider-wrap {
+        /* SLIDER */
+        .slider-outer {
             overflow:hidden;
-            touch-action:none;
             width:100%;
-            cursor:grab;
+            border-radius:10px;
+            user-select:none;
         }
-        .slider-wrap:active { cursor:grabbing; }
-        .slides {
+        .slider-track {
             display:flex;
-            transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);
+            transition:transform 0.42s cubic-bezier(0.25,1,0.5,1);
             will-change:transform;
         }
-        .slide { flex:0 0 100%; min-width:100%; }
+        .slider-item {
+            flex:0 0 100%;
+            min-width:100%;
+        }
         .ch-wrap { position:relative; height:260px; width:100%; }
 
+        /* Dots */
         .chart-dots { display:flex; justify-content:center; gap:6px; margin-top:14px; }
         .chart-dot {
             width:6px; height:6px; border-radius:50%;
             background:rgba(255,255,255,0.2); cursor:pointer; transition:all 0.25s;
         }
-        .chart-dot.active { background:#4ade80; width:18px; border-radius:3px; }
-        .swipe-tip { font-size:10px; color:rgba(255,255,255,0.2); text-align:center; margin-top:6px; }
+        .chart-dot.active { background:#4ade80; width:20px; border-radius:3px; }
+        .swipe-tip { font-size:10px; color:rgba(255,255,255,0.18); text-align:center; margin-top:7px; }
 
         /* DESKTOP SPENDING */
-        .spending-section {
-            display:grid; grid-template-columns:1fr 1fr;
-            gap:20px; margin-bottom:28px;
-        }
-        .spending-card {
-            background:rgba(255,255,255,0.04);
-            border:1px solid rgba(255,255,255,0.08);
-            border-radius:18px; padding:22px;
-        }
-        .spending-card-title {
-            font-size:15px; font-weight:600; color:rgba(255,255,255,0.8);
-            margin-bottom:18px;
-        }
+        .spending-section { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:28px; }
+        .spending-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:22px; }
+        .spending-card-title { font-size:15px; font-weight:600; color:rgba(255,255,255,0.8); margin-bottom:18px; }
         .spending-ch-wrap { position:relative; height:280px; width:100%; }
-
-        /* MOBILE SPENDING SLIDER */
-        .mobile-spending-card {
-            display:none;
-            background:rgba(255,255,255,0.04);
-            border:1px solid rgba(255,255,255,0.08);
-            border-radius:18px; padding:22px; margin-bottom:24px; overflow:hidden;
-        }
-        .mob-slider-wrap {
-            overflow:hidden;
-            touch-action:none;
-            width:100%;
-        }
-        .mob-slides {
-            display:flex;
-            transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);
-            will-change:transform;
-        }
-        .mob-slide { flex:0 0 100%; min-width:100%; }
-        .mob-ch-wrap { position:relative; height:260px; width:100%; }
 
         /* HISTORY */
         .section-title { font-size:18px; color:rgba(255,255,255,0.8); margin-bottom:20px; font-weight:600; }
@@ -182,6 +155,7 @@
         .bottom-nav a.active, .bottom-nav a:hover { color:#4ade80; }
         .nav-icon { font-size:20px; }
 
+        /* MOBILE: 3-slide chart, hide desktop spending */
         @media (max-width:768px) {
             .container { padding:18px 14px 90px; }
             .navbar { padding:12px 16px; }
@@ -192,9 +166,10 @@
             .mobile-actions { display:flex; }
             .quick-links { display:none; }
             .bottom-nav { display:flex; }
-            .ch-wrap { height:200px; }
+            .ch-wrap { height:220px; }
             .spending-section { display:none; }
-            .mobile-spending-card { display:block; }
+            /* Show 3rd dot on mobile only */
+            .dot-spending { display:flex; }
         }
 
         @media (min-width:769px) {
@@ -202,7 +177,10 @@
             .quick-links { display:grid; }
             .bottom-nav { display:none; }
             .spending-section { display:grid; }
-            .mobile-spending-card { display:none; }
+            /* Hide 3rd dot on desktop */
+            .dot-spending { display:none; }
+            /* Hide 3rd slide on desktop */
+            .slide-spending { display:none; }
         }
     </style>
 </head>
@@ -267,62 +245,56 @@
         <a href="/health" class="quick-card"><div class="icon">❤️</div><h3>Health Score</h3><p>See your financial health</p></a>
     </div>
 
-    <!-- MAIN CHART CARD -->
+    <!-- UNIFIED CHART CARD -->
     <div class="chart-card">
         <div class="chart-header">
             <div class="chart-title">📈 Financial Overview</div>
             <div class="toggle-pill">
-                <button class="tbtn active" id="tbm" onclick="goSlide(0,this)">Monthly</button>
-                <button class="tbtn" id="tby" onclick="goSlide(1,this)">Yearly</button>
+                <button class="tbtn active" id="tb0" onclick="go(0,this)">Monthly</button>
+                <button class="tbtn"         id="tb1" onclick="go(1,this)">Yearly</button>
+                <button class="tbtn dot-spending" id="tb2" onclick="go(2,this)">Spending</button>
             </div>
         </div>
 
-        <div class="slider-wrap" id="sw">
-            <div class="slides" id="sl">
-                <div class="slide"><div class="ch-wrap"><canvas id="barC"></canvas></div></div>
-                <div class="slide"><div class="ch-wrap"><canvas id="lineC"></canvas></div></div>
+        <div class="slider-outer" id="slOuter">
+            <div class="slider-track" id="slTrack">
+
+                <!-- Slide 0: Monthly Bar -->
+                <div class="slider-item">
+                    <div class="ch-wrap"><canvas id="barC"></canvas></div>
+                </div>
+
+                <!-- Slide 1: Yearly Line -->
+                <div class="slider-item">
+                    <div class="ch-wrap"><canvas id="lineC"></canvas></div>
+                </div>
+
+                <!-- Slide 2: Donut — mobile only -->
+                <div class="slider-item slide-spending">
+                    <div class="ch-wrap"><canvas id="donutMob"></canvas></div>
+                </div>
+
             </div>
         </div>
 
-        <div class="chart-dots" id="main-dots">
-            <div class="chart-dot active" onclick="goSlide(0,document.getElementById('tbm'))"></div>
-            <div class="chart-dot" onclick="goSlide(1,document.getElementById('tby'))"></div>
+        <div class="chart-dots">
+            <div class="chart-dot active" onclick="go(0,document.getElementById('tb0'))"></div>
+            <div class="chart-dot"        onclick="go(1,document.getElementById('tb1'))"></div>
+            <div class="chart-dot dot-spending" onclick="go(2,document.getElementById('tb2'))"></div>
         </div>
-        <div class="swipe-tip">← Swipe to switch views →</div>
+        <div class="swipe-tip">← Swipe left or right to switch →</div>
     </div>
 
-    <!-- DESKTOP SPENDING -->
+    <!-- DESKTOP SPENDING — below chart -->
     <div class="spending-section">
         <div class="spending-card">
             <div class="spending-card-title">🍩 Spending by Category</div>
-            <div class="spending-ch-wrap"><canvas id="donutC"></canvas></div>
+            <div class="spending-ch-wrap"><canvas id="donutDesk"></canvas></div>
         </div>
         <div class="spending-card">
             <div class="spending-card-title">📊 Income vs Expenses vs Savings</div>
-            <div class="spending-ch-wrap"><canvas id="summaryC"></canvas></div>
+            <div class="spending-ch-wrap"><canvas id="summaryDesk"></canvas></div>
         </div>
-    </div>
-
-    <!-- MOBILE SPENDING SLIDER -->
-    <div class="mobile-spending-card">
-        <div class="chart-header">
-            <div class="chart-title">🍩 Spending</div>
-            <div class="toggle-pill">
-                <button class="tbtn active" id="stb0" onclick="goMobSlide(0,this)">Category</button>
-                <button class="tbtn" id="stb1" onclick="goMobSlide(1,this)">Summary</button>
-            </div>
-        </div>
-        <div class="mob-slider-wrap" id="msw">
-            <div class="mob-slides" id="msl">
-                <div class="mob-slide"><div class="mob-ch-wrap"><canvas id="donutC2"></canvas></div></div>
-                <div class="mob-slide"><div class="mob-ch-wrap"><canvas id="summaryC2"></canvas></div></div>
-            </div>
-        </div>
-        <div class="chart-dots" id="mob-dots">
-            <div class="chart-dot active" onclick="goMobSlide(0,document.getElementById('stb0'))"></div>
-            <div class="chart-dot" onclick="goMobSlide(1,document.getElementById('stb1'))"></div>
-        </div>
-        <div class="swipe-tip">← Swipe to switch →</div>
     </div>
 
     <!-- HISTORY -->
@@ -388,48 +360,46 @@ if(hData.length > 0){
     exp    = recent.map(h => h.total_expenses);
     sav    = recent.map(h => Math.max(h.savings,0));
 } else {
-    labels = ['Jan','Feb','Mar','Apr','May','Jun'];
-    inc=[0,0,0,0,0,0]; exp=[0,0,0,0,0,0]; sav=[0,0,0,0,0,0];
+    labels=['Jan','Feb','Mar','Apr','May','Jun'];
+    inc=exp=sav=[0,0,0,0,0,0];
 }
 
-const GREEN='#4ade80', RED='rgba(248,113,113,0.85)',
-      BLUE='rgba(96,165,250,0.85)', TM='rgba(255,255,255,0.35)';
+const G='#4ade80', R='rgba(248,113,113,0.85)',
+      B='rgba(96,165,250,0.85)', TM='rgba(255,255,255,0.35)';
 
-const tt = {
+const tt={
     backgroundColor:'rgba(15,23,42,0.95)',
-    borderColor:'rgba(74,222,128,0.3)', borderWidth:1,
-    titleColor:'#fff', bodyColor:'rgba(255,255,255,0.6)',
-    padding:10, cornerRadius:10,
+    borderColor:'rgba(74,222,128,0.3)',borderWidth:1,
+    titleColor:'#fff',bodyColor:'rgba(255,255,255,0.6)',
+    padding:10,cornerRadius:10,
     callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN')}
 };
-
-const scl = {
+const sc={
     x:{grid:{display:false},border:{display:false},ticks:{color:TM,font:{size:11}}},
     y:{grid:{color:'rgba(255,255,255,0.04)'},border:{display:false},
        ticks:{color:TM,font:{size:11},callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}
 };
-
-const leg = {display:true,position:'top',align:'end',
+const lg={display:true,position:'top',align:'end',
     labels:{color:TM,font:{size:11},boxWidth:9,boxHeight:9,borderRadius:3,padding:10}};
 
-// Chart 1 — Monthly Bar
+// Slide 0 — Monthly Bar
 new Chart(document.getElementById('barC'),{
     type:'bar',
     data:{labels,datasets:[
-        {label:'Income',   data:inc,backgroundColor:GREEN,borderRadius:7,borderSkipped:false},
-        {label:'Expenses', data:exp,backgroundColor:'rgba(255,255,255,0.1)',borderRadius:7,borderSkipped:false}
+        {label:'Income',  data:inc,backgroundColor:G,borderRadius:7,borderSkipped:false},
+        {label:'Expenses',data:exp,backgroundColor:'rgba(255,255,255,0.1)',borderRadius:7,borderSkipped:false}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
-        animation:{duration:800,easing:'easeOutQuart'},
-        plugins:{legend:leg,tooltip:tt},scales:scl}
+        animation:{duration:700,easing:'easeOutQuart'},
+        plugins:{legend:lg,tooltip:tt},scales:sc}
 });
 
-// Chart 2 — Yearly Line
+// Slide 1 — Yearly Line
 new Chart(document.getElementById('lineC'),{
     type:'line',
     data:{labels,datasets:[
-        {label:'Income',  data:inc,borderColor:GREEN,backgroundColor:'rgba(74,222,128,0.08)',
-         fill:true,tension:0.45,borderWidth:2.5,pointBackgroundColor:GREEN,pointRadius:3},
+        {label:'Income',  data:inc,borderColor:G,backgroundColor:'rgba(74,222,128,0.08)',
+         fill:true,tension:0.45,borderWidth:2.5,pointBackgroundColor:G,pointRadius:3},
         {label:'Expenses',data:exp,borderColor:'rgba(248,113,113,0.8)',
          backgroundColor:'rgba(248,113,113,0.05)',fill:true,tension:0.45,borderWidth:2,
          pointBackgroundColor:'rgba(248,113,113,0.8)',pointRadius:3},
@@ -438,109 +408,112 @@ new Chart(document.getElementById('lineC'),{
          pointBackgroundColor:'rgba(96,165,250,0.8)',pointRadius:3}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
-        animation:{duration:800,easing:'easeOutQuart'},
-        plugins:{legend:leg,tooltip:tt},scales:scl}
+        animation:{duration:700,easing:'easeOutQuart'},
+        plugins:{legend:lg,tooltip:tt},scales:sc}
 });
 
-const latestInc = inc.length>0?inc[inc.length-1]:0;
 const latestExp = exp.length>0?exp[exp.length-1]:0;
+const latestInc = inc.length>0?inc[inc.length-1]:0;
 const latestSav = sav.length>0?sav[sav.length-1]:0;
-const catData   = [0.30,0.20,0.12,0.10,0.08,0.08,0.12].map(p=>Math.round(latestExp*p));
-const catColors = ['#4ade80','#60a5fa','#fbbf24','#f87171','#a78bfa','#34d399','#fb923c'];
-const catLabels = ['Rent/Housing','Food & Groceries','Transport','Shopping','Healthcare','Entertainment','Other'];
+const catD=[0.30,0.20,0.12,0.10,0.08,0.08,0.12].map(p=>Math.round(latestExp*p));
+const catC=['#4ade80','#60a5fa','#fbbf24','#f87171','#a78bfa','#34d399','#fb923c'];
+const catL=['Rent/Housing','Food & Groceries','Transport','Shopping','Healthcare','Entertainment','Other'];
 
-const dCfg = {
-    type:'doughnut',
-    data:{labels:catLabels,datasets:[{data:catData,backgroundColor:catColors,borderWidth:0,hoverOffset:8}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
-        animation:{duration:800,easing:'easeOutQuart'},
-        plugins:{
-            legend:{display:true,position:'top',labels:{color:'rgba(255,255,255,0.6)',font:{size:10},boxWidth:10,boxHeight:10,padding:8}},
-            tooltip:{...tt}
-        }
+const dOpts={
+    responsive:true,maintainAspectRatio:false,cutout:'65%',
+    animation:{duration:700,easing:'easeOutQuart'},
+    plugins:{
+        legend:{display:true,position:'top',
+            labels:{color:'rgba(255,255,255,0.6)',font:{size:10},boxWidth:10,boxHeight:10,padding:8}},
+        tooltip:tt
     }
 };
 
-const sCfg = {
+// Slide 2 — Mobile donut
+new Chart(document.getElementById('donutMob'),{
+    type:'doughnut',
+    data:{labels:catL,datasets:[{data:catD,backgroundColor:catC,borderWidth:0,hoverOffset:8}]},
+    options:dOpts
+});
+
+// Desktop donut
+new Chart(document.getElementById('donutDesk'),{
+    type:'doughnut',
+    data:{labels:catL,datasets:[{data:catD,backgroundColor:catC,borderWidth:0,hoverOffset:8}]},
+    options:dOpts
+});
+
+// Desktop summary bar
+new Chart(document.getElementById('summaryDesk'),{
     type:'bar',
     data:{labels:['Income','Expenses','Savings'],
         datasets:[{data:[latestInc,latestExp,latestSav],
-            backgroundColor:[GREEN,RED,BLUE],borderRadius:12,borderSkipped:false}]},
+            backgroundColor:[G,R,B],borderRadius:12,borderSkipped:false}]},
     options:{responsive:true,maintainAspectRatio:false,
-        animation:{duration:800,easing:'easeOutQuart'},
-        plugins:{legend:{display:false},tooltip:tt},
-        scales:scl}
-};
+        animation:{duration:700,easing:'easeOutQuart'},
+        plugins:{legend:{display:false},tooltip:tt},scales:sc}
+});
 
-// Render all charts
-new Chart(document.getElementById('donutC'),   JSON.parse(JSON.stringify(dCfg)));
-new Chart(document.getElementById('summaryC'), JSON.parse(JSON.stringify(sCfg)));
-new Chart(document.getElementById('donutC2'),  JSON.parse(JSON.stringify(dCfg)));
-new Chart(document.getElementById('summaryC2'),JSON.parse(JSON.stringify(sCfg)));
-
-// ===== MAIN SLIDER =====
+// ===== SLIDER =====
+const track = document.getElementById('slTrack');
+const dots  = document.querySelectorAll('.chart-dots .chart-dot');
+const btns  = [
+    document.getElementById('tb0'),
+    document.getElementById('tb1'),
+    document.getElementById('tb2')
+];
 let cur = 0;
-const sl  = document.getElementById('sl');
-const mainDots = document.querySelectorAll('#main-dots .chart-dot');
+const isMobile = () => window.innerWidth <= 768;
+const maxSlide = () => isMobile() ? 2 : 1;
 
-function goSlide(i, btn){
+function go(i, btn){
+    const max = maxSlide();
+    i = Math.max(0, Math.min(i, max));
     cur = i;
-    sl.style.transform = `translateX(-${i*100}%)`;
-    document.querySelectorAll('#tbm,#tby').forEach(b=>b.classList.remove('active'));
+    track.style.transform = `translateX(-${i*100}%)`;
+    btns.forEach(b => b && b.classList.remove('active'));
     if(btn) btn.classList.add('active');
-    mainDots.forEach((d,j)=>d.classList.toggle('active',j===i));
+    dots.forEach((d,j) => d.classList.toggle('active', j===i));
 }
 
-// Main swipe — using pointer events for better mobile support
-let startX=0, isDragging=false;
-const sw = document.getElementById('sw');
+// Pointer-based swipe (works on all mobile browsers)
+let pStart=0, pDragging=false;
+const outer = document.getElementById('slOuter');
 
-sw.addEventListener('pointerdown', e=>{
-    startX = e.clientX; isDragging=true;
-    sw.setPointerCapture(e.pointerId);
+outer.addEventListener('pointerdown', e=>{
+    pStart = e.clientX;
+    pDragging = true;
+    outer.setPointerCapture(e.pointerId);
+    track.style.transition = 'none';
 },{passive:true});
 
-sw.addEventListener('pointerup', e=>{
-    if(!isDragging) return;
-    isDragging=false;
-    const diff = startX - e.clientX;
-    if(Math.abs(diff) > 40){
-        const n = diff>0 ? Math.min(cur+1,1) : Math.max(cur-1,0);
-        goSlide(n, document.getElementById(n===0?'tbm':'tby'));
+outer.addEventListener('pointermove', e=>{
+    if(!pDragging) return;
+    const diff = e.clientX - pStart;
+    track.style.transform = `translateX(calc(-${cur*100}% + ${diff}px))`;
+},{passive:true});
+
+outer.addEventListener('pointerup', e=>{
+    if(!pDragging) return;
+    pDragging = false;
+    track.style.transition = 'transform 0.42s cubic-bezier(0.25,1,0.5,1)';
+    const diff = pStart - e.clientX;
+    if(Math.abs(diff) > 50){
+        const n = diff>0
+            ? Math.min(cur+1, maxSlide())
+            : Math.max(cur-1, 0);
+        go(n, btns[n]);
+    } else {
+        // snap back
+        track.style.transform = `translateX(-${cur*100}%)`;
     }
 },{passive:true});
 
-// ===== MOBILE SPENDING SLIDER =====
-let mcur = 0;
-const msl = document.getElementById('msl');
-const mobDots = document.querySelectorAll('#mob-dots .chart-dot');
-
-function goMobSlide(i, btn){
-    mcur = i;
-    msl.style.transform = `translateX(-${i*100}%)`;
-    document.querySelectorAll('#stb0,#stb1').forEach(b=>b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
-    mobDots.forEach((d,j)=>d.classList.toggle('active',j===i));
-}
-
-let mStartX=0, mDragging=false;
-const msw = document.getElementById('msw');
-if(msw){
-    msw.addEventListener('pointerdown', e=>{
-        mStartX=e.clientX; mDragging=true;
-        msw.setPointerCapture(e.pointerId);
-    },{passive:true});
-
-    msw.addEventListener('pointerup', e=>{
-        if(!mDragging) return;
-        mDragging=false;
-        const diff = mStartX - e.clientX;
-        if(Math.abs(diff) > 40){
-            const n = diff>0 ? Math.min(mcur+1,1) : Math.max(mcur-1,0);
-            goMobSlide(n, document.getElementById(n===0?'stb0':'stb1'));
-        }
-    },{passive:true});
-}
+outer.addEventListener('pointercancel', ()=>{
+    pDragging=false;
+    track.style.transition='transform 0.42s cubic-bezier(0.25,1,0.5,1)';
+    track.style.transform=`translateX(-${cur*100}%)`;
+});
 </script>
 </body>
 </html>
