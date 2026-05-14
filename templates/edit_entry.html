@@ -3,201 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Edit Entry | FinanceIQ</title>
+    <title>History | FinanceIQ</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
-        .navbar {
-            background: rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:white; min-height:100vh; }
+
+        .navbar { background:rgba(255,255,255,0.05); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,0.1); padding:15px 30px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:100; }
+        .navbar h1 { color:#4ade80; font-size:22px; }
+        .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; margin-left:20px; font-size:14px; transition:color 0.3s; }
+        .nav-links a:hover { color:#4ade80; }
+        .nav-links .logout { background:rgba(239,68,68,0.2); padding:6px 14px; border-radius:8px; color:#fca5a5; }
+
+        .container { padding:32px 30px; max-width:1000px; margin:0 auto; padding-bottom:80px; }
+
+        .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; }
+        .page-title { font-size:26px; font-weight:700; color:white; display:flex; align-items:center; gap:10px; }
+        .page-title span { color:#4ade80; }
+        .back-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); padding:8px 18px; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600; transition:all 0.2s; }
+        .back-btn:hover { border-color:#4ade80; color:#4ade80; }
+
+        /* MONTH CARDS */
+        .month-card {
+            background:rgba(255,255,255,0.04);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:20px;
+            padding:24px 28px;
+            margin-bottom:16px;
+            transition:all 0.25s ease;
+            animation: fadeUp 0.4s ease both;
         }
-        .navbar h1 { color: #4ade80; font-size: 22px; }
-        .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 20px; font-size: 14px; }
-        .nav-links .logout { background: rgba(239,68,68,0.2); padding: 6px 14px; border-radius: 8px; color: #fca5a5; }
-        .container { padding: 30px; max-width: 900px; margin: 0 auto; }
-        .page-title { font-size: 24px; color: #4ade80; margin-bottom: 25px; font-weight: 700; }
-        .card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 20px;
+        .month-card:hover { border-color:rgba(74,222,128,0.25); box-shadow:0 8px 32px rgba(0,0,0,0.4); transform:translateY(-1px); }
+
+        @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+        .month-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .month-name { font-size:20px; font-weight:700; color:#4ade80; }
+        .month-actions { display:flex; gap:8px; }
+
+        .btn-edit {
+            display:flex; align-items:center; gap:6px;
+            background:rgba(96,165,250,0.12); border:1.5px solid rgba(96,165,250,0.25);
+            color:#93c5fd; padding:8px 16px; border-radius:10px;
+            text-decoration:none; font-size:13px; font-weight:600; transition:all 0.2s;
         }
-        .card-title { font-size: 16px; color: rgba(255,255,255,0.8); margin-bottom: 20px; font-weight: 600; }
-        .form-group { margin-bottom: 15px; }
-        label { color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 6px; display: block; }
-        input, select {
-            width: 100%;
-            padding: 10px 14px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 8px;
-            color: white;
-            font-size: 14px;
-            outline: none;
+        .btn-edit:hover { background:rgba(96,165,250,0.2); border-color:#60a5fa; }
+
+        .btn-delete {
+            display:flex; align-items:center; gap:6px;
+            background:rgba(239,68,68,0.1); border:1.5px solid rgba(239,68,68,0.2);
+            color:#fca5a5; padding:8px 16px; border-radius:10px;
+            font-size:13px; font-weight:600; cursor:pointer;
+            transition:all 0.2s; font-family:'Segoe UI',sans-serif;
         }
-        input:focus, select:focus { border-color: #4ade80; }
-        select option { background: #1a1a2e; }
-        .expense-row {
-            display: grid;
-            grid-template-columns: 2fr 2fr 1fr 1fr 0.5fr;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: end;
+        .btn-delete:hover { background:rgba(239,68,68,0.2); border-color:#ef4444; }
+
+        /* STATS ROW */
+        .stats-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+        .stat-box { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:16px; text-align:center; }
+        .stat-box .val { font-size:18px; font-weight:700; color:white; margin-bottom:5px; }
+        .stat-box .lbl { font-size:11px; color:rgba(255,255,255,0.35); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+        .stat-box.income .val { color:#4ade80; }
+        .stat-box.savings .val { color:#60a5fa; }
+
+        /* HEALTH BADGE */
+        .health-box { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+        .health-score { font-size:20px; font-weight:800; }
+        .health-label { font-size:10px; color:rgba(255,255,255,0.35); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+        .score-ring { width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; margin:0 auto 6px; }
+        .ring-green  { background:rgba(74,222,128,0.15); color:#4ade80; border:2px solid rgba(74,222,128,0.4); }
+        .ring-yellow { background:rgba(251,191,36,0.15); color:#fbbf24; border:2px solid rgba(251,191,36,0.4); }
+        .ring-red    { background:rgba(239,68,68,0.15);  color:#fca5a5; border:2px solid rgba(239,68,68,0.4); }
+
+        /* EMPTY */
+        .empty-state { text-align:center; padding:80px 20px; color:rgba(255,255,255,0.3); }
+        .empty-state .ei { font-size:56px; margin-bottom:16px; }
+        .empty-state h3 { font-size:22px; color:rgba(255,255,255,0.6); margin-bottom:8px; }
+        .empty-state p { font-size:14px; margin-bottom:24px; }
+        .btn-cta { background:linear-gradient(135deg,#4ade80,#22c55e); color:white; padding:13px 28px; border-radius:12px; text-decoration:none; font-weight:700; font-size:14px; transition:all 0.3s; display:inline-block; }
+        .btn-cta:hover { transform:translateY(-2px); box-shadow:0 10px 25px rgba(74,222,128,0.3); }
+
+        /* BOTTOM NAV */
+        .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:rgba(15,23,42,0.95); backdrop-filter:blur(20px); border-top:1px solid rgba(255,255,255,0.08); display:none; justify-content:space-around; align-items:center; padding:10px 0 max(10px,env(safe-area-inset-bottom)); z-index:100; }
+        .bottom-nav a { display:flex; flex-direction:column; align-items:center; gap:3px; color:rgba(255,255,255,0.4); text-decoration:none; font-size:10px; font-weight:600; padding:4px 10px; transition:color 0.2s; }
+        .bottom-nav a.active, .bottom-nav a:hover { color:#4ade80; }
+        .nav-icon { font-size:20px; }
+
+        @media(max-width:768px) {
+            .container { padding:20px 14px 90px; }
+            .navbar { padding:12px 16px; }
+            .nav-links .nav-desktop { display:none; }
+            .stats-row { grid-template-columns:1fr 1fr; gap:10px; }
+            .month-card { padding:18px; }
+            .month-name { font-size:17px; }
+            .bottom-nav { display:flex; }
+            .page-header { flex-direction:column; align-items:flex-start; gap:12px; }
         }
-        .btn-add {
-            background: rgba(74,222,128,0.15);
-            border: 1px solid rgba(74,222,128,0.3);
-            color: #4ade80;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-        .btn-remove {
-            background: rgba(239,68,68,0.15);
-            border: 1px solid rgba(239,68,68,0.3);
-            color: #fca5a5;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #4ade80, #22c55e);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .col-header {
-            display: grid;
-            grid-template-columns: 2fr 2fr 1fr 1fr 0.5fr;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-        .col-header span { color: rgba(255,255,255,0.4); font-size: 12px; }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <h1>💰 FinanceIQ</h1>
-        <div class="nav-links">
-            <a href="/dashboard">Dashboard</a>
-            <a href="/add_data">Add Data</a>
-            <a href="/goal">Goal Planner</a>
-            <a href="/logout" class="logout">Logout</a>
+
+<nav class="navbar">
+    <h1>💰 FinanceIQ</h1>
+    <div class="nav-links">
+        <a href="/dashboard" class="nav-desktop">Dashboard</a>
+        <a href="/add_data" class="nav-desktop">Add Data</a>
+        <a href="/health" class="nav-desktop">Health Score</a>
+        <a href="/logout" class="logout">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="page-header">
+        <div class="page-title">
+            📅 <span>Monthly</span> History
         </div>
-    </nav>
+        <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
+    </div>
 
-    <div class="container">
-        <div class="page-title">✏️ Edit — {{ entry.month }} {{ entry.year }}</div>
+    {% if history %}
+        {% for row in history %}
+        <div class="month-card" style="animation-delay:{{ loop.index0 * 0.05 }}s">
 
-        <form method="POST">
-            <div class="card">
-                <div class="card-title">💰 Income</div>
-                <div class="form-group">
-                    <label>Monthly Income (₹)</label>
-                    <input type="number" name="income" value="{{ entry.income }}" required>
+            <div class="month-header">
+                <div class="month-name">{{ row.month }} {{ row.year }}</div>
+                <div class="month-actions">
+                    <a href="/edit_entry/{{ row.id }}" class="btn-edit">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Edit
+                    </a>
+                    <form method="POST" action="/delete_entry/{{ row.id }}" style="display:inline"
+                          onsubmit="return confirm('Delete {{ row.month }} {{ row.year }}?')">
+                        <button type="submit" class="btn-delete">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                            Delete
+                        </button>
+                    </form>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-title">💸 Expenses</div>
-                <div class="col-header">
-                    <span>Name</span>
-                    <span>Category</span>
-                    <span>Type</span>
-                    <span>Amount</span>
-                    <span></span>
+            <div class="stats-row">
+                <div class="stat-box income">
+                    <div class="val">₹{{ "{:,.0f}".format(row.income) }}</div>
+                    <div class="lbl">Income</div>
                 </div>
-
-                <div id="expenses-container">
-                    {% for e in expenses %}
-                    <div class="expense-row">
-                        <input type="text" name="expense_name[]" value="{{ e.name }}" required>
-                        <select name="expense_category[]">
-                            {% for cat in categories %}
-                            <option value="{{ cat }}" {% if cat == e.category %}selected{% endif %}>{{ cat }}</option>
-                            {% endfor %}
-                        </select>
-                        <select name="expense_type[]">
-                            <option value="Fixed" {% if e.type == 'Fixed' %}selected{% endif %}>Fixed</option>
-                            <option value="Variable" {% if e.type == 'Variable' %}selected{% endif %}>Variable</option>
-                        </select>
-                        <input type="number" name="expense_amount[]" value="{{ e.amount }}" required>
-                        <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
+                <div class="stat-box">
+                    <div class="val">₹{{ "{:,.0f}".format(row.total_expenses) }}</div>
+                    <div class="lbl">Expenses</div>
+                </div>
+                <div class="stat-box savings">
+                    <div class="val">₹{{ "{:,.0f}".format(row.savings) }}</div>
+                    <div class="lbl">Savings</div>
+                </div>
+                <div class="stat-box">
+                    <div class="val">{{ row.savings_rate }}%</div>
+                    <div class="lbl">Savings Rate</div>
+                </div>
+                <div class="stat-box">
+                    <div class="health-box">
+                        <div class="score-ring {% if row.health_score >= 80 %}ring-green{% elif row.health_score >= 60 %}ring-yellow{% else %}ring-red{% endif %}">
+                            {{ row.health_score }}
+                        </div>
+                        <div class="health-label">Health Score</div>
                     </div>
-                    {% endfor %}
                 </div>
-
-                <button type="button" class="btn-add" onclick="addExpense()">+ Add Expense</button>
             </div>
 
-            <button type="submit" class="btn-submit">💾 Save Changes →</button>
-        </form>
-    </div>
+        </div>
+        {% endfor %}
 
-    <script>
-        function addExpense() {
-            const container = document.getElementById('expenses-container');
-            const row = document.createElement('div');
-            row.className = 'expense-row';
-            row.innerHTML = `
-                <input type="text" name="expense_name[]" placeholder="Expense name" required>
-                <select name="expense_category[]">
-                    {% for cat in categories %}
-                    <option value="{{ cat }}">{{ cat }}</option>
-                    {% endfor %}
-                </select>
-                <select name="expense_type[]">
-                    <option value="Fixed">Fixed</option>
-                    <option value="Variable">Variable</option>
-                </select>
-                <input type="number" name="expense_amount[]" placeholder="Amount" required>
-                <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
-            `;
-            container.appendChild(row);
-        }
-
-        function removeRow(btn) {
-            const rows = document.querySelectorAll('.expense-row');
-            if (rows.length > 1) btn.parentElement.remove();
-        }
-    </script>
-    <div class="bottom-nav">
-        <a href="/dashboard" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
-            <span class="nav-icon">🏠</span>
-            <span>Home</span>
-        </a>
-        <a href="/add_data" class="{% if request.endpoint == 'add_data' %}active{% endif %}">
-            <span class="nav-icon">➕</span>
-            <span>Add Data</span>
-        </a>
-        <a href="/history" class="{% if request.endpoint == 'history' %}active{% endif %}">
-            <span class="nav-icon">📅</span>
-            <span>History</span>
-        </a>
-        <a href="/goal" class="{% if request.endpoint == 'goal' %}active{% endif %}">
-            <span class="nav-icon">🎯</span>
-            <span>Goals</span>
-        </a>
-        <a href="/logout">
-            <span class="nav-icon">🚪</span>
-            <span>Logout</span>
-        </a>
+    {% else %}
+    <div class="empty-state">
+        <div class="ei">📊</div>
+        <h3>No history yet</h3>
+        <p>Start tracking your finances to see monthly history here.</p>
+        <a href="/add_data" class="btn-cta">+ Add First Month</a>
     </div>
+    {% endif %}
+</div>
+
+<div class="bottom-nav">
+    <a href="/dashboard"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/add_data"><span class="nav-icon">➕</span><span>Add Data</span></a>
+    <a href="/history" class="active"><span class="nav-icon">📅</span><span>History</span></a>
+    <a href="/goal"><span class="nav-icon">🎯</span><span>Goals</span></a>
+    <a href="/logout"><span class="nav-icon">🚪</span><span>Logout</span></a>
+</div>
+
 </body>
 </html>

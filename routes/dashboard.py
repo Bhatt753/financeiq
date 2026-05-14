@@ -35,13 +35,87 @@ def history():
     return render_template("history.html", history=history)
 
 
-@dashboard_bp.route("/delete_entry/<int:entry_id>", methods=["POST"])
+@dashboard_bp.route("/edit_entry/<int:entry_id>", methods=["GET", "POST"])
 @login_required
-def delete_entry(entry_id):
-    entry = get_monthly_entry(entry_id, session["user_id"])
-    if entry:
-        delete_monthly_entry(entry_id, session["user_id"], entry["month"], entry["year"])
-    return redirect(url_for("dashboard.history"))
+def edit_entry(entry_id):
+    from models.database import get_expenses_for_month, delete_expenses_for_month
+    from services.metrics import calculate_metrics
+    from config import Config
+
+    user_id = session["user_id"]
+    entry   = get_monthly_entry(entry_id, user_id)
+
+    if not entry:
+        return redirect(url_for("dashboard.history"))
+
+    if request.method == "POST":
+        from flask import request as req
+        income = float(req.form.get("income", 0))
+        month  = entry["month"]
+        year   = entry["year"]
+
+        names      = req.form.getlist("expense_name[]")
+        categories = req.form.getlist("expense_category[]")
+        types      = req.form.getlist("expense_type[]")
+        amounts    = req.form.getlist("expense_amount[]")
+
+        expenses = []
+        for i in range(len(names)):
+            try:
+                amt = float(amounts[i])
+                if amt > 0:
+                    expenses.append({
+                        "name"    : names[i],
+                        "category": categories[i],
+                        "type"    : types[i],
+                        "amount"  : amt
+                    })
+            except (ValueError, IndexError):
+                continue
+
+        from models.database import get_user_loans
+        user_loans     = get_user_loans(user_id)
+        emergency_fund = float(req.form.get("emergency_fund", 0) or 0)
+
+        loans = []
+        for loan in user_loans:
+            loans.append({
+                "type"         : loan["loan_type"],
+                "emi"          : loan["emi"],
+                "interest_rate": loan["interest_rate"],
+                "outstanding"  : loan.get("principal", 0)
+            })
+
+        metrics, err = calculate_metrics(income, expenses, loans, emergency_fund)
+        if err:
+            return redirect(url_for("dashboard.history"))
+
+        from models.database import update_monthly_entry
+        delete_expenses_for_month(user_id, month, year)
+        update_monthly_entry(entry_id, income, metrics)
+
+        from models.database import save_expenses
+        save_expenses(user_id, month, year, expenses)
+
+        return redirect(url_for("dashboard.history"))
+
+
+    expenses = get_expenses_for_month(user_id, entry["month"], entry["year"])
+    expenses_list = []
+    for e in expenses:
+        expenses_list.append({
+            "name"    : e["name"] if isinstance(e, dict) else e[4],
+            "category": e["category"] if isinstance(e, dict) else e[5],
+            "type"    : e["type"] if isinstance(e, dict) else e[6],
+            "amount"  : e["amount"] if isinstance(e, dict) else e[7],
+        })
+
+    from config import Config
+    return render_template("edit_entry.html",
+        entry    = entry,
+        expenses = expenses_list,
+        categories = Config.CATEGORIES
+    )
 
 
 @dashboard_bp.route("/health")
