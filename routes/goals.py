@@ -36,9 +36,10 @@ def goal():
 
     # Get latest financial data
     if history:
-        latest       = history[0]
-        income       = latest["income"]
-        savings      = max(latest["savings"], 0)
+        latest         = history[0]
+        income         = latest["income"]
+        # savings already has EMI deducted (fixed in metrics)
+        savings        = max(latest["savings"], 0)
         variable_total = latest.get("variable_total", 0)
     else:
         income         = 0
@@ -50,6 +51,11 @@ def goal():
 
     # Loans completing soon
     completing_loans = loan_analysis.get("completing_soon", [])
+
+    # Extra: calculate free savings after loans complete
+    completing_soon_emi = sum(
+        l["emi"] for l in completing_loans
+    ) if completing_loans else 0
 
     if request.method == "POST":
         goal_name   = request.form.get("goal_name", "").strip()

@@ -1,455 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Add Data | FinanceIQ</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:white; min-height:100vh; }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #0f172a;
-            color: white;
-            min-height: 100vh;
-        }
+        .navbar { background:rgba(255,255,255,0.05); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,0.1); padding:15px 30px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:100; }
+        .navbar h1 { color:#4ade80; font-size:22px; }
+        .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; margin-left:20px; font-size:14px; transition:color 0.3s; }
+        .nav-links a:hover { color:#4ade80; }
+        .nav-links .logout { background:rgba(239,68,68,0.2); padding:6px 14px; border-radius:8px; color:#fca5a5; }
 
-        .navbar {
-            background: rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .container { padding:28px 30px; max-width:900px; margin:0 auto; padding-bottom:100px; }
 
-        .navbar h1 {
-            color: #4ade80;
-            font-size: 22px;
-        }
+        .page-title { font-size:24px; color:#4ade80; margin-bottom:24px; font-weight:700; }
 
-        .nav-links a {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            margin-left: 20px;
-            font-size: 14px;
-        }
+        .card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:24px; margin-bottom:18px; }
+        .card-title { font-size:15px; color:rgba(255,255,255,0.85); margin-bottom:18px; font-weight:600; display:flex; align-items:center; gap:8px; }
 
-        .nav-links a:hover {
-            color: #4ade80;
-        }
+        .form-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin-bottom:15px; }
+        .form-group { margin-bottom:14px; }
+        label { color:rgba(255,255,255,0.55); font-size:12px; margin-bottom:6px; display:block; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; }
 
-        .nav-links .logout {
-            background: rgba(239, 68, 68, 0.2);
-            padding: 6px 14px;
-            border-radius: 8px;
-            color: #fca5a5;
-        }
+        input, select { width:100%; padding:11px 14px; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.1); border-radius:10px; color:white; font-size:14px; font-family:'Segoe UI',sans-serif; outline:none; transition:all 0.25s; }
+        input:focus, select:focus { border-color:#4ade80; background:rgba(74,222,128,0.05); }
+        select option { background:#1a1a2e; }
 
-        .container {
-            padding: 30px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        .expense-row { display:grid; grid-template-columns:2fr 2fr 1fr 1fr 0.5fr; gap:10px; margin-bottom:10px; align-items:end; }
+        .col-header { display:grid; grid-template-columns:2fr 2fr 1fr 1fr 0.5fr; gap:10px; margin-bottom:8px; }
+        .col-header span { color:rgba(255,255,255,0.3); font-size:11px; font-weight:600; text-transform:uppercase; }
 
-        .page-title {
-            font-size: 24px;
-            color: #4ade80;
-            margin-bottom: 25px;
-            font-weight: 700;
-        }
+        .btn-add { background:rgba(74,222,128,0.12); border:1.5px solid rgba(74,222,128,0.25); color:#4ade80; padding:10px 20px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:600; transition:all 0.25s; margin-bottom:6px; font-family:'Segoe UI',sans-serif; }
+        .btn-add:hover { background:rgba(74,222,128,0.22); }
 
-        .card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 20px;
-        }
+        .btn-remove { background:rgba(239,68,68,0.12); border:1.5px solid rgba(239,68,68,0.25); color:#fca5a5; padding:10px 12px; border-radius:8px; cursor:pointer; font-size:13px; font-family:'Segoe UI',sans-serif; }
+        .btn-remove:hover { background:rgba(239,68,68,0.22); }
 
-        .card-title {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
+        .btn-submit { width:100%; padding:14px; background:linear-gradient(135deg,#4ade80,#22c55e); border:none; border-radius:12px; color:white; font-size:16px; font-weight:700; cursor:pointer; transition:all 0.3s; font-family:'Segoe UI',sans-serif; }
+        .btn-submit:hover { transform:translateY(-2px); box-shadow:0 10px 25px rgba(74,222,128,0.3); }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
+        .optional-badge { background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.2); color:#4ade80; font-size:11px; padding:2px 8px; border-radius:10px; }
+        .hint { color:rgba(255,255,255,0.3); font-size:12px; margin-top:5px; }
+        .error-msg { background:rgba(239,68,68,0.12); border:1.5px solid rgba(239,68,68,0.25); color:#fca5a5; padding:12px 16px; border-radius:10px; margin-bottom:18px; font-size:14px; }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+        /* LOAN ITEM */
+        .loan-item { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:14px 16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+        .loan-item-left h4 { font-size:14px; font-weight:600; color:white; margin-bottom:3px; }
+        .loan-item-left p { font-size:12px; color:rgba(255,255,255,0.4); }
+        .loan-badge { background:rgba(74,222,128,0.12); color:#4ade80; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600; }
 
-        label {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 13px;
-            margin-bottom: 6px;
-            display: block;
-        }
+        /* EMI DEDUCTION BOX */
+        .emi-deduction-box { background:rgba(251,191,36,0.08); border:1.5px solid rgba(251,191,36,0.22); border-radius:12px; padding:16px; margin-top:14px; }
+        .emi-deduction-title { font-size:13px; font-weight:700; color:#fbbf24; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+        .emi-row { display:flex; justify-content:space-between; font-size:13px; color:rgba(255,255,255,0.55); padding:4px 0; }
+        .emi-row.total { border-top:1px solid rgba(255,255,255,0.08); margin-top:6px; padding-top:8px; font-weight:700; color:white; }
+        .emi-row.total span:last-child { color:#fbbf24; }
 
-        input,
-        select {
-            width: 100%;
-            padding: 10px 14px;
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 8px;
-            color: white;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.3s;
-        }
+        /* SAVINGS PREVIEW */
+        .savings-preview { background:rgba(74,222,128,0.06); border:1.5px solid rgba(74,222,128,0.18); border-radius:12px; padding:16px; margin-top:10px; }
+        .savings-preview-title { font-size:13px; font-weight:700; color:#4ade80; margin-bottom:10px; }
+        .preview-row { display:flex; justify-content:space-between; font-size:13px; color:rgba(255,255,255,0.55); padding:4px 0; }
+        .preview-row.result { border-top:1px solid rgba(74,222,128,0.15); margin-top:6px; padding-top:8px; font-weight:700; font-size:15px; }
+        .preview-row.result span:first-child { color:white; }
+        .preview-row.result span:last-child { color:#4ade80; }
 
-        input:focus,
-        select:focus {
-            border-color: #4ade80;
-        }
+        .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:rgba(15,23,42,0.95); backdrop-filter:blur(20px); border-top:1px solid rgba(255,255,255,0.08); display:none; justify-content:space-around; align-items:center; padding:10px 0 max(10px,env(safe-area-inset-bottom)); z-index:100; }
+        .bottom-nav a { display:flex; flex-direction:column; align-items:center; gap:3px; color:rgba(255,255,255,0.4); text-decoration:none; font-size:10px; font-weight:600; padding:4px 10px; transition:color 0.2s; }
+        .bottom-nav a.active, .bottom-nav a:hover { color:#4ade80; }
+        .nav-icon { font-size:20px; }
 
-        select option {
-            background: #1a1a2e;
-        }
-
-        .expense-row {
-            display: grid;
-            grid-template-columns: 2fr 2fr 1fr 1fr 0.5fr;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: end;
-        }
-
-        .loan-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: end;
-        }
-
-        .btn-add {
-            background: rgba(74, 222, 128, 0.15);
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            color: #4ade80;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            margin-bottom: 20px;
-        }
-
-        .btn-add:hover {
-            background: rgba(74, 222, 128, 0.25);
-        }
-
-        .btn-remove {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #4ade80, #22c55e);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(74, 222, 128, 0.3);
-        }
-
-        .col-header {
-            display: grid;
-            grid-template-columns: 2fr 2fr 1fr 1fr 0.5fr;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-
-        .loan-header {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-
-        .col-header span,
-        .loan-header span {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 12px;
-        }
-
-        .hint {
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 12px;
-            margin-top: 5px;
-        }
-
-        .optional-badge {
-            background: rgba(74, 222, 128, 0.1);
-            border: 1px solid rgba(74, 222, 128, 0.2);
-            color: #4ade80;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-left: 8px;
-        }
-
-        .error-msg {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
+        @media(max-width:768px) {
+            .container { padding:18px 14px 90px; }
+            .navbar { padding:12px 16px; }
+            .nav-links .nav-desktop { display:none; }
+            .form-row { grid-template-columns:1fr; }
+            .expense-row { grid-template-columns:1fr 1fr; gap:8px; background:rgba(255,255,255,0.03); border-radius:10px; padding:12px; position:relative; padding-bottom:42px; }
+            .expense-row .btn-remove { position:absolute; bottom:8px; right:8px; padding:5px 10px; font-size:11px; }
+            .col-header { display:none; }
+            .bottom-nav { display:flex; }
         }
     </style>
 </head>
-
 <body>
-    <nav class="navbar">
-        <h1>💰 FinanceIQ</h1>
-        <div class="nav-links">
-            <a href="/dashboard">Dashboard</a>
-            <a href="/add_data">Add Data</a>
-            <a href="/goal">Goal Planner</a>
-            <a href="/logout" class="logout">Logout</a>
-        </div>
-    </nav>
 
-    <div class="container">
-        <div class="page-title">📊 Add Monthly Finance Data</div>
+<nav class="navbar">
+    <h1>💰 FinanceIQ</h1>
+    <div class="nav-links">
+        <a href="/dashboard" class="nav-desktop">Dashboard</a>
+        <a href="/add_data" class="nav-desktop">Add Data</a>
+        <a href="/goal" class="nav-desktop">Goal Planner</a>
+        <a href="/logout" class="logout">Logout</a>
+    </div>
+</nav>
 
-        {% if error %}
-        <div class="error-msg">⚠️ {{ error }}</div>
-        {% endif %}
+<div class="container">
+    <div class="page-title">📊 Add Monthly Finance Data</div>
 
-        <form method="POST" action="/add_data">
+    {% if error %}
+    <div class="error-msg">⚠️ {{ error }}</div>
+    {% endif %}
 
-            <!-- Income Section -->
-            <div class="card">
-                <div class="card-title">💰 Income Details</div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Monthly Income (₹)</label>
-                        <input type="number" name="income" placeholder="e.g. 50000" required min="1">
-                    </div>
-                    <div class="form-group">
-                        <label>Month</label>
-                        <select name="month" required>
-                            {% for m in months %}
-                            <option value="{{ m }}">{{ m }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Year</label>
-                        <input type="number" name="year" value="2026" required>
-                    </div>
-                </div>
-            </div>
+    <form method="POST" action="/add_data" id="mainForm">
 
-            <!-- Expenses Section -->
-            <div class="card">
-                <div class="card-title">💸 Expenses</div>
-
-                <div class="col-header">
-                    <span>Expense Name</span>
-                    <span>Category</span>
-                    <span>Type</span>
-                    <span>Amount (₹)</span>
-                    <span></span>
-                </div>
-
-                <div id="expenses-container">
-                    <div class="expense-row">
-                        <input type="text" name="expense_name[]" placeholder="e.g. Rent" required>
-                        <select name="expense_category[]">
-                            {% for cat in categories %}
-                            <option value="{{ cat }}">{{ cat }}</option>
-                            {% endfor %}
-                        </select>
-                        <select name="expense_type[]">
-                            <option value="Fixed">Fixed</option>
-                            <option value="Variable">Variable</option>
-                        </select>
-                        <input type="number" name="expense_amount[]" placeholder="Amount" required min="1">
-                        <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
-                    </div>
-                </div>
-
-                <button type="button" class="btn-add" onclick="addExpense()">+ Add Another Expense</button>
-            </div>
-
-            <!-- Loans Section -->
-            <!-- Loans Section -->
-            <div class="card">
-                <div class="card-title">
-                    🏦 Loans & EMIs
-                    <span class="optional-badge">Optional</span>
-                </div>
-
-                {% if existing_loans %}
-                <!-- Show existing loans from database -->
-                <p style="color: rgba(255,255,255,0.5); font-size: 13px; margin-bottom: 12px;">
-                    Your saved loans are already included in health score calculation.
-                </p>
-                {% for loan in existing_loans %}
-                <div
-                    style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-size: 14px; font-weight: 600; color: white;">{{ loan.loan_name }}</div>
-                        <div style="font-size: 12px; color: rgba(255,255,255,0.4);">
-                            EMI: ₹{{ "{:,.0f}".format(loan.emi) }}/month •
-                            {{ loan.interest_rate }}% interest
-                        </div>
-                    </div>
-                    <span
-                        style="background: rgba(74,222,128,0.15); color: #4ade80; padding: 4px 10px; border-radius: 6px; font-size: 12px;">Active</span>
-                </div>
-                {% endfor %}
-                <a href="/loans"
-                    style="display: block; text-align: center; margin-top: 10px; color: #4ade80; font-size: 13px; text-decoration: none;">
-                    Manage Loans →
-                </a>
-
-                {% else %}
-                <!-- No loans saved yet -->
-                <p style="color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 15px;">
-                    No loans saved yet. Add loans in
-                    <a href="/loans" style="color: #4ade80;">Loan Tracker</a>
-                    for accurate health score.
-                </p>
-                {% endif %}
-            </div>
-
-            <!-- Emergency Fund Section -->
-            <div class="card">
-                <div class="card-title">
-                    🛡️ Emergency Fund
-                    <span class="optional-badge">Optional</span>
+        <!-- INCOME -->
+        <div class="card">
+            <div class="card-title">💰 Income Details</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Monthly Income (₹)</label>
+                    <input type="number" name="income" id="incomeInput"
+                           placeholder="e.g. 50000" required min="1"
+                           oninput="updatePreview()">
                 </div>
                 <div class="form-group">
-                    <label>Existing Emergency Fund Amount (₹)</label>
-                    <input type="number" name="emergency_fund" placeholder="e.g. 50000" min="0" value="0">
-                    <div class="hint">
-                        Money set aside specifically for emergencies (FD, liquid fund, savings account)
+                    <label>Month</label>
+                    <select name="month" required>
+                        {% for m in months %}
+                        <option value="{{ m }}">{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Year</label>
+                    <input type="number" name="year" value="2026" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPENSES -->
+        <div class="card">
+            <div class="card-title">💸 Expenses</div>
+            <div class="col-header">
+                <span>Expense Name</span>
+                <span>Category</span>
+                <span>Type</span>
+                <span>Amount (₹)</span>
+                <span></span>
+            </div>
+            <div id="expenses-container">
+                <div class="expense-row">
+                    <input type="text" name="expense_name[]" placeholder="e.g. Rent" required>
+                    <select name="expense_category[]">
+                        {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="expense_type[]">
+                        <option value="Fixed">Fixed</option>
+                        <option value="Variable">Variable</option>
+                    </select>
+                    <input type="number" name="expense_amount[]"
+                           placeholder="Amount" required min="1"
+                           oninput="updatePreview()">
+                    <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
+                </div>
+            </div>
+            <button type="button" class="btn-add" onclick="addExpense()">+ Add Another Expense</button>
+        </div>
+
+        <!-- LOANS & EMI -->
+        <div class="card">
+            <div class="card-title">
+                🏦 Loans & EMIs
+                <span class="optional-badge">Auto-included</span>
+            </div>
+
+            {% if existing_loans %}
+            <p style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:14px;">
+                Your saved loans are automatically deducted from savings.
+            </p>
+
+            {% set total_emi = namespace(v=0) %}
+            {% for loan in existing_loans %}
+            {% set total_emi.v = total_emi.v + loan.emi %}
+            <div class="loan-item">
+                <div class="loan-item-left">
+                    <h4>{{ loan.loan_name }}</h4>
+                    <p>{{ loan.loan_type }} · {{ loan.interest_rate }}% p.a.</p>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:15px;font-weight:700;color:#fbbf24;">
+                        ₹{{ "{:,.0f}".format(loan.emi) }}/month
                     </div>
+                    <span class="loan-badge">Active EMI</span>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- EMI Deduction Box -->
+            <div class="emi-deduction-box">
+                <div class="emi-deduction-title">
+                    ⚡ EMI Auto-Deduction Summary
+                </div>
+                {% for loan in existing_loans %}
+                <div class="emi-row">
+                    <span>{{ loan.loan_name }}</span>
+                    <span>− ₹{{ "{:,.0f}".format(loan.emi) }}</span>
+                </div>
+                {% endfor %}
+                <div class="emi-row total">
+                    <span>Total EMI Deduction</span>
+                    <span>− ₹{{ "{:,.0f}".format(total_emi.v) }}/month</span>
                 </div>
             </div>
 
-            <button type="submit" class="btn-submit">
-                🔍 Analyze My Finances →
-            </button>
-        </form>
-    </div>
+            <!-- Live Savings Preview -->
+            <div class="savings-preview" id="savingsPreview" style="display:none;">
+                <div class="savings-preview-title">📊 Live Savings Preview</div>
+                <div class="preview-row">
+                    <span>Monthly Income</span>
+                    <span id="prev-income">₹0</span>
+                </div>
+                <div class="preview-row">
+                    <span>Regular Expenses</span>
+                    <span id="prev-expenses" style="color:#fca5a5;">− ₹0</span>
+                </div>
+                <div class="preview-row">
+                    <span>Total EMI</span>
+                    <span style="color:#fbbf24;">− ₹{{ "{:,.0f}".format(total_emi.v) }}</span>
+                </div>
+                <div class="preview-row result">
+                    <span>Available Savings</span>
+                    <span id="prev-savings">₹0</span>
+                </div>
+            </div>
 
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-        <a href="/dashboard">
-            <span class="nav-icon">🏠</span>
-            <span>Home</span>
-        </a>
-        <a href="/add_data" class="active">
-            <span class="nav-icon">➕</span>
-            <span>Add Data</span>
-        </a>
-        <a href="/history">
-            <span class="nav-icon">📅</span>
-            <span>History</span>
-        </a>
-        <a href="/goal">
-            <span class="nav-icon">🎯</span>
-            <span>Goals</span>
-        </a>
-        <a href="/logout">
-            <span class="nav-icon">🚪</span>
-            <span>Logout</span>
-        </a>
-    </div>
+            <a href="/loans" style="display:block;text-align:center;margin-top:14px;color:#4ade80;font-size:13px;font-weight:600;text-decoration:none;">
+                Manage Loans →
+            </a>
 
-    <script>
-        function addExpense() {
-            const container = document.getElementById('expenses-container');
-            const row = document.createElement('div');
-            row.className = 'expense-row';
-            row.innerHTML = `
-                <input type="text" name="expense_name[]"
-                       placeholder="e.g. Food" required>
-                <select name="expense_category[]">
-                    {% for cat in categories %}
-                    <option value="{{ cat }}">{{ cat }}</option>
-                    {% endfor %}
-                </select>
-                <select name="expense_type[]">
-                    <option value="Fixed">Fixed</option>
-                    <option value="Variable">Variable</option>
-                </select>
-                <input type="number" name="expense_amount[]"
-                       placeholder="Amount" required min="1">
-                <button type="button" class="btn-remove"
-                        onclick="removeRow(this)">✕</button>
-            `;
-            container.appendChild(row);
+            {% else %}
+            <p style="font-size:13px;color:rgba(255,255,255,0.4);">
+                No loans saved yet.
+                <a href="/loans" style="color:#4ade80;font-weight:600;">Add in Loan Tracker →</a>
+            </p>
+            {% endif %}
+        </div>
+
+        <!-- EMERGENCY FUND -->
+        <div class="card">
+            <div class="card-title">
+                🛡️ Emergency Fund
+                <span class="optional-badge">Optional</span>
+            </div>
+            <div class="form-group">
+                <label>Existing Emergency Fund Amount (₹)</label>
+                <input type="number" name="emergency_fund"
+                       placeholder="e.g. 50000" min="0" value="0">
+                <div class="hint">
+                    Money set aside specifically for emergencies (FD, liquid fund, savings account)
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">
+            🔍 Analyze My Finances →
+        </button>
+    </form>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+    <a href="/dashboard"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/add_data" class="active"><span class="nav-icon">➕</span><span>Add Data</span></a>
+    <a href="/history"><span class="nav-icon">📅</span><span>History</span></a>
+    <a href="/goal"><span class="nav-icon">🎯</span><span>Goals</span></a>
+    <a href="/logout"><span class="nav-icon">🚪</span><span>Logout</span></a>
+</div>
+
+<script>
+    const totalEMI = {{ existing_loans | sum(attribute='emi') if existing_loans else 0 }};
+
+    function updatePreview() {
+        const income   = parseFloat(document.getElementById('incomeInput').value) || 0;
+        const amounts  = document.querySelectorAll('input[name="expense_amount[]"]');
+        let   expenses = 0;
+        amounts.forEach(a => expenses += parseFloat(a.value) || 0);
+
+        const savings  = income - expenses - totalEMI;
+        const preview  = document.getElementById('savingsPreview');
+
+        if(income > 0 && totalEMI > 0){
+            preview.style.display = 'block';
+            document.getElementById('prev-income').textContent   = '₹' + income.toLocaleString('en-IN');
+            document.getElementById('prev-expenses').textContent = '− ₹' + expenses.toLocaleString('en-IN');
+            document.getElementById('prev-savings').textContent  = '₹' + savings.toLocaleString('en-IN');
+            document.getElementById('prev-savings').style.color  = savings >= 0 ? '#4ade80' : '#fca5a5';
         }
+    }
 
-        function removeRow(btn) {
-            const rows = document.querySelectorAll('.expense-row');
-            if (rows.length > 1) {
-                btn.parentElement.remove();
-            }
-        }
+    const cats = {{ categories | tojson }};
 
-        function addLoan() {
-            const container = document.getElementById('loans-container');
-            const row = document.createElement('div');
-            row.className = 'loan-row';
-            row.innerHTML = `
-                <select name="loan_type[]">
-                    <option value="Home Loan">Home Loan</option>
-                    <option value="Personal Loan">Personal Loan</option>
-                    <option value="Car Loan">Car Loan</option>
-                    <option value="Education Loan">Education Loan</option>
-                    <option value="Credit Card">Credit Card</option>
-                    <option value="Other">Other</option>
-                </select>
-                <input type="number" name="loan_emi[]"
-                       placeholder="EMI (₹)" min="1">
-                <input type="number" name="loan_rate[]"
-                       placeholder="e.g. 12.5" min="0" max="100" step="0.1">
-                <input type="number" name="loan_outstanding[]"
-                       placeholder="e.g. 500000" min="0">
-                <button type="button" class="btn-remove"
-                        onclick="this.parentElement.remove()">✕</button>
-            `;
-            container.appendChild(row);
+    function addExpense() {
+        const c   = document.getElementById('expenses-container');
+        const div = document.createElement('div');
+        div.className = 'expense-row';
+        div.innerHTML = `
+            <input type="text" name="expense_name[]" placeholder="e.g. Food" required>
+            <select name="expense_category[]">
+                ${cats.map(c=>`<option value="${c}">${c}</option>`).join('')}
+            </select>
+            <select name="expense_type[]">
+                <option value="Fixed">Fixed</option>
+                <option value="Variable">Variable</option>
+            </select>
+            <input type="number" name="expense_amount[]"
+                   placeholder="Amount" required min="1" oninput="updatePreview()">
+            <button type="button" class="btn-remove" onclick="removeRow(this)">✕</button>
+        `;
+        c.appendChild(div);
+    }
+
+    function removeRow(btn) {
+        const rows = document.querySelectorAll('.expense-row');
+        if(rows.length > 1){
+            btn.parentElement.remove();
+            updatePreview();
         }
-    </script>
+    }
+</script>
 </body>
-
 </html>

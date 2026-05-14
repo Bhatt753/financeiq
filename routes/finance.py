@@ -1,8 +1,5 @@
-# routes/finance.py
-
 from flask import Blueprint, render_template, request, redirect, session, url_for
-from models.database import save_monthly_data, save_expenses, \
-    get_monthly_entry, get_expenses_for_month, update_monthly_entry
+from models.database import save_monthly_data, save_expenses
 from services.metrics import calculate_metrics
 from services.advice  import generate_advice
 from utils.validators import validate_income, validate_expenses
@@ -83,7 +80,7 @@ def add_data():
                 })
 
         # Calculate metrics
-        metrics, err = calculate_metrics(income, expenses)
+        metrics, err = calculate_metrics(income, expenses, loans, emergency_fund)
         if err:
             return render_template("add_data.html",
                 categories=Config.CATEGORIES,
@@ -120,63 +117,6 @@ def add_data():
         months         = _get_months(),
         existing_loans = existing_loans)
 
-
-@finance_bp.route("/edit_entry/<int:entry_id>", methods=["GET", "POST"])
-@login_required
-def edit_entry(entry_id):
-    entry = get_monthly_entry(entry_id, session["user_id"])
-    if not entry:
-        return redirect(url_for("dashboard.history"))
-
-    expenses = get_expenses_for_month(
-        session["user_id"], entry["month"], entry["year"]
-    )
-
-    if request.method == "POST":
-        income, err = validate_income(request.form.get("income"))
-        if err:
-            return render_template("edit_entry.html",
-                entry=entry, expenses=expenses,
-                categories=Config.CATEGORIES, error=err)
-
-        names      = request.form.getlist("expense_name[]")
-        amounts    = request.form.getlist("expense_amount[]")
-        categories = request.form.getlist("expense_category[]")
-        types      = request.form.getlist("expense_type[]")
-
-        new_expenses = []
-        for i in range(len(names)):
-            if names[i] and amounts[i]:
-                new_expenses.append({
-                    "name"    : names[i].strip(),
-                    "category": categories[i],
-                    "type"    : types[i],
-                    "amount"  : float(amounts[i])
-                })
-
-        metrics, err = calculate_metrics(income, new_expenses)
-        if err:
-            return render_template("edit_entry.html",
-                entry=entry, expenses=expenses,
-                categories=Config.CATEGORIES, error=err)
-
-        update_monthly_entry(entry_id, income, metrics)
-
-        from models.database import get_db
-        conn = get_db()
-        conn.execute(
-            "DELETE FROM expenses WHERE user_id=? AND month=? AND year=?",
-            (session["user_id"], entry["month"], entry["year"])
-        )
-        conn.commit()
-        conn.close()
-
-        save_expenses(session["user_id"], entry["month"], entry["year"], new_expenses)
-
-        return redirect(url_for("dashboard.history"))
-
-    return render_template("edit_entry.html",
-        entry=entry, expenses=expenses, categories=Config.CATEGORIES)
 
 
 def _get_months():

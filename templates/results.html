@@ -270,6 +270,41 @@
             </div>
         </div>
 
+        <!-- EMI Breakdown (only shown when user has loans) -->
+        {% if metrics.total_emi > 0 %}
+        <div style="background:rgba(251,191,36,0.07);border:1.5px solid rgba(251,191,36,0.2);border-radius:16px;padding:20px;margin-bottom:25px;">
+            <div style="font-size:14px;font-weight:700;color:#fbbf24;margin-bottom:14px;">⚡ EMI Deduction Breakdown</div>
+
+            {% for loan in metrics.loans %}
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,0.55);padding:5px 0;">
+                <span>{{ loan.type }} EMI</span>
+                <span style="color:#fbbf24;">− ₹{{ "{:,.0f}".format(loan.emi) }}</span>
+            </div>
+            {% endfor %}
+
+            <div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:10px;padding-top:12px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,0.5);padding:3px 0;">
+                    <span>Monthly Income</span>
+                    <span>₹{{ "{:,.0f}".format(metrics.income) }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,0.5);padding:3px 0;">
+                    <span>Regular Expenses</span>
+                    <span style="color:#fca5a5;">− ₹{{ "{:,.0f}".format(metrics.total_expenses) }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,0.5);padding:3px 0;">
+                    <span>Total EMI</span>
+                    <span style="color:#fbbf24;">− ₹{{ "{:,.0f}".format(metrics.total_emi) }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;padding:8px 0 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:6px;">
+                    <span>Available Savings</span>
+                    <span style="color:{% if metrics.savings >= 0 %}#4ade80{% else %}#fca5a5{% endif %};">
+                        ₹{{ "{:,.0f}".format(metrics.savings) }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Health Score -->
         <div class="health-score"
             style="background: rgba(255,255,255,0.04); border-radius: 16px; padding: 25px; margin-bottom: 25px;">
