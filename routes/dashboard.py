@@ -35,10 +35,20 @@ def history():
     return render_template("history.html", history=history)
 
 
+@dashboard_bp.route("/delete_entry/<int:entry_id>", methods=["POST"])
+@login_required
+def delete_entry(entry_id):
+    entry = get_monthly_entry(entry_id, session["user_id"])
+    if entry:
+        delete_monthly_entry(entry_id, session["user_id"], entry["month"], entry["year"])
+    return redirect(url_for("dashboard.history"))
+
+
 @dashboard_bp.route("/edit_entry/<int:entry_id>", methods=["GET", "POST"])
 @login_required
 def edit_entry(entry_id):
     from models.database import get_expenses_for_month, delete_expenses_for_month
+    from models.database import update_monthly_entry, save_expenses, get_user_loans
     from services.metrics import calculate_metrics
     from config import Config
 
@@ -49,15 +59,15 @@ def edit_entry(entry_id):
         return redirect(url_for("dashboard.history"))
 
     if request.method == "POST":
-        income = float(request.form.get("income", 0))
-        month  = entry["month"]
-        year   = entry["year"]
-
-        names      = request.form.getlist("expense_name[]")
-        categories = request.form.getlist("expense_category[]")
-        types      = request.form.getlist("expense_type[]")
-        amounts    = request.form.getlist("expense_amount[]")
+        income         = float(request.form.get("income", 0))
+        month          = entry["month"]
+        year           = entry["year"]
+        names          = request.form.getlist("expense_name[]")
+        categories     = request.form.getlist("expense_category[]")
+        types          = request.form.getlist("expense_type[]")
+        amounts        = request.form.getlist("expense_amount[]")
         emergency_fund = float(request.form.get("emergency_fund", 0) or 0)
+
         expenses = []
         for i in range(len(names)):
             try:
@@ -72,10 +82,7 @@ def edit_entry(entry_id):
             except (ValueError, IndexError):
                 continue
 
-        from models.database import get_user_loans
-        user_loans     = get_user_loans(user_id)
-        emergency_fund = float(req.form.get("emergency_fund", 0) or 0)
-
+        user_loans = get_user_loans(user_id)
         loans = []
         for loan in user_loans:
             loans.append({
@@ -89,30 +96,26 @@ def edit_entry(entry_id):
         if err:
             return redirect(url_for("dashboard.history"))
 
-        from models.database import update_monthly_entry
         delete_expenses_for_month(user_id, month, year)
         update_monthly_entry(entry_id, income, metrics)
-
-        from models.database import save_expenses
         save_expenses(user_id, month, year, expenses)
 
         return redirect(url_for("dashboard.history"))
 
-
-    expenses = get_expenses_for_month(user_id, entry["month"], entry["year"])
+    # GET — show edit form
+    expenses_raw  = get_expenses_for_month(user_id, entry["month"], entry["year"])
     expenses_list = []
-    for e in expenses:
+    for e in expenses_raw:
         expenses_list.append({
-            "name"    : e["name"] if isinstance(e, dict) else e[4],
+            "name"    : e["name"]     if isinstance(e, dict) else e[4],
             "category": e["category"] if isinstance(e, dict) else e[5],
-            "type"    : e["type"] if isinstance(e, dict) else e[6],
-            "amount"  : e["amount"] if isinstance(e, dict) else e[7],
+            "type"    : e["type"]     if isinstance(e, dict) else e[6],
+            "amount"  : e["amount"]   if isinstance(e, dict) else e[7],
         })
 
-    from config import Config
     return render_template("edit_entry.html",
-        entry    = entry,
-        expenses = expenses_list,
+        entry      = entry,
+        expenses   = expenses_list,
         categories = Config.CATEGORIES
     )
 
@@ -123,8 +126,8 @@ def health():
     from models.database import get_user_loans
     from services.health_score import calculate_health_score
 
-    user_id = session["user_id"]
-    history = get_monthly_history(user_id)
+    user_id      = session["user_id"]
+    history      = get_monthly_history(user_id)
 
     if not history:
         return render_template("health.html",
@@ -141,10 +144,10 @@ def health():
     expenses = []
     for e in expenses_raw:
         expenses.append({
-            "name"    : e["name"] if isinstance(e, dict) else e[4],
+            "name"    : e["name"]     if isinstance(e, dict) else e[4],
             "category": e["category"] if isinstance(e, dict) else e[5],
-            "type"    : e["type"] if isinstance(e, dict) else e[6],
-            "amount"  : e["amount"] if isinstance(e, dict) else e[7],
+            "type"    : e["type"]     if isinstance(e, dict) else e[6],
+            "amount"  : e["amount"]   if isinstance(e, dict) else e[7],
         })
 
     loans = []
