@@ -1,6 +1,6 @@
 # routes/dashboard.py
 
-from flask import Blueprint, render_template, redirect, session, url_for
+from flask import Blueprint, render_template, redirect, session, url_for, request
 from models.database import get_monthly_history, get_monthly_entry, \
     delete_monthly_entry, get_expenses_for_month
 from services.trends import analyze_trends, calculate_annual_summary
@@ -49,16 +49,15 @@ def edit_entry(entry_id):
         return redirect(url_for("dashboard.history"))
 
     if request.method == "POST":
-        from flask import request as req
-        income = float(req.form.get("income", 0))
+        income = float(request.form.get("income", 0))
         month  = entry["month"]
         year   = entry["year"]
 
-        names      = req.form.getlist("expense_name[]")
-        categories = req.form.getlist("expense_category[]")
-        types      = req.form.getlist("expense_type[]")
-        amounts    = req.form.getlist("expense_amount[]")
-
+        names      = request.form.getlist("expense_name[]")
+        categories = request.form.getlist("expense_category[]")
+        types      = request.form.getlist("expense_type[]")
+        amounts    = request.form.getlist("expense_amount[]")
+        emergency_fund = float(request.form.get("emergency_fund", 0) or 0)
         expenses = []
         for i in range(len(names)):
             try:
