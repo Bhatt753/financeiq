@@ -377,7 +377,8 @@ if(hData.length > 0){
 const outflow = exp.map((e, i) => e + emi[i]);
 
 const G='#4ade80', R='rgba(248,113,113,0.85)',
-      B='rgba(96,165,250,0.85)', TM='rgba(255,255,255,0.35)';
+      B='rgba(96,165,250,0.85)', Y='#fbbf24',
+      TM='rgba(255,255,255,0.35)';
 
 const tt={
     backgroundColor:'rgba(15,23,42,0.95)',
@@ -391,53 +392,97 @@ const sc={
     y:{grid:{color:'rgba(255,255,255,0.04)'},border:{display:false},
        ticks:{color:TM,font:{size:11},callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}
 };
+const scStacked={
+    x:{grid:{display:false},border:{display:false},ticks:{color:TM,font:{size:11}}},
+    y:{grid:{color:'rgba(255,255,255,0.04)'},border:{display:false},stacked:true,
+       ticks:{color:TM,font:{size:11},callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}
+};
 const lg={display:true,position:'top',align:'end',
     labels:{color:TM,font:{size:11},boxWidth:9,boxHeight:9,borderRadius:3,padding:10}};
 
-// Slide 0 — Monthly Bar (expenses = regular + EMI)
+// ── Slide 0: Monthly Stacked Bar ─────────────────────────────────────────
+// Left bar = Income; Right bar = Expenses + EMI + Savings stacked
 new Chart(document.getElementById('barC'),{
     type:'bar',
     data:{labels,datasets:[
-        {label:'Income',       data:inc,    backgroundColor:G,   borderRadius:7,borderSkipped:false},
-        {label:'Expenses+EMI', data:outflow,backgroundColor:'rgba(255,255,255,0.1)',borderRadius:7,borderSkipped:false}
+        {label:'Income',
+         data:inc, backgroundColor:G,
+         borderRadius:7, borderSkipped:false,
+         stack:'income'},
+        {label:'Expenses',
+         data:exp, backgroundColor:'rgba(248,113,113,0.85)',
+         borderRadius:0, borderSkipped:false,
+         stack:'breakdown'},
+        {label:'EMI',
+         data:emi, backgroundColor:Y,
+         borderRadius:0, borderSkipped:false,
+         stack:'breakdown'},
+        {label:'Savings',
+         data:sav, backgroundColor:'rgba(96,165,250,0.85)',
+         borderRadius:{topLeft:6,topRight:6,bottomLeft:0,bottomRight:0},
+         borderSkipped:false,
+         stack:'breakdown'}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
         animation:{duration:700,easing:'easeOutQuart'},
-        plugins:{legend:lg,tooltip:tt},scales:sc}
+        plugins:{legend:lg,tooltip:tt},
+        scales:scStacked}
 });
 
-// Slide 1 — Yearly Line
+// ── Slide 1: Yearly Line (4 separate lines) ───────────────────────────────
 new Chart(document.getElementById('lineC'),{
     type:'line',
     data:{labels,datasets:[
-        {label:'Income',       data:inc,    borderColor:G,backgroundColor:'rgba(74,222,128,0.08)',
-         fill:true,tension:0.45,borderWidth:2.5,pointBackgroundColor:G,pointRadius:3},
-        {label:'Expenses+EMI', data:outflow,borderColor:'rgba(248,113,113,0.8)',
-         backgroundColor:'rgba(248,113,113,0.05)',fill:true,tension:0.45,borderWidth:2,
-         pointBackgroundColor:'rgba(248,113,113,0.8)',pointRadius:3},
-        {label:'Savings',      data:sav,   borderColor:'rgba(96,165,250,0.8)',
-         backgroundColor:'rgba(96,165,250,0.05)',fill:true,tension:0.45,borderWidth:2,
-         pointBackgroundColor:'rgba(96,165,250,0.8)',pointRadius:3}
+        {label:'Income',
+         data:inc, borderColor:G, backgroundColor:'rgba(74,222,128,0.07)',
+         fill:true, tension:0.45, borderWidth:2.5,
+         pointBackgroundColor:G, pointRadius:3},
+        {label:'Expenses',
+         data:exp, borderColor:'rgba(248,113,113,0.8)',
+         backgroundColor:'rgba(248,113,113,0.04)',
+         fill:true, tension:0.45, borderWidth:2,
+         pointBackgroundColor:'rgba(248,113,113,0.8)', pointRadius:3},
+        {label:'EMI',
+         data:emi, borderColor:Y,
+         backgroundColor:'rgba(251,191,36,0.06)',
+         fill:true, tension:0.45, borderWidth:2,
+         borderDash:[5,4],
+         pointBackgroundColor:Y, pointRadius:3},
+        {label:'Savings',
+         data:sav, borderColor:'rgba(96,165,250,0.8)',
+         backgroundColor:'rgba(96,165,250,0.04)',
+         fill:true, tension:0.45, borderWidth:2,
+         pointBackgroundColor:'rgba(96,165,250,0.8)', pointRadius:3}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
         animation:{duration:700,easing:'easeOutQuart'},
         plugins:{legend:lg,tooltip:tt},scales:sc}
 });
 
-const latestOut = outflow.length>0?outflow[outflow.length-1]:0;
+// ── Donut data: categories + EMI as its own slice ─────────────────────────
 const latestInc = inc.length>0?inc[inc.length-1]:0;
-const latestSav = sav.length>0?sav[sav.length-1]:0;
 const latestExp = exp.length>0?exp[exp.length-1]:0;
-const catD=[0.30,0.20,0.12,0.10,0.08,0.08,0.12].map(p=>Math.round(latestExp*p));
-const catC=['#4ade80','#60a5fa','#fbbf24','#f87171','#a78bfa','#34d399','#fb923c'];
-const catL=['Rent/Housing','Food & Groceries','Transport','Shopping','Healthcare','Entertainment','Other'];
+const latestSav = sav.length>0?sav[sav.length-1]:0;
+const latestEmi = emi.length>0?emi[emi.length-1]:0;
+const latestOut = outflow.length>0?outflow[outflow.length-1]:0;
+
+// Proportional category estimates from latest expenses (excluding EMI)
+const catEstBase = [0.30,0.20,0.12,0.10,0.08,0.08,0.12].map(p=>Math.round(latestExp*p));
+const catLBase   = ['Rent/Housing','Food & Groceries','Transport','Shopping','Healthcare','Entertainment','Other'];
+const catCBase   = ['#4ade80','#60a5fa','#34d399','#f87171','#a78bfa','#818cf8','#fb923c'];
+
+// Append EMI slice only when active
+const catD = latestEmi > 0 ? [...catEstBase, Math.round(latestEmi)] : catEstBase;
+const catL = latestEmi > 0 ? [...catLBase, 'Loan EMI']              : catLBase;
+const catC = latestEmi > 0 ? [...catCBase, Y]                       : catCBase;
 
 const dOpts={
     responsive:true,maintainAspectRatio:false,cutout:'65%',
     animation:{duration:700,easing:'easeOutQuart'},
     plugins:{
         legend:{display:true,position:'top',
-            labels:{color:'rgba(255,255,255,0.6)',font:{size:10},boxWidth:10,boxHeight:10,padding:8}},
+            labels:{color:'rgba(255,255,255,0.6)',font:{size:10},
+                    boxWidth:10,boxHeight:10,padding:8}},
         tooltip:tt
     }
 };
@@ -456,12 +501,22 @@ new Chart(document.getElementById('donutDesk'),{
     options:dOpts
 });
 
-// Desktop summary bar (Expenses column = expenses + EMI)
+// ── Desktop Summary Bar: 4 separate bars ─────────────────────────────────
+const summLabels = latestEmi > 0
+    ? ['Income','Expenses','EMI','Savings']
+    : ['Income','Expenses','Savings'];
+const summData = latestEmi > 0
+    ? [latestInc, latestExp, latestEmi, latestSav]
+    : [latestInc, latestExp, latestSav];
+const summColors = latestEmi > 0
+    ? [G, R, Y, B]
+    : [G, R, B];
+
 new Chart(document.getElementById('summaryDesk'),{
     type:'bar',
-    data:{labels:['Income','Expenses+EMI','Savings'],
-        datasets:[{data:[latestInc,latestOut,latestSav],
-            backgroundColor:[G,R,B],borderRadius:12,borderSkipped:false}]},
+    data:{labels:summLabels,
+        datasets:[{data:summData,
+            backgroundColor:summColors,borderRadius:12,borderSkipped:false}]},
     options:{responsive:true,maintainAspectRatio:false,
         animation:{duration:700,easing:'easeOutQuart'},
         plugins:{legend:{display:false},tooltip:tt},scales:sc}
