@@ -21,11 +21,14 @@ def login_required(f):
 @dashboard_bp.route("/dashboard")
 @login_required
 def dashboard():
-    history = get_monthly_history(session["user_id"])
+    from models.database import get_user_goals
+    user_id = session["user_id"]
+    history = get_monthly_history(user_id)
     trends  = analyze_trends(history)
     summary = calculate_annual_summary(history)
+    goals   = get_user_goals(user_id)
     return render_template("dashboard.html",
-        history=history, trends=trends, summary=summary)
+        history=history, trends=trends, summary=summary, goals=goals)
 
 
 @dashboard_bp.route("/history")
