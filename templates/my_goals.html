@@ -3,90 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#F8F6F1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>My Goals | FinanceIQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>My Goals | FinanceIQ</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F8F6F1;
+            color: #111827;
+            min-height: 100vh;
+        }
+
+        /* ── Navbar ── */
         .navbar {
-            background: rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 15px 30px;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 0 30px;
+            height: 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky; top: 0; z-index: 100;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .navbar h1 { color: #4ade80; font-size: 22px; }
-        .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 20px; font-size: 14px; }
-        .nav-links a:hover { color: #4ade80; }
-        .nav-links .logout { background: rgba(239,68,68,0.2); padding: 6px 14px; border-radius: 8px; color: #fca5a5; }
-        .container { padding: 25px; max-width: 900px; margin: 0 auto; padding-bottom: 100px; }
-        .page-title { font-size: 24px; color: #4ade80; margin-bottom: 25px; font-weight: 700; }
+        .navbar h1 {
+            color: #111827;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .nav-links { display: flex; align-items: center; gap: 4px; }
+        .nav-links a {
+            color: #6B7280;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: color 0.15s, background 0.15s;
+        }
+        .nav-links a:hover { color: #16A34A; background: #F0FDF4; }
+        .nav-links .logout { color: #DC2626; background: #FEF2F2; }
+        .nav-links .logout:hover { background: #FEE2E2; color: #B91C1C; }
+
+        /* ── Layout ── */
+        .container {
+            padding: 28px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding-bottom: 110px;
+        }
+
+        /* ── Page title ── */
+        .page-title-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .page-title-icon {
+            width: 44px;
+            height: 44px;
+            background: #DCFCE7;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .page-title { font-size: 22px; font-weight: 700; color: #111827; letter-spacing: -0.4px; }
+        .page-title-sub { font-size: 13px; color: #6B7280; margin-top: 2px; }
+
+        /* ── Goal Card ── */
         .goal-card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 20px;
             padding: 22px;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            animation: fadeUp 0.35s ease both;
         }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .goal-card:nth-child(2) { animation-delay: 0.05s; }
+        .goal-card:nth-child(3) { animation-delay: 0.10s; }
+        .goal-card:nth-child(4) { animation-delay: 0.15s; }
+
+        /* ── Goal Header ── */
         .goal-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            gap: 12px;
         }
-        .goal-name { font-size: 20px; font-weight: 700; color: white; }
-        .goal-amount { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 4px; }
-        .goal-actions { display: flex; gap: 8px; }
+        .goal-title-block { flex: 1; min-width: 0; }
+        .goal-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .goal-amount-meta {
+            font-size: 13px;
+            color: #6B7280;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* ── Action Buttons ── */
+        .goal-actions { display: flex; gap: 8px; flex-shrink: 0; }
         .btn-complete {
-            background: rgba(74,222,128,0.15);
-            border: 1px solid rgba(74,222,128,0.3);
-            color: #4ade80;
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: #B91C1C;
             padding: 7px 14px;
             border-radius: 8px;
             text-decoration: none;
             font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.15s;
         }
+        .btn-complete:hover { background: #FEE2E2; }
+        .btn-complete svg { width: 14px; height: 14px; }
+
         .btn-delete {
-            background: rgba(239,68,68,0.15);
-            border: 1px solid rgba(239,68,68,0.3);
-            color: #fca5a5;
-            padding: 7px 14px;
+            background: #F3F4F6;
+            border: 1px solid #E5E7EB;
+            color: #6B7280;
+            padding: 7px 10px;
             border-radius: 8px;
             text-decoration: none;
             font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background 0.15s, color 0.15s;
         }
-        .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-        .metric { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px; text-align: center; }
-        .metric .val { font-size: 18px; font-weight: 700; color: #4ade80; }
-        .metric .lbl { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 3px; }
-        .progress-wrap { background: rgba(255,255,255,0.08); border-radius: 8px; height: 10px; margin-bottom: 6px; }
-        .progress-fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, #4ade80, #22c55e); }
-        .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 16px; }
-        .empty-state { text-align: center; padding: 50px; color: rgba(255,255,255,0.3); }
-        .btn-add-goal {
-            display: block;
+        .btn-delete:hover { background: #FEE2E2; color: #B91C1C; border-color: #FECACA; }
+        .btn-delete svg { width: 15px; height: 15px; }
+
+        /* ── Circular Progress Ring ── */
+        .goal-body {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .ring-container {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .ring-wrap {
+            position: relative;
+            width: 90px;
+            height: 90px;
+        }
+        .ring-svg { transform: rotate(-90deg); }
+        .ring-bg { fill: none; stroke: #E5E7EB; stroke-width: 8; }
+        .ring-fill {
+            fill: none;
+            stroke: url(#ringGrad);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.8s cubic-bezier(0.4,0,0.2,1);
+        }
+        .ring-label {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .ring-pct {
+            font-size: 16px;
+            font-weight: 700;
+            color: #16A34A;
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+        .ring-pct-sub {
+            font-size: 9px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+        .ring-caption {
+            font-size: 10px;
+            color: #9CA3AF;
+            font-weight: 500;
+        }
+
+        /* ── Metrics ── */
+        .metrics-side { flex: 1; }
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .metric {
+            background: #F8F6F1;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 11px 10px;
             text-align: center;
-            background: linear-gradient(135deg, #4ade80, #22c55e);
-            color: white;
-            padding: 13px;
-            border-radius: 10px;
+        }
+        .metric .val {
+            font-size: 16px;
+            font-weight: 700;
+            color: #16A34A;
+            letter-spacing: -0.3px;
+        }
+        .metric .lbl {
+            font-size: 10px;
+            color: #6B7280;
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        /* ── Progress bar ── */
+        .progress-section { margin-bottom: 6px; }
+        .progress-wrap {
+            background: #E5E7EB;
+            border-radius: 99px;
+            height: 8px;
+            overflow: hidden;
+            margin-bottom: 7px;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #16A34A, #22C55E);
+            transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+        }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+        .progress-label .saved { color: #16A34A; font-weight: 600; }
+
+        /* ── Chart ── */
+        .chart-container {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid #F3F4F6;
+        }
+        .chart-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6B7280;
+            margin-bottom: 10px;
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6B7280;
+        }
+        .empty-icon {
+            width: 72px;
+            height: 72px;
+            background: #F3F4F6;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .empty-icon svg { width: 36px; height: 36px; color: #9CA3AF; }
+        .empty-state h3 { font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 8px; }
+        .empty-state p { font-size: 14px; color: #6B7280; line-height: 1.5; }
+
+        /* ── Add Goal CTA ── */
+        .btn-add-goal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #16A34A;
+            color: #FFFFFF;
+            padding: 14px;
+            border-radius: 14px;
             text-decoration: none;
             font-weight: 600;
             font-size: 15px;
-            margin-top: 20px;
+            margin-top: 24px;
+            transition: background 0.15s;
+            box-shadow: 0 2px 8px rgba(22,163,74,0.20);
         }
-        @media (max-width: 768px) {
+        .btn-add-goal:hover { background: #15803D; }
+        .btn-add-goal svg { width: 18px; height: 18px; }
+
+        /* ── Bottom Nav ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #FFFFFF;
+            border-top: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+        .bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            text-decoration: none;
+            color: #9CA3AF;
+            font-size: 10px;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 10px;
+            transition: color 0.15s;
+        }
+        .bottom-nav a svg { width: 22px; height: 22px; }
+        .bottom-nav a.active, .bottom-nav a:hover { color: #16A34A; }
+
+        @media (max-width: 600px) {
             .metrics-row { grid-template-columns: 1fr 1fr; }
+            .goal-body { flex-direction: column; }
+            .ring-container { flex-direction: row; align-items: center; gap: 16px; }
+            .ring-wrap { width: 80px; height: 80px; }
+            .navbar { padding: 0 16px; }
+            .container { padding: 20px 16px 110px; }
+            .goal-actions { flex-direction: column; gap: 6px; }
+        }
+        @media (min-width: 769px) {
+            .bottom-nav { display: none; }
         }
     </style>
 </head>
 <body>
+    <!-- SVG gradient defs (hidden) -->
+    <svg width="0" height="0" style="position:absolute">
+        <defs>
+            <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#16A34A"/>
+                <stop offset="100%" stop-color="#22C55E"/>
+            </linearGradient>
+        </defs>
+    </svg>
+
     <nav class="navbar">
-        <h1>💰 FinanceIQ</h1>
+        <h1>FinanceIQ</h1>
         <div class="nav-links">
             <a href="/dashboard">Dashboard</a>
             <a href="/add_data">Add Data</a>
@@ -97,95 +381,163 @@
     </nav>
 
     <div class="container">
-        <div class="page-title">📋 My Goals</div>
+
+        <!-- Page Title -->
+        <div class="page-title-row">
+            <div class="page-title-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                </svg>
+            </div>
+            <div>
+                <div class="page-title">My Goals</div>
+                <div class="page-title-sub">Track your savings journey</div>
+            </div>
+        </div>
 
         {% if goals %}
             {% for goal in goals %}
             <div class="goal-card">
+                <!-- Header -->
                 <div class="goal-header">
-                    <div>
+                    <div class="goal-title-block">
                         <div class="goal-name">{{ goal.goal_name }}</div>
-                        <div class="goal-amount">
-                            Target: ₹{{ "{:,.0f}".format(goal.goal_amount) }}
-                            in {{ goal.goal_months }} months
+                        <div class="goal-amount-meta">
+                            Target: ₹{{ "{:,.0f}".format(goal.goal_amount) }} &nbsp;·&nbsp; {{ goal.goal_months }} months
                         </div>
                     </div>
                     <div class="goal-actions">
                         <a href="/goals/complete/{{ goal.id }}" class="btn-complete"
                            onclick="return confirm('Mark as completed?')">
-                           ✅ Done
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Done
                         </a>
                         <a href="/goals/delete/{{ goal.id }}" class="btn-delete"
                            onclick="return confirm('Delete this goal?')">
-                           🗑️
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                            </svg>
                         </a>
                     </div>
                 </div>
 
-                <div class="metrics-row">
-                    <div class="metric">
-                        <div class="val">₹{{ "{:,.0f}".format(savings) }}</div>
-                        <div class="lbl">Monthly Savings</div>
-                    </div>
-                    <div class="metric">
-                        <div class="val">
-                            {{ (goal.goal_amount / savings)|round|int if savings > 0 else "∞" }}
+                <!-- Body: ring + metrics -->
+                <div class="goal-body">
+                    <!-- Circular progress ring -->
+                    <div class="ring-container">
+                        <div class="ring-wrap">
+                            <svg class="ring-svg" width="90" height="90" viewBox="0 0 90 90">
+                                <circle class="ring-bg" cx="45" cy="45" r="37"/>
+                                <circle class="ring-fill"
+                                    cx="45" cy="45" r="37"
+                                    stroke-dasharray="{{ (2 * 3.14159 * 37)|round(2) }}"
+                                    stroke-dashoffset="{{ ((1 - goal.progress_pct / 100) * 2 * 3.14159 * 37)|round(2) }}"
+                                    id="ring-{{ loop.index }}"/>
+                            </svg>
+                            <div class="ring-label">
+                                <span class="ring-pct">{{ goal.progress_pct }}%</span>
+                                <span class="ring-pct-sub">done</span>
+                            </div>
                         </div>
-                        <div class="lbl">Months to Goal</div>
+                        <div class="ring-caption">Progress</div>
                     </div>
-                    <div class="metric">
-                        <div class="val">{{ goal.progress_pct }}%</div>
-                        <div class="lbl">Progress</div>
-                    </div>
-                </div>
 
-                <!-- Progress Bar -->
-                <div class="progress-wrap">
-                    <div class="progress-fill"
-                         style="width: {{ goal.progress_pct }}%">
+                    <!-- Metrics -->
+                    <div class="metrics-side">
+                        <div class="metrics-row">
+                            <div class="metric">
+                                <div class="val">₹{{ "{:,.0f}".format(savings) }}</div>
+                                <div class="lbl">Monthly Savings</div>
+                            </div>
+                            <div class="metric">
+                                <div class="val">
+                                    {{ (goal.goal_amount / savings)|round|int if savings > 0 else "&#8734;" }}
+                                </div>
+                                <div class="lbl">Months to Goal</div>
+                            </div>
+                            <div class="metric">
+                                <div class="val">₹{{ "{:,.0f}".format(goal.remaining) }}</div>
+                                <div class="lbl">Remaining</div>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="progress-section">
+                            <div class="progress-wrap">
+                                <div class="progress-fill" style="width: {{ goal.progress_pct }}%"></div>
+                            </div>
+                            <div class="progress-label">
+                                <span class="saved">₹{{ "{:,.0f}".format(goal.saved_so_far) }} saved</span>
+                                <span>₹{{ "{:,.0f}".format(goal.remaining) }} to go</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="progress-label">
-                    <span>₹{{ "{:,.0f}".format(goal.saved_so_far) }} saved</span>
-                    <span>₹{{ "{:,.0f}".format(goal.remaining) }} remaining</span>
                 </div>
 
                 <!-- Mini Chart -->
-                <canvas id="goal-chart-{{ loop.index }}" height="80"></canvas>
+                <div class="chart-container">
+                    <div class="chart-label">Projected Savings Path</div>
+                    <canvas id="goal-chart-{{ loop.index }}" height="80"></canvas>
+                </div>
             </div>
             {% endfor %}
 
         {% else %}
         <div class="empty-state">
-            <div style="font-size: 48px; margin-bottom: 15px;">🎯</div>
-            <h3 style="font-size: 20px; color: white; margin-bottom: 8px;">No Active Goals</h3>
-            <p>Set your first savings goal to start tracking progress!</p>
+            <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+                </svg>
+            </div>
+            <h3>No Active Goals</h3>
+            <p>Set your first savings goal to start tracking your progress!</p>
         </div>
         {% endif %}
 
-        <a href="/goal" class="btn-add-goal">+ Set a New Goal</a>
+        <a href="/goal" class="btn-add-goal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            Set a New Goal
+        </a>
     </div>
 
     <!-- Bottom Nav -->
     <div class="bottom-nav">
         <a href="/dashboard">
-            <span class="nav-icon">🏠</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
             <span>Home</span>
         </a>
         <a href="/add_data">
-            <span class="nav-icon">➕</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
             <span>Add Data</span>
         </a>
-        <a href="/goal">
-            <span class="nav-icon">🎯</span>
+        <a href="/goal" class="active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+            </svg>
             <span>Goals</span>
         </a>
         <a href="/loans">
-            <span class="nav-icon">🏦</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="8" width="18" height="13" rx="2"/><path d="M7 8V6a5 5 0 0 1 10 0v2"/>
+            </svg>
             <span>Loans</span>
         </a>
         <a href="/logout">
-            <span class="nav-icon">🚪</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
             <span>Logout</span>
         </a>
     </div>
@@ -218,8 +570,8 @@
                     {
                         label: 'Projected Savings',
                         data: data,
-                        borderColor: '#4ade80',
-                        backgroundColor: 'rgba(74,222,128,0.1)',
+                        borderColor: '#16A34A',
+                        backgroundColor: 'rgba(22,163,74,0.07)',
                         fill: true,
                         tension: 0.4,
                         borderWidth: 2,
@@ -228,9 +580,9 @@
                     {
                         label: 'Target',
                         data: Array(months).fill(goalAmount),
-                        borderColor: 'rgba(252,165,165,0.5)',
+                        borderColor: 'rgba(220,38,38,0.35)',
                         borderDash: [5, 5],
-                        borderWidth: 1,
+                        borderWidth: 1.5,
                         pointRadius: 0,
                         fill: false
                     }
@@ -241,8 +593,8 @@
                 plugins: {
                     legend: {
                         labels: {
-                            color: 'rgba(255,255,255,0.5)',
-                            font: { size: 11 }
+                            color: '#6B7280',
+                            font: { size: 11, family: 'Inter' }
                         }
                     },
                     tooltip: {
@@ -254,13 +606,14 @@
                 scales: {
                     y: {
                         ticks: {
-                            color: 'rgba(255,255,255,0.4)',
+                            color: '#9CA3AF',
+                            font: { size: 10, family: 'Inter' },
                             callback: (v) => '₹' + (v/1000).toFixed(0) + 'K'
                         },
-                        grid: { color: 'rgba(255,255,255,0.05)' }
+                        grid: { color: '#F3F4F6' }
                     },
                     x: {
-                        ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 9 } },
+                        ticks: { color: '#9CA3AF', font: { size: 9, family: 'Inter' } },
                         grid: { display: false }
                     }
                 }

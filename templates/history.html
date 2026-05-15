@@ -4,86 +4,159 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#F8F6F1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>History | FinanceIQ</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:white; min-height:100vh; }
+        body { font-family:'Inter',sans-serif; background:#F8F6F1; color:#111827; min-height:100vh; }
 
-        .navbar { background:rgba(255,255,255,0.05); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,0.1); padding:15px 30px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:100; }
-        .navbar h1 { color:#4ade80; font-size:22px; }
-        .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; margin-left:20px; font-size:14px; transition:color 0.3s; }
-        .nav-links a:hover { color:#4ade80; }
-        .nav-links .logout { background:rgba(239,68,68,0.2); padding:6px 14px; border-radius:8px; color:#fca5a5; }
+        .navbar {
+            background:#FFFFFF;
+            border-bottom:1px solid #E5E7EB;
+            padding:14px 30px;
+            display:flex; justify-content:space-between; align-items:center;
+            position:sticky; top:0; z-index:100;
+        }
+        .navbar h1 { color:#111827; font-size:20px; font-weight:700; letter-spacing:-0.3px; }
+        .nav-links a { color:#6B7280; text-decoration:none; margin-left:20px; font-size:14px; font-weight:500; transition:color 0.2s; }
+        .nav-links a:hover { color:#16A34A; }
+        .nav-links .logout { background:#FEF2F2; color:#EF4444; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600; }
 
         .container { padding:32px 30px; max-width:1000px; margin:0 auto; padding-bottom:80px; }
 
         .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; }
-        .page-title { font-size:26px; font-weight:700; color:white; display:flex; align-items:center; gap:10px; }
-        .page-title span { color:#4ade80; }
-        .back-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); padding:8px 18px; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600; transition:all 0.2s; }
-        .back-btn:hover { border-color:#4ade80; color:#4ade80; }
-
-        .month-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:24px 28px; margin-bottom:16px; transition:all 0.25s ease; animation:fadeUp 0.4s ease both; }
-        .month-card:hover { border-color:rgba(74,222,128,0.25); box-shadow:0 8px 32px rgba(0,0,0,0.4); transform:translateY(-1px); }
+        .page-title { font-size:24px; font-weight:700; color:#111827; display:flex; align-items:center; gap:10px; }
+        .back-btn {
+            background:#F3F4F6; color:#374151;
+            padding:8px 18px; border-radius:12px; text-decoration:none;
+            font-size:13px; font-weight:600; transition:all 0.2s; border:1px solid #E5E7EB;
+        }
+        .back-btn:hover { background:#E5E7EB; }
 
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 
+        .month-card {
+            background:#FFFFFF;
+            border:1px solid #E5E7EB;
+            border-radius:20px;
+            padding:24px 28px;
+            margin-bottom:16px;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
+            transition:box-shadow 0.25s, transform 0.25s;
+            animation:fadeUp 0.4s ease both;
+        }
+        .month-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.08); transform:translateY(-1px); }
+
         .month-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-        .month-name { font-size:20px; font-weight:700; color:#4ade80; }
+        .month-name { font-size:18px; font-weight:700; color:#111827; }
         .month-actions { display:flex; gap:8px; }
 
-        .btn-edit { display:flex; align-items:center; gap:6px; background:rgba(96,165,250,0.12); border:1.5px solid rgba(96,165,250,0.25); color:#93c5fd; padding:8px 16px; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600; transition:all 0.2s; }
-        .btn-edit:hover { background:rgba(96,165,250,0.2); border-color:#60a5fa; }
+        .btn-edit {
+            display:flex; align-items:center; gap:6px;
+            background:#EFF6FF; border:1.5px solid #BFDBFE; color:#1D4ED8;
+            padding:8px 16px; border-radius:10px; text-decoration:none;
+            font-size:13px; font-weight:600; transition:all 0.2s;
+        }
+        .btn-edit:hover { background:#DBEAFE; border-color:#93C5FD; }
 
-        .btn-delete { display:flex; align-items:center; gap:6px; background:rgba(239,68,68,0.1); border:1.5px solid rgba(239,68,68,0.2); color:#fca5a5; padding:8px 16px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:'Segoe UI',sans-serif; }
-        .btn-delete:hover { background:rgba(239,68,68,0.2); border-color:#ef4444; }
+        .btn-delete {
+            display:flex; align-items:center; gap:6px;
+            background:#FEF2F2; border:1.5px solid #FEE2E2; color:#EF4444;
+            padding:8px 16px; border-radius:10px;
+            font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s;
+            font-family:'Inter',sans-serif;
+        }
+        .btn-delete:hover { background:#FEE2E2; border-color:#FCA5A5; }
 
         .stats-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
-        .stat-box { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:16px; text-align:center; }
-        .stat-box .val { font-size:18px; font-weight:700; color:white; margin-bottom:5px; }
-        .stat-box .lbl { font-size:11px; color:rgba(255,255,255,0.35); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
-        .stat-box.income .val { color:#4ade80; }
-        .stat-box.savings .val { color:#60a5fa; }
+        .stat-box {
+            background:#F9FAFB; border:1px solid #E5E7EB; border-radius:14px;
+            padding:16px; text-align:center;
+        }
+        .stat-box .val { font-size:18px; font-weight:700; color:#111827; margin-bottom:5px; }
+        .stat-box .lbl { font-size:11px; color:#6B7280; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+        .stat-box.income .val { color:#16A34A; }
+        .stat-box.savings .val { color:#16A34A; }
 
-        .score-ring { width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; margin:0 auto 6px; }
-        .ring-green  { background:rgba(74,222,128,0.15); color:#4ade80; border:2px solid rgba(74,222,128,0.4); }
-        .ring-yellow { background:rgba(251,191,36,0.15); color:#fbbf24; border:2px solid rgba(251,191,36,0.4); }
-        .ring-red    { background:rgba(239,68,68,0.15); color:#fca5a5; border:2px solid rgba(239,68,68,0.4); }
-        .health-label { font-size:10px; color:rgba(255,255,255,0.35); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+        .score-ring {
+            width:52px; height:52px; border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            font-size:14px; font-weight:800; margin:0 auto 6px;
+        }
+        .ring-green  { background:#DCFCE7; color:#15803D; border:2px solid #86EFAC; }
+        .ring-yellow { background:#FEF3C7; color:#92400E; border:2px solid #FCD34D; }
+        .ring-red    { background:#FEE2E2; color:#B91C1C; border:2px solid #FCA5A5; }
+        .health-label { font-size:10px; color:#6B7280; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
 
         /* CONFIRM DIALOG */
-        .confirm-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:200; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+        .confirm-overlay {
+            display:none; position:fixed; inset:0;
+            background:rgba(0,0,0,0.35); z-index:200;
+            align-items:center; justify-content:center;
+            backdrop-filter:blur(4px);
+        }
         .confirm-overlay.open { display:flex; }
-        .confirm-box { background:#1e293b; border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:32px; text-align:center; width:340px; max-width:90vw; animation:fadeUp 0.3s ease; }
-        .confirm-box h3 { font-size:20px; margin-bottom:10px; }
-        .confirm-box p { color:rgba(255,255,255,0.55); font-size:14px; margin-bottom:24px; line-height:1.6; }
+        .confirm-box {
+            background:#FFFFFF; border:1px solid #E5E7EB; border-radius:20px;
+            padding:32px; text-align:center; width:340px; max-width:90vw;
+            box-shadow:0 20px 60px rgba(0,0,0,0.15);
+            animation:fadeUp 0.3s ease;
+        }
+        .confirm-box h3 { font-size:18px; font-weight:700; color:#111827; margin-bottom:10px; }
+        .confirm-box p { color:#6B7280; font-size:14px; margin-bottom:24px; line-height:1.6; }
         .confirm-btns { display:flex; gap:10px; justify-content:center; }
-        .btn-confirm { background:#ef4444; color:white; padding:11px 24px; border-radius:10px; border:none; cursor:pointer; font-size:14px; font-weight:700; font-family:'Segoe UI',sans-serif; transition:all 0.2s; }
-        .btn-confirm:hover { background:#dc2626; transform:translateY(-1px); }
-        .btn-cancel { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7); padding:11px 24px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); cursor:pointer; font-size:14px; font-family:'Segoe UI',sans-serif; transition:all 0.2s; }
-        .btn-cancel:hover { background:rgba(255,255,255,0.14); }
+        .btn-confirm {
+            background:#EF4444; color:#FFFFFF;
+            padding:11px 24px; border-radius:10px; border:none;
+            cursor:pointer; font-size:14px; font-weight:700;
+            font-family:'Inter',sans-serif; transition:all 0.2s;
+        }
+        .btn-confirm:hover { background:#DC2626; transform:translateY(-1px); }
+        .btn-cancel {
+            background:#F3F4F6; color:#374151;
+            padding:11px 24px; border-radius:10px;
+            border:1px solid #E5E7EB; cursor:pointer;
+            font-size:14px; font-family:'Inter',sans-serif; font-weight:500; transition:all 0.2s;
+        }
+        .btn-cancel:hover { background:#E5E7EB; }
 
-        .empty-state { text-align:center; padding:80px 20px; color:rgba(255,255,255,0.3); }
+        .empty-state { text-align:center; padding:80px 20px; color:#6B7280; }
         .empty-state .ei { font-size:56px; margin-bottom:16px; }
-        .empty-state h3 { font-size:22px; color:rgba(255,255,255,0.6); margin-bottom:8px; }
+        .empty-state h3 { font-size:22px; color:#111827; margin-bottom:8px; font-weight:700; }
         .empty-state p { font-size:14px; margin-bottom:24px; }
-        .btn-cta { background:linear-gradient(135deg,#4ade80,#22c55e); color:white; padding:13px 28px; border-radius:12px; text-decoration:none; font-weight:700; font-size:14px; display:inline-block; transition:all 0.3s; }
-        .btn-cta:hover { transform:translateY(-2px); box-shadow:0 10px 25px rgba(74,222,128,0.3); }
+        .btn-cta {
+            background:#16A34A; color:#FFFFFF;
+            padding:13px 28px; border-radius:12px;
+            text-decoration:none; font-weight:700; font-size:14px;
+            display:inline-block; transition:all 0.3s;
+        }
+        .btn-cta:hover { background:#15803D; transform:translateY(-2px); box-shadow:0 8px 20px rgba(22,163,74,0.25); }
 
-        .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:rgba(15,23,42,0.95); backdrop-filter:blur(20px); border-top:1px solid rgba(255,255,255,0.08); display:none; justify-content:space-around; align-items:center; padding:10px 0 max(10px,env(safe-area-inset-bottom)); z-index:100; }
-        .bottom-nav a { display:flex; flex-direction:column; align-items:center; gap:3px; color:rgba(255,255,255,0.4); text-decoration:none; font-size:10px; font-weight:600; padding:4px 10px; transition:color 0.2s; }
-        .bottom-nav a.active, .bottom-nav a:hover { color:#4ade80; }
-        .nav-icon { font-size:20px; }
+        /* Bottom Nav */
+        .bottom-nav {
+            position:fixed; bottom:0; left:0; right:0;
+            background:#FFFFFF; border-top:1px solid #E5E7EB;
+            display:none; justify-content:space-around; align-items:center;
+            padding:10px 0 max(10px,env(safe-area-inset-bottom)); z-index:100;
+        }
+        .bottom-nav a {
+            display:flex; flex-direction:column; align-items:center; gap:3px;
+            color:#6B7280; text-decoration:none; font-size:10px; font-weight:600;
+            padding:4px 10px; transition:color 0.2s;
+        }
+        .bottom-nav a.active, .bottom-nav a:hover { color:#16A34A; }
+        .bottom-nav svg { width:22px; height:22px; }
 
         @media(max-width:768px) {
             .container { padding:20px 14px 90px; }
             .navbar { padding:12px 16px; }
             .stats-row { grid-template-columns:1fr 1fr; gap:10px; }
             .month-card { padding:18px; }
-            .month-name { font-size:17px; }
+            .month-name { font-size:16px; }
             .bottom-nav { display:flex; }
             .page-header { flex-direction:column; align-items:flex-start; gap:12px; }
         }
@@ -92,7 +165,7 @@
 <body>
 
 <nav class="navbar">
-    <h1>💰 FinanceIQ</h1>
+    <h1>FinanceIQ</h1>
     <div class="nav-links">
         <a href="/dashboard">Dashboard</a>
         <a href="/add_data">Add Data</a>
@@ -103,7 +176,10 @@
 
 <div class="container">
     <div class="page-header">
-        <div class="page-title">📅 <span>Monthly</span> History</div>
+        <div class="page-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Monthly History
+        </div>
         <a href="/dashboard" class="back-btn">← Dashboard</a>
     </div>
 
@@ -130,11 +206,11 @@
                     <div class="lbl">Income</div>
                 </div>
                 <div class="stat-box">
-                    <div class="val">₹{{ "{:,.0f}".format(entry.total_expenses) }}</div>
+                    <div class="val" style="color:#EF4444;">₹{{ "{:,.0f}".format(entry.total_expenses) }}</div>
                     <div class="lbl">Expenses</div>
                 </div>
                 <div class="stat-box savings">
-                    <div class="val" style="color:{% if entry.savings >= 0 %}#60a5fa{% else %}#fca5a5{% endif %}">
+                    <div class="val" style="color:{% if entry.savings >= 0 %}#16A34A{% else %}#EF4444{% endif %}">
                         ₹{{ "{:,.0f}".format(entry.savings) }}
                     </div>
                     <div class="lbl">Savings</div>
@@ -155,7 +231,9 @@
 
     {% else %}
     <div class="empty-state">
-        <div class="ei">📊</div>
+        <div class="ei">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
         <h3>No history yet</h3>
         <p>Start tracking your finances to see monthly history here.</p>
         <a href="/add_data" class="btn-cta">+ Add First Month</a>
@@ -166,7 +244,7 @@
 <!-- CONFIRM DELETE DIALOG -->
 <div class="confirm-overlay" id="confirmOverlay">
     <div class="confirm-box">
-        <h3>🗑️ Delete Entry?</h3>
+        <h3>Delete Entry?</h3>
         <p id="confirmMsg">Are you sure?</p>
         <div class="confirm-btns">
             <button class="btn-cancel" onclick="closeDialog()">Cancel</button>
@@ -187,11 +265,26 @@
 {% endif %}
 
 <div class="bottom-nav">
-    <a href="/dashboard"><span class="nav-icon">🏠</span><span>Home</span></a>
-    <a href="/add_data"><span class="nav-icon">➕</span><span>Add Data</span></a>
-    <a href="/history" class="active"><span class="nav-icon">📅</span><span>History</span></a>
-    <a href="/goal"><span class="nav-icon">🎯</span><span>Goals</span></a>
-    <a href="/logout"><span class="nav-icon">🚪</span><span>Logout</span></a>
+    <a href="/dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+    </a>
+    <a href="/add_data">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+        <span>Add Data</span>
+    </a>
+    <a href="/history" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>History</span>
+    </a>
+    <a href="/goal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        <span>Goals</span>
+    </a>
+    <a href="/logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Logout</span>
+    </a>
 </div>
 
 <script>

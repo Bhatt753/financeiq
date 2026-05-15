@@ -3,126 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#F8F6F1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>Goal Planner | FinanceIQ</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: white; min-height: 100vh; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F8F6F1;
+            color: #111827;
+            min-height: 100vh;
+        }
+
+        /* ── Navbar ── */
         .navbar {
-            background: rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 15px 30px;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 0 30px;
+            height: 60px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky; top: 0; z-index: 100;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .navbar h1 { color: #4ade80; font-size: 22px; }
-        .nav-links a { color: rgba(255,255,255,0.7); text-decoration: none; margin-left: 20px; font-size: 14px; }
-        .nav-links a:hover { color: #4ade80; }
-        .nav-links .logout { background: rgba(239,68,68,0.2); padding: 6px 14px; border-radius: 8px; color: #fca5a5; }
-        .container { padding: 25px; max-width: 900px; margin: 0 auto; padding-bottom: 100px; }
-        .page-title { font-size: 24px; color: #4ade80; margin-bottom: 25px; font-weight: 700; }
+        .navbar h1 {
+            color: #111827;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .nav-links { display: flex; align-items: center; gap: 4px; }
+        .nav-links a {
+            color: #6B7280;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: color 0.15s, background 0.15s;
+        }
+        .nav-links a:hover { color: #16A34A; background: #F0FDF4; }
+        .nav-links .logout {
+            color: #DC2626;
+            background: #FEF2F2;
+        }
+        .nav-links .logout:hover { background: #FEE2E2; color: #B91C1C; }
+
+        /* ── Layout ── */
+        .container {
+            padding: 28px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding-bottom: 110px;
+        }
+
+        /* ── Page title ── */
+        .page-title-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .page-title-icon {
+            width: 44px;
+            height: 44px;
+            background: #DCFCE7;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .page-title-icon svg { width: 22px; height: 22px; }
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: -0.4px;
+        }
+        .page-title-sub {
+            font-size: 13px;
+            color: #6B7280;
+            margin-top: 2px;
+        }
+
+        /* ── Cards ── */
         .card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 20px;
             padding: 22px;
             margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            animation: fadeUp 0.35s ease both;
         }
-        .card-title { font-size: 16px; color: rgba(255,255,255,0.8); margin-bottom: 16px; font-weight: 600; }
-        .data-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .card:nth-child(2) { animation-delay: 0.05s; }
+        .card:nth-child(3) { animation-delay: 0.10s; }
+        .card:nth-child(4) { animation-delay: 0.15s; }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* ── Data grid (snapshot) ── */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
         .data-card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            padding: 15px;
+            background: #F8F6F1;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 14px 12px;
             text-align: center;
         }
-        .data-card .value { font-size: 20px; font-weight: 700; color: #4ade80; }
-        .data-card .label { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 4px; }
-        .no-data-banner {
-            background: rgba(251,191,36,0.1);
-            border: 1px solid rgba(251,191,36,0.3);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
-            color: #fbbf24;
-            font-size: 14px;
+        .data-card .value {
+            font-size: 19px;
+            font-weight: 700;
+            color: #16A34A;
+            letter-spacing: -0.5px;
         }
+        .data-card .label {
+            font-size: 11px;
+            color: #6B7280;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* ── Banners ── */
+        .no-data-banner {
+            background: #FFFBEB;
+            border: 1px solid #FDE68A;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            color: #92400E;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .no-data-banner svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+        .no-data-banner a { color: #92400E; font-weight: 700; text-decoration: underline; }
+
+        .loan-alert {
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            border-radius: 14px;
+            padding: 13px 16px;
+            margin-bottom: 14px;
+            font-size: 13px;
+            color: #1E40AF;
+            font-weight: 500;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .loan-alert svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; color: #3B82F6; }
+
+        .error-msg {
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            color: #B91C1C;
+            padding: 13px 16px;
+            border-radius: 14px;
+            margin-bottom: 18px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .error-msg svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+        /* ── Form ── */
         .form-group { margin-bottom: 16px; }
-        label { color: rgba(255,255,255,0.6); font-size: 13px; margin-bottom: 6px; display: block; }
+        label {
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
         input, select {
             width: 100%;
             padding: 11px 14px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 8px;
-            color: white;
-            font-size: 15px;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 10px;
+            color: #111827;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
             outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
-        input:focus { border-color: #4ade80; }
+        input::placeholder { color: #9CA3AF; }
+        input:focus, select:focus {
+            border-color: #16A34A;
+            box-shadow: 0 0 0 3px rgba(22,163,74,0.08);
+        }
         .btn-submit {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #4ade80, #22c55e);
+            padding: 13px;
+            background: #16A34A;
             border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-        .loan-alert {
-            background: rgba(96,165,250,0.1);
-            border: 1px solid rgba(96,165,250,0.3);
-            border-radius: 10px;
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            font-size: 13px;
-            color: #93c5fd;
-        }
-        .active-goal {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.07);
             border-radius: 12px;
-            padding: 16px;
+            color: #FFFFFF;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: background 0.15s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-submit:hover { background: #15803D; }
+        .btn-submit:active { transform: scale(0.99); }
+        .btn-submit svg { width: 18px; height: 18px; }
+
+        /* ── Active goals list ── */
+        .active-goal {
+            background: #F8F6F1;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 14px 16px;
             margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: border-color 0.15s;
         }
-        .goal-name { font-size: 15px; font-weight: 600; color: white; }
-        .goal-meta { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+        .active-goal:hover { border-color: #16A34A; }
+        .goal-name { font-size: 14px; font-weight: 600; color: #111827; }
+        .goal-meta { font-size: 12px; color: #6B7280; margin-top: 3px; }
         .btn-view {
-            background: rgba(74,222,128,0.15);
-            border: 1px solid rgba(74,222,128,0.3);
-            color: #4ade80;
+            background: #F0FDF4;
+            border: 1px solid #BBF7D0;
+            color: #16A34A;
             padding: 7px 14px;
             border-radius: 8px;
             text-decoration: none;
             font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background 0.15s;
         }
-        .error-msg {
-            background: rgba(239,68,68,0.15);
-            border: 1px solid rgba(239,68,68,0.3);
-            color: #fca5a5;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 14px;
+        .btn-view:hover { background: #DCFCE7; }
+
+        .snapshot-note {
+            font-size: 11px;
+            color: #9CA3AF;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+        .snapshot-note svg { width: 13px; height: 13px; }
+
+        /* ── View All link ── */
+        .view-all-link {
+            float: right;
+            font-size: 12px;
+            color: #16A34A;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1px;
+        }
+        .view-all-link:hover { text-decoration: underline; }
+
+        /* ── Bottom Nav ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #FFFFFF;
+            border-top: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+            z-index: 100;
+        }
+        .bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            text-decoration: none;
+            color: #9CA3AF;
+            font-size: 10px;
+            font-weight: 500;
+            padding: 4px 12px;
+            border-radius: 10px;
+            transition: color 0.15s;
+        }
+        .bottom-nav a svg { width: 22px; height: 22px; }
+        .bottom-nav a.active, .bottom-nav a:hover { color: #16A34A; }
+
         @media (max-width: 768px) {
             .data-grid { grid-template-columns: 1fr 1fr; }
+            .navbar { padding: 0 16px; }
+            .container { padding: 20px 16px 110px; }
+        }
+        @media (min-width: 769px) {
+            .bottom-nav { display: none; }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <h1>💰 FinanceIQ</h1>
+        <h1>FinanceIQ</h1>
         <div class="nav-links">
             <a href="/dashboard">Dashboard</a>
             <a href="/add_data">Add Data</a>
@@ -133,45 +349,75 @@
     </nav>
 
     <div class="container">
-        <div class="page-title">🎯 Smart Goal Planner</div>
+
+        <!-- Page Title -->
+        <div class="page-title-row">
+            <div class="page-title-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+                </svg>
+            </div>
+            <div>
+                <div class="page-title">Smart Goal Planner</div>
+                <div class="page-title-sub">Analyze and track your savings goals</div>
+            </div>
+        </div>
 
         {% if error %}
-        <div class="error-msg">⚠️ {{ error }}</div>
+        <div class="error-msg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            {{ error }}
+        </div>
         {% endif %}
 
-        <!-- Auto-fetched Financial Snapshot -->
+        <!-- Financial Snapshot -->
         {% if has_data %}
         <div class="card">
-            <div class="card-title">📊 Your Current Financial Snapshot</div>
+            <div class="card-title">
+                <div class="card-title-icon" style="background:#F0FDF4;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                    </svg>
+                </div>
+                Your Current Financial Snapshot
+            </div>
             <div class="data-grid">
                 <div class="data-card">
                     <div class="value">₹{{ "{:,.0f}".format(income) }}</div>
                     <div class="label">Monthly Income</div>
                 </div>
                 <div class="data-card">
-                    <div class="value" style="color: {% if savings > 0 %}#4ade80{% else %}#fca5a5{% endif %}">
+                    <div class="value" style="color: {% if savings > 0 %}#16A34A{% else %}#DC2626{% endif %}">
                         ₹{{ "{:,.0f}".format(savings) }}
                     </div>
                     <div class="label">Available After EMI</div>
                 </div>
                 <div class="data-card">
-                    <div class="value" style="color: #fbbf24;">
+                    <div class="value" style="color: #D97706;">
                         ₹{{ "{:,.0f}".format(total_emi) }}
                     </div>
                     <div class="label">Monthly EMIs</div>
                 </div>
             </div>
-            <p style="font-size: 12px; color: rgba(255,255,255,0.3);">
-                📅 Based on your latest monthly data
-            </p>
+            <div class="snapshot-note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                Based on your latest monthly data
+            </div>
         </div>
         {% else %}
         <div class="no-data-banner">
-            ⚠️ No monthly data found! Please
-            <a href="/add_data" style="color: #fbbf24; font-weight: 600;">
-                add your monthly data first
-            </a>
-            for accurate goal analysis.
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span>
+                No monthly data found! Please
+                <a href="/add_data">add your monthly data first</a>
+                for accurate goal analysis.
+            </span>
         </div>
         {% endif %}
 
@@ -179,17 +425,28 @@
         {% if completing_loans %}
         {% for loan in completing_loans %}
         <div class="loan-alert">
-            🎉 <strong>{{ loan.loan_name }}</strong> completes in
-            <strong>{{ loan.months_remaining }} months</strong>!
-            This will free up ₹{{ "{:,.0f}".format(loan.emi) }}/month
-            for your goals.
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/>
+            </svg>
+            <span>
+                <strong>{{ loan.loan_name }}</strong> completes in
+                <strong>{{ loan.months_remaining }} months</strong>!
+                This will free up ₹{{ "{:,.0f}".format(loan.emi) }}/month for your goals.
+            </span>
         </div>
         {% endfor %}
         {% endif %}
 
         <!-- Add New Goal Form -->
         <div class="card">
-            <div class="card-title">➕ Set a New Goal</div>
+            <div class="card-title">
+                <div class="card-title-icon" style="background:#F0FDF4;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                    </svg>
+                </div>
+                Set a New Goal
+            </div>
             <form method="POST" action="/goal">
                 <div class="form-group">
                     <label>What do you want to save for?</label>
@@ -208,7 +465,10 @@
                            placeholder="e.g. 12" required min="1">
                 </div>
                 <button type="submit" class="btn-submit">
-                    🔍 Analyze My Goal →
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    Analyze My Goal
                 </button>
             </form>
         </div>
@@ -217,18 +477,20 @@
         {% if active_goals %}
         <div class="card">
             <div class="card-title">
-                📋 Your Active Goals
-                <a href="/my_goals" style="float:right; font-size:13px; color:#4ade80; text-decoration:none;">
-                    View All →
-                </a>
+                <div class="card-title-icon" style="background:#EFF6FF;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                </div>
+                Your Active Goals
+                <a href="/my_goals" class="view-all-link">View All →</a>
             </div>
             {% for g in active_goals %}
             <div class="active-goal">
                 <div>
                     <div class="goal-name">{{ g.goal_name }}</div>
                     <div class="goal-meta">
-                        ₹{{ "{:,.0f}".format(g.goal_amount) }}
-                        in {{ g.goal_months }} months
+                        ₹{{ "{:,.0f}".format(g.goal_amount) }} &nbsp;·&nbsp; {{ g.goal_months }} months
                     </div>
                 </div>
                 <a href="/my_goals" class="btn-view">View Progress</a>
@@ -236,28 +498,39 @@
             {% endfor %}
         </div>
         {% endif %}
+
     </div>
 
     <!-- Bottom Nav -->
     <div class="bottom-nav">
         <a href="/dashboard">
-            <span class="nav-icon">🏠</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
             <span>Home</span>
         </a>
         <a href="/add_data">
-            <span class="nav-icon">➕</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
             <span>Add Data</span>
         </a>
         <a href="/goal" class="active">
-            <span class="nav-icon">🎯</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+            </svg>
             <span>Goals</span>
         </a>
         <a href="/loans">
-            <span class="nav-icon">🏦</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="8" width="18" height="13" rx="2"/><path d="M7 8V6a5 5 0 0 1 10 0v2"/>
+            </svg>
             <span>Loans</span>
         </a>
         <a href="/logout">
-            <span class="nav-icon">🚪</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
             <span>Logout</span>
         </a>
     </div>

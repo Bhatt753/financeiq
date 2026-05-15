@@ -1,242 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#F8F6F1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Results | FinanceIQ</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #0f172a;
-            color: white;
+            font-family: 'Inter', sans-serif;
+            background: #F8F6F1;
+            color: #111827;
             min-height: 100vh;
         }
 
         .navbar {
-            background: rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 14px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
         }
 
-        .navbar h1 {
-            color: #4ade80;
-            font-size: 22px;
-        }
+        .navbar h1 { color: #111827; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
 
         .nav-links a {
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            margin-left: 20px;
-            font-size: 14px;
+            color: #6B7280; text-decoration: none;
+            margin-left: 20px; font-size: 14px; font-weight: 500; transition: color 0.2s;
         }
+        .nav-links a:hover { color: #16A34A; }
+        .nav-links .logout { background: #FEF2F2; color: #EF4444; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
 
-        .nav-links a:hover {
-            color: #4ade80;
-        }
+        .container { padding: 30px; max-width: 1100px; margin: 0 auto; padding-bottom: 80px; }
 
-        .nav-links .logout {
-            background: rgba(239, 68, 68, 0.2);
-            padding: 6px 14px;
-            border-radius: 8px;
-            color: #fca5a5;
-        }
-
-        .container {
-            padding: 30px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
         .page-title {
-            font-size: 24px;
-            color: #4ade80;
-            margin-bottom: 25px;
-            font-weight: 700;
+            font-size: 22px; font-weight: 700; color: #111827;
+            margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
+            animation: fadeUp 0.4s ease both;
         }
 
         .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 15px; margin-bottom: 24px;
         }
 
         .metric-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 20px;
             padding: 20px;
             text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            animation: fadeUp 0.4s ease both;
         }
 
-        .metric-card .value {
-            font-size: 26px;
-            font-weight: 700;
-            color: #4ade80;
-        }
-
-        .metric-card .label {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-top: 5px;
-        }
+        .metric-card .value { font-size: 22px; font-weight: 700; color: #16A34A; }
+        .metric-card .label { font-size: 12px; color: #6B7280; margin-top: 5px; font-weight: 500; }
 
         .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 25px;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 20px; margin-bottom: 24px;
         }
 
         .chart-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            animation: fadeUp 0.4s ease both;
+        }
+
+        .chart-card h3 { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 16px; }
+
+        /* EMI Breakdown */
+        .emi-card {
+            background: #FFFBEB;
+            border: 1.5px solid #FDE68A;
+            border-radius: 20px;
             padding: 20px;
+            margin-bottom: 24px;
+            animation: fadeUp 0.4s ease both;
         }
+        .emi-title { font-size: 14px; font-weight: 700; color: #92400E; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .emi-row { display: flex; justify-content: space-between; font-size: 13px; color: #6B7280; padding: 5px 0; }
+        .emi-row span:last-child { color: #F59E0B; font-weight: 600; }
+        .emi-divider { border-top: 1px solid #FDE68A; margin: 10px 0 12px; }
+        .emi-summary-row { display: flex; justify-content: space-between; font-size: 13px; color: #6B7280; padding: 3px 0; }
+        .emi-total-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: #111827; padding: 8px 0 0; border-top: 1px solid #FDE68A; margin-top: 6px; }
 
-        .chart-card h3 {
-            font-size: 15px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 15px;
-        }
-
-        .advice-section {
-            margin-bottom: 25px;
-        }
-
-        .advice-title {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .advice-card {
-            border-radius: 12px;
-            padding: 15px 20px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .advice-success {
-            background: rgba(74, 222, 128, 0.08);
-            border: 1px solid rgba(74, 222, 128, 0.2);
-        }
-
-        .advice-warning {
-            background: rgba(251, 191, 36, 0.08);
-            border: 1px solid rgba(251, 191, 36, 0.2);
-        }
-
-        .advice-danger {
-            background: rgba(239, 68, 68, 0.08);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-
-        .advice-info {
-            background: rgba(96, 165, 250, 0.08);
-            border: 1px solid rgba(96, 165, 250, 0.2);
-        }
-
-        .advice-icon {
-            font-size: 20px;
-        }
-
-        .advice-content h4 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .advice-success h4 {
-            color: #4ade80;
-        }
-
-        .advice-warning h4 {
-            color: #fbbf24;
-        }
-
-        .advice-danger h4 {
-            color: #fca5a5;
-        }
-
-        .advice-info h4 {
-            color: #93c5fd;
-        }
-
-        .advice-content p {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.6);
-            line-height: 1.5;
-        }
-
-        .health-score {
-            text-align: center;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            margin-bottom: 25px;
+        /* Health Score Card */
+        .health-score-card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            animation: fadeUp 0.4s ease both;
         }
 
         .score-number {
-            font-size: 60px;
-            font-weight: 700;
+            font-size: 60px; font-weight: 700; line-height: 1;
         }
 
         .score-label {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-top: 5px;
+            font-size: 14px; color: #6B7280; margin-top: 5px; font-weight: 500;
         }
+
+        /* Score breakdown components */
+        .comp-row {
+            background: #F9FAFB; border-radius: 12px;
+            padding: 14px; margin-bottom: 10px;
+            border: 1px solid #E5E7EB;
+        }
+        .comp-row-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 8px;
+        }
+        .comp-row-left .comp-name { font-size: 14px; font-weight: 600; color: #111827; }
+        .comp-row-left .comp-weight { font-size: 12px; color: #6B7280; margin-left: 8px; }
+        .comp-row-right { display: flex; align-items: center; gap: 10px; }
+        .comp-row-right .comp-val { font-size: 13px; color: #6B7280; }
+
+        .comp-grade-badge {
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 13px; font-weight: 700;
+        }
+
+        .prog-wrap { background: #E5E7EB; border-radius: 4px; height: 6px; margin-bottom: 8px; overflow: hidden; }
+        .prog-fill { height: 100%; border-radius: 4px; }
+
+        .comp-explain { font-size: 12px; color: #6B7280; line-height: 1.5; }
+        .comp-action-tip { font-size: 12px; color: #16A34A; margin-top: 4px; font-weight: 500; }
+
+        /* Priority actions */
+        .priority-section {
+            background: #FEF2F2; border: 1px solid #FEE2E2;
+            border-radius: 14px; padding: 16px; margin-top: 20px;
+        }
+        .priority-section-title { font-size: 13px; font-weight: 700; color: #B91C1C; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .priority-item { display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start; }
+        .priority-num-badge {
+            background: #EF4444; color: #FFFFFF;
+            width: 20px; height: 20px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; flex-shrink: 0;
+        }
+        .priority-comp-label { font-size: 12px; color: #6B7280; }
+        .priority-action-text { font-size: 13px; color: #374151; font-weight: 500; }
+
+        /* Advice */
+        .advice-section { margin-bottom: 24px; }
+        .advice-title { font-size: 17px; font-weight: 700; color: #111827; margin-bottom: 14px; }
+
+        .advice-card {
+            border-radius: 14px; padding: 15px 20px;
+            margin-bottom: 10px; display: flex;
+            align-items: flex-start; gap: 12px;
+        }
+        .advice-success { background: #F0FDF4; border: 1px solid #BBF7D0; }
+        .advice-warning { background: #FFFBEB; border: 1px solid #FDE68A; }
+        .advice-danger  { background: #FEF2F2; border: 1px solid #FEE2E2; }
+        .advice-info    { background: #EFF6FF; border: 1px solid #BFDBFE; }
+        .advice-icon { font-size: 20px; flex-shrink: 0; }
+        .advice-content h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .advice-success h4 { color: #15803D; }
+        .advice-warning h4 { color: #92400E; }
+        .advice-danger  h4 { color: #B91C1C; }
+        .advice-info    h4 { color: #1D4ED8; }
+        .advice-content p { font-size: 13px; color: #6B7280; line-height: 1.5; }
 
         .btn-back {
             display: inline-block;
-            background: rgba(74, 222, 128, 0.15);
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            color: #4ade80;
-            padding: 12px 24px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            margin-right: 10px;
-            transition: all 0.3s;
+            background: #F3F4F6; border: 1px solid #E5E7EB;
+            color: #374151;
+            padding: 12px 24px; border-radius: 12px;
+            text-decoration: none; font-weight: 600; font-size: 14px;
+            margin-right: 10px; transition: all 0.2s;
         }
+        .btn-back:hover { background: #E5E7EB; }
 
         .btn-goal {
             display: inline-block;
-            background: linear-gradient(135deg, #4ade80, #22c55e);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
+            background: #16A34A; color: #FFFFFF;
+            padding: 12px 24px; border-radius: 12px;
+            text-decoration: none; font-weight: 600; font-size: 14px;
+            transition: all 0.2s;
+        }
+        .btn-goal:hover { background: #15803D; transform: translateY(-1px); box-shadow: 0 6px 16px rgba(22,163,74,0.25); }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #FFFFFF; border-top: 1px solid #E5E7EB;
+            display: none; justify-content: space-around; align-items: center;
+            padding: 10px 0 max(10px,env(safe-area-inset-bottom)); z-index: 100;
+        }
+        .bottom-nav a {
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            color: #6B7280; text-decoration: none; font-size: 10px; font-weight: 600;
+            padding: 4px 10px; transition: color 0.2s;
+        }
+        .bottom-nav a.active, .bottom-nav a:hover { color: #16A34A; }
+        .bottom-nav svg { width: 22px; height: 22px; }
+
+        @media (max-width: 768px) {
+            .container { padding: 16px 14px 90px; }
+            .navbar { padding: 12px 16px; }
+            .metrics-grid { grid-template-columns: 1fr 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .bottom-nav { display: flex; }
         }
     </style>
 </head>
 
 <body>
     <nav class="navbar">
-        <h1>💰 FinanceIQ</h1>
+        <h1>FinanceIQ</h1>
         <div class="nav-links">
             <a href="/dashboard">Dashboard</a>
             <a href="/add_data">Add Data</a>
@@ -246,149 +236,143 @@
     </nav>
 
     <div class="container">
-        <div class="page-title">📊 Your Financial Report — {{ month }} {{ year }}</div>
+        <div class="page-title">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+            Your Financial Report — {{ month }} {{ year }}
+        </div>
 
         <!-- Metrics Cards -->
         <div class="metrics-grid">
             <div class="metric-card">
-                <div class="value">₹{{ "{:,.0f}".format(metrics.income) }}</div>
+                <div class="value" style="color:#16A34A;">₹{{ "{:,.0f}".format(metrics.income) }}</div>
                 <div class="label">Monthly Income</div>
             </div>
             <div class="metric-card">
-                <div class="value">₹{{ "{:,.0f}".format(metrics.total_expenses) }}</div>
+                <div class="value" style="color:#EF4444;">₹{{ "{:,.0f}".format(metrics.total_expenses) }}</div>
                 <div class="label">Total Expenses</div>
             </div>
             <div class="metric-card">
-                <div class="value" style="color: {% if metrics.savings >= 0 %}#4ade80{% else %}#fca5a5{% endif %}">
+                <div class="value" style="color: {% if metrics.savings >= 0 %}#16A34A{% else %}#EF4444{% endif %}">
                     ₹{{ "{:,.0f}".format(metrics.savings) }}
                 </div>
                 <div class="label">Monthly Savings</div>
             </div>
             <div class="metric-card">
-                <div class="value">{{ metrics.savings_rate }}%</div>
+                <div class="value" style="color:#111827;">{{ metrics.savings_rate }}%</div>
                 <div class="label">Savings Rate</div>
             </div>
         </div>
 
         <!-- EMI Breakdown (only shown when user has loans) -->
         {% if metrics.total_emi > 0 %}
-        <div style="background:rgba(251,191,36,0.07);border:1.5px solid rgba(251,191,36,0.2);border-radius:16px;padding:20px;margin-bottom:25px;">
-            <div style="font-size:14px;font-weight:700;color:#fbbf24;margin-bottom:14px;">⚡ EMI Deduction Breakdown</div>
+        <div class="emi-card">
+            <div class="emi-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                EMI Deduction Breakdown
+            </div>
 
             {% for loan in metrics.loans %}
-            <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,0.55);padding:5px 0;">
+            <div class="emi-row">
                 <span>{{ loan.type }} EMI</span>
-                <span style="color:#fbbf24;">− ₹{{ "{:,.0f}".format(loan.emi) }}</span>
+                <span>− ₹{{ "{:,.0f}".format(loan.emi) }}</span>
             </div>
             {% endfor %}
 
-            <div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:10px;padding-top:12px;">
-                <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,0.5);padding:3px 0;">
-                    <span>Monthly Income</span>
-                    <span>₹{{ "{:,.0f}".format(metrics.income) }}</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,0.5);padding:3px 0;">
-                    <span>Regular Expenses</span>
-                    <span style="color:#fca5a5;">− ₹{{ "{:,.0f}".format(metrics.total_expenses) }}</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:13px;color:rgba(255,255,255,0.5);padding:3px 0;">
-                    <span>Total EMI</span>
-                    <span style="color:#fbbf24;">− ₹{{ "{:,.0f}".format(metrics.total_emi) }}</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;padding:8px 0 0;border-top:1px solid rgba(255,255,255,0.08);margin-top:6px;">
-                    <span>Available Savings</span>
-                    <span style="color:{% if metrics.savings >= 0 %}#4ade80{% else %}#fca5a5{% endif %};">
-                        ₹{{ "{:,.0f}".format(metrics.savings) }}
-                    </span>
-                </div>
+            <div class="emi-divider"></div>
+            <div class="emi-summary-row">
+                <span>Monthly Income</span>
+                <span style="color:#111827; font-weight:500;">₹{{ "{:,.0f}".format(metrics.income) }}</span>
+            </div>
+            <div class="emi-summary-row">
+                <span>Regular Expenses</span>
+                <span style="color:#EF4444; font-weight:500;">− ₹{{ "{:,.0f}".format(metrics.total_expenses) }}</span>
+            </div>
+            <div class="emi-summary-row">
+                <span>Total EMI</span>
+                <span style="color:#F59E0B; font-weight:600;">− ₹{{ "{:,.0f}".format(metrics.total_emi) }}</span>
+            </div>
+            <div class="emi-total-row">
+                <span>Available Savings</span>
+                <span style="color:{% if metrics.savings >= 0 %}#16A34A{% else %}#EF4444{% endif %};">
+                    ₹{{ "{:,.0f}".format(metrics.savings) }}
+                </span>
             </div>
         </div>
         {% endif %}
 
         <!-- Health Score -->
-        <div class="health-score"
-            style="background: rgba(255,255,255,0.04); border-radius: 16px; padding: 25px; margin-bottom: 25px;">
+        <div class="health-score-card">
             <div style="text-align:center; margin-bottom: 20px;">
-                <div style="font-size: 64px; font-weight: 700; color: {{ metrics.health_data.color }}">
+                <div class="score-number" style="color: {{ metrics.health_data.color }}">
                     {{ metrics.health_score }}
                 </div>
-                <div style="font-size: 20px; color: {{ metrics.health_data.color }}; font-weight: 600;">
+                <div style="font-size: 18px; color: {{ metrics.health_data.color }}; font-weight: 700; margin-top: 4px;">
                     {{ metrics.health_data.grade }} — {{ metrics.health_data.status }}
                 </div>
-                <div style="font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 8px;">
+                <div class="score-label">
                     {{ metrics.health_data.summary }}
                 </div>
             </div>
 
             <!-- Component Breakdown -->
             <div style="margin-top: 20px;">
-                <div style="font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 12px; font-weight: 600;">
-                    📊 SCORE BREAKDOWN
+                <div style="font-size: 12px; color: #6B7280; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Score Breakdown
                 </div>
 
                 {% for comp in metrics.health_data.components %}
-                <div
-                    style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 14px; margin-bottom: 10px;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <div>
-                            <span style="font-size: 14px; font-weight: 600; color: white;">{{ comp.component }}</span>
-                            <span style="font-size: 12px; color: rgba(255,255,255,0.4); margin-left: 8px;">
-                                Weight: {{ (comp.weight * 100)|int }}%
-                            </span>
+                <div class="comp-row">
+                    <div class="comp-row-header">
+                        <div class="comp-row-left">
+                            <span class="comp-name">{{ comp.component }}</span>
+                            <span class="comp-weight">Weight: {{ (comp.weight * 100)|int }}%</span>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 13px; color: rgba(255,255,255,0.5);">{{ comp.value }}</span>
-                            <span style="
-                        padding: 3px 10px; border-radius: 20px; font-size: 13px; font-weight: 700;
-                        background: {% if comp.grade == 'A' %}rgba(74,222,128,0.2)
-                                   {% elif comp.grade == 'B' %}rgba(134,239,172,0.2)
-                                   {% elif comp.grade == 'C' %}rgba(251,191,36,0.2)
-                                   {% elif comp.grade == 'D' %}rgba(251,146,60,0.2)
-                                   {% else %}rgba(252,165,165,0.2){% endif %};
-                        color: {% if comp.grade == 'A' %}#4ade80
-                               {% elif comp.grade == 'B' %}#86efac
-                               {% elif comp.grade == 'C' %}#fbbf24
-                               {% elif comp.grade == 'D' %}#fb923c
-                               {% else %}#fca5a5{% endif %};">
+                        <div class="comp-row-right">
+                            <span class="comp-val">{{ comp.value }}</span>
+                            <span class="comp-grade-badge" style="
+                                padding: 3px 10px; border-radius: 20px; font-size: 13px; font-weight: 700;
+                                background: {% if comp.grade == 'A' %}#DCFCE7
+                                           {% elif comp.grade == 'B' %}#D1FAE5
+                                           {% elif comp.grade == 'C' %}#FEF3C7
+                                           {% elif comp.grade == 'D' %}#FEE2E2
+                                           {% else %}#FEE2E2{% endif %};
+                                color: {% if comp.grade == 'A' %}#15803D
+                                       {% elif comp.grade == 'B' %}#047857
+                                       {% elif comp.grade == 'C' %}#92400E
+                                       {% elif comp.grade == 'D' %}#B91C1C
+                                       {% else %}#991B1B{% endif %};">
                                 {{ comp.grade }} ({{ comp.raw_score }}/100)
                             </span>
                         </div>
                     </div>
 
                     <!-- Progress Bar -->
-                    <div
-                        style="background: rgba(255,255,255,0.08); border-radius: 4px; height: 6px; margin-bottom: 8px;">
+                    <div class="prog-wrap">
                         <div style="
-                    width: {{ comp.raw_score }}%;
-                    height: 100%;
-                    border-radius: 4px;
-                    background: {% if comp.raw_score >= 80 %}#4ade80
-                               {% elif comp.raw_score >= 60 %}#fbbf24
-                               {% else %}#fca5a5{% endif %};">
+                            width: {{ comp.raw_score }}%;
+                            height: 100%;
+                            border-radius: 4px;
+                            background: {% if comp.raw_score >= 80 %}linear-gradient(90deg,#16A34A,#22C55E)
+                                       {% elif comp.raw_score >= 60 %}linear-gradient(90deg,#D97706,#F59E0B)
+                                       {% else %}linear-gradient(90deg,#DC2626,#EF4444){% endif %};">
                         </div>
                     </div>
 
-                    <div style="font-size: 12px; color: rgba(255,255,255,0.5);">{{ comp.explanation }}</div>
-                    <div style="font-size: 12px; color: #4ade80; margin-top: 4px;">💡 {{ comp.action }}</div>
+                    <div class="comp-explain">{{ comp.explanation }}</div>
+                    <div class="comp-action-tip">{{ comp.action }}</div>
                 </div>
                 {% endfor %}
             </div>
 
             <!-- Priority Actions -->
-            <div
-                style="margin-top: 20px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: 16px;">
-                <div style="font-size: 14px; color: #fca5a5; font-weight: 600; margin-bottom: 10px;">
-                    🎯 TOP PRIORITY ACTIONS
-                </div>
+            <div class="priority-section">
+                <div class="priority-section-title">Top Priority Actions</div>
                 {% for action in metrics.health_data.priority_actions %}
-                <div style="display: flex; gap: 10px; margin-bottom: 8px; align-items: flex-start;">
-                    <span
-                        style="background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0;">{{
-                        loop.index }}</span>
+                <div class="priority-item">
+                    <span class="priority-num-badge">{{ loop.index }}</span>
                     <div>
-                        <div style="font-size: 12px; color: rgba(255,255,255,0.4);">{{ action.component }}</div>
-                        <div style="font-size: 13px; color: rgba(255,255,255,0.8);">{{ action.action }}</div>
+                        <div class="priority-comp-label">{{ action.component }}</div>
+                        <div class="priority-action-text">{{ action.action }}</div>
                     </div>
                 </div>
                 {% endfor %}
@@ -398,18 +382,18 @@
         <!-- Charts -->
         <div class="charts-grid">
             <div class="chart-card">
-                <h3>🍩 Spending by Category</h3>
+                <h3>Spending by Category</h3>
                 <canvas id="pieChart"></canvas>
             </div>
             <div class="chart-card">
-                <h3>📊 Income vs Expenses vs Savings</h3>
+                <h3>Income vs Expenses vs Savings</h3>
                 <canvas id="barChart"></canvas>
             </div>
         </div>
 
         <!-- Advice -->
         <div class="advice-section">
-            <div class="advice-title">🧠 Practical Financial Advice</div>
+            <div class="advice-title">Practical Financial Advice</div>
             {% for a in advice %}
             <div class="advice-card advice-{{ a.type }}">
                 <div class="advice-icon">{{ a.icon }}</div>
@@ -423,7 +407,7 @@
 
         <!-- Action Buttons -->
         <a href="/dashboard" class="btn-back">← Back to Dashboard</a>
-        <a href="/goal" class="btn-goal">🎯 Plan a Savings Goal →</a>
+        <a href="/goal" class="btn-goal">Plan a Savings Goal</a>
     </div>
 
     <script>
@@ -433,18 +417,23 @@
             type: 'doughnut',
             data: {
                 labels: {{ metrics.category_totals.keys() | list | tojson }},
-            datasets: [{
-                data: {{ metrics.category_totals.values() | list | tojson }},
-            backgroundColor: [
-                '#4ade80', '#60a5fa', '#f59e0b', '#f87171',
-                '#a78bfa', '#34d399', '#fb923c', '#e879f9', '#94a3b8'
-            ],
-            borderWidth: 0
+                datasets: [{
+                    data: {{ metrics.category_totals.values() | list | tojson }},
+                    backgroundColor: [
+                        '#16A34A', '#22C55E', '#F59E0B', '#EF4444',
+                        '#6366F1', '#06B6D4', '#F97316', '#EC4899', '#94A3B8'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#FFFFFF'
                 }]
             },
             options: {
-            plugins: { legend: { labels: { color: 'rgba(255,255,255,0.7)', font: { size: 12 } } } }
-        }
+                plugins: {
+                    legend: {
+                        labels: { color: '#374151', font: { size: 12, family: 'Inter' } }
+                    }
+                }
+            }
         });
 
         // Bar Chart
@@ -456,45 +445,51 @@
                 datasets: [{
                     data: [
                         {{ metrics.income }},
-                {{ metrics.total_expenses }},
+                        {{ metrics.total_expenses }},
                         {{ metrics.savings }}
                     ],
-            backgroundColor: ['#4ade80', '#f87171', '#60a5fa'],
-            borderRadius: 8,
-            borderWidth: 0
+                    backgroundColor: ['#16A34A', '#EF4444', '#3B82F6'],
+                    borderRadius: 8,
+                    borderWidth: 0
                 }]
             },
             options: {
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                x: { ticks: { color: 'rgba(255,255,255,0.5)' }, grid: { display: false } }
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        ticks: { color: '#6B7280', font: { family: 'Inter' } },
+                        grid: { color: '#F3F4F6' }
+                    },
+                    x: {
+                        ticks: { color: '#6B7280', font: { family: 'Inter' } },
+                        grid: { display: false }
+                    }
+                }
             }
-        }
         });
     </script>
+
     <div class="bottom-nav">
         <a href="/dashboard" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">
-            <span class="nav-icon">🏠</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span>Home</span>
         </a>
         <a href="/add_data" class="{% if request.endpoint == 'add_data' %}active{% endif %}">
-            <span class="nav-icon">➕</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
             <span>Add Data</span>
         </a>
         <a href="/history" class="{% if request.endpoint == 'history' %}active{% endif %}">
-            <span class="nav-icon">📅</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             <span>History</span>
         </a>
         <a href="/goal" class="{% if request.endpoint == 'goal' %}active{% endif %}">
-            <span class="nav-icon">🎯</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             <span>Goals</span>
         </a>
         <a href="/logout">
-            <span class="nav-icon">🚪</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             <span>Logout</span>
         </a>
     </div>
 </body>
-
 </html>

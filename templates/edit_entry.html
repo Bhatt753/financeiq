@@ -2,110 +2,315 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#F8F6F1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>History | FinanceIQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Edit Entry | FinanceIQ</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Segoe UI',sans-serif; background:#0f172a; color:white; min-height:100vh; }
+        body { font-family:'Inter',sans-serif; background:#F8F6F1; color:#111827; min-height:100vh; }
 
-        .navbar { background:rgba(255,255,255,0.05); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,0.1); padding:15px 30px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:100; }
-        .navbar h1 { color:#4ade80; font-size:22px; }
-        .nav-links a { color:rgba(255,255,255,0.7); text-decoration:none; margin-left:20px; font-size:14px; transition:color 0.3s; }
-        .nav-links a:hover { color:#4ade80; }
-        .nav-links .logout { background:rgba(239,68,68,0.2); padding:6px 14px; border-radius:8px; color:#fca5a5; }
-
-        .container { padding:32px 30px; max-width:1000px; margin:0 auto; padding-bottom:80px; }
-
-        .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:32px; }
-        .page-title { font-size:26px; font-weight:700; color:white; display:flex; align-items:center; gap:10px; }
-        .page-title span { color:#4ade80; }
-        .back-btn { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); padding:8px 18px; border-radius:10px; text-decoration:none; font-size:13px; font-weight:600; transition:all 0.2s; }
-        .back-btn:hover { border-color:#4ade80; color:#4ade80; }
-
-        /* MONTH CARDS */
-        .month-card {
-            background:rgba(255,255,255,0.04);
-            border:1px solid rgba(255,255,255,0.08);
+        /* NAVBAR */
+        .navbar {
+            background:#FFFFFF;
+            border-bottom:1px solid #E5E7EB;
+            padding:14px 30px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            position:sticky;
+            top:0;
+            z-index:100;
+        }
+        .navbar h1 { color:#111827; font-size:20px; font-weight:700; letter-spacing:-0.3px; }
+        .nav-links a {
+            color:#6B7280;
+            text-decoration:none;
+            margin-left:22px;
+            font-size:14px;
+            font-weight:500;
+            transition:color 0.2s;
+        }
+        .nav-links a:hover { color:#16A34A; }
+        .nav-links .logout {
+            background:#FEF2F2;
+            color:#EF4444;
+            padding:6px 16px;
             border-radius:20px;
-            padding:24px 28px;
+            font-weight:600;
+        }
+        .nav-links .logout:hover { background:#FEE2E2; color:#DC2626; }
+
+        /* CONTAINER */
+        .container { padding:28px 30px; max-width:900px; margin:0 auto; padding-bottom:100px; }
+
+        /* PAGE HEADER */
+        .page-header {
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:24px;
+            gap:12px;
+        }
+        .page-title {
+            font-size:22px;
+            font-weight:700;
+            color:#111827;
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+        .page-title-icon {
+            width:34px; height:34px;
+            background:#F0FDF4;
+            border:1px solid #BBF7D0;
+            border-radius:10px;
+            display:flex; align-items:center; justify-content:center;
+            flex-shrink:0;
+        }
+        .page-title-icon svg { color:#16A34A; }
+        .month-pill {
+            background:#F0FDF4;
+            border:1px solid #BBF7D0;
+            color:#16A34A;
+            font-size:13px;
+            font-weight:600;
+            padding:4px 14px;
+            border-radius:20px;
+        }
+        .back-btn {
+            background:#FFFFFF;
+            border:1px solid #E5E7EB;
+            color:#6B7280;
+            padding:8px 18px;
+            border-radius:10px;
+            text-decoration:none;
+            font-size:13px;
+            font-weight:600;
+            transition:all 0.2s;
+            display:flex;
+            align-items:center;
+            gap:6px;
+            white-space:nowrap;
+        }
+        .back-btn:hover { border-color:#16A34A; color:#16A34A; }
+
+        /* CARD */
+        .card {
+            background:#FFFFFF;
+            border:1px solid #E5E7EB;
+            border-radius:20px;
+            padding:24px;
             margin-bottom:16px;
-            transition:all 0.25s ease;
-            animation: fadeUp 0.4s ease both;
+            box-shadow:0 1px 3px rgba(0,0,0,0.04);
         }
-        .month-card:hover { border-color:rgba(74,222,128,0.25); box-shadow:0 8px 32px rgba(0,0,0,0.4); transform:translateY(-1px); }
-
-        @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-
-        .month-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-        .month-name { font-size:20px; font-weight:700; color:#4ade80; }
-        .month-actions { display:flex; gap:8px; }
-
-        .btn-edit {
-            display:flex; align-items:center; gap:6px;
-            background:rgba(96,165,250,0.12); border:1.5px solid rgba(96,165,250,0.25);
-            color:#93c5fd; padding:8px 16px; border-radius:10px;
-            text-decoration:none; font-size:13px; font-weight:600; transition:all 0.2s;
+        .card-title {
+            font-size:14px;
+            font-weight:600;
+            color:#374151;
+            margin-bottom:18px;
+            display:flex;
+            align-items:center;
+            gap:10px;
+            padding-left:12px;
+            border-left:3px solid #16A34A;
         }
-        .btn-edit:hover { background:rgba(96,165,250,0.2); border-color:#60a5fa; }
 
-        .btn-delete {
-            display:flex; align-items:center; gap:6px;
-            background:rgba(239,68,68,0.1); border:1.5px solid rgba(239,68,68,0.2);
-            color:#fca5a5; padding:8px 16px; border-radius:10px;
-            font-size:13px; font-weight:600; cursor:pointer;
-            transition:all 0.2s; font-family:'Segoe UI',sans-serif;
+        /* FORM */
+        .form-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin-bottom:4px; }
+        .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:4px; }
+        .form-group { margin-bottom:14px; }
+        label {
+            color:#374151;
+            font-size:13px;
+            margin-bottom:6px;
+            display:block;
+            font-weight:600;
         }
-        .btn-delete:hover { background:rgba(239,68,68,0.2); border-color:#ef4444; }
+        input, select {
+            width:100%;
+            padding:11px 14px;
+            background:#FFFFFF;
+            border:1px solid #E5E7EB;
+            border-radius:10px;
+            color:#111827;
+            font-size:15px;
+            font-family:'Inter',sans-serif;
+            outline:none;
+            transition:all 0.2s;
+            appearance:none;
+            -webkit-appearance:none;
+        }
+        input:focus, select:focus {
+            border-color:#16A34A;
+            box-shadow:0 0 0 3px rgba(22,163,74,0.08);
+        }
+        select option { background:#FFFFFF; color:#111827; }
+        input::placeholder { color:#9CA3AF; }
+        input[readonly], input[disabled] {
+            background:#F9FAFB;
+            color:#6B7280;
+            cursor:not-allowed;
+        }
 
-        /* STATS ROW */
-        .stats-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
-        .stat-box { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:16px; text-align:center; }
-        .stat-box .val { font-size:18px; font-weight:700; color:white; margin-bottom:5px; }
-        .stat-box .lbl { font-size:11px; color:rgba(255,255,255,0.35); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
-        .stat-box.income .val { color:#4ade80; }
-        .stat-box.savings .val { color:#60a5fa; }
+        /* EXPENSE TABLE */
+        .expense-row {
+            display:grid;
+            grid-template-columns:2fr 2fr 1fr 1fr 0.5fr;
+            gap:10px;
+            margin-bottom:10px;
+            align-items:end;
+        }
+        .col-header {
+            display:grid;
+            grid-template-columns:2fr 2fr 1fr 1fr 0.5fr;
+            gap:10px;
+            margin-bottom:8px;
+        }
+        .col-header span {
+            color:#9CA3AF;
+            font-size:11px;
+            font-weight:600;
+            text-transform:uppercase;
+            letter-spacing:0.4px;
+        }
 
-        /* HEALTH BADGE */
-        .health-box { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
-        .health-score { font-size:20px; font-weight:800; }
-        .health-label { font-size:10px; color:rgba(255,255,255,0.35); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
-        .score-ring { width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; margin:0 auto 6px; }
-        .ring-green  { background:rgba(74,222,128,0.15); color:#4ade80; border:2px solid rgba(74,222,128,0.4); }
-        .ring-yellow { background:rgba(251,191,36,0.15); color:#fbbf24; border:2px solid rgba(251,191,36,0.4); }
-        .ring-red    { background:rgba(239,68,68,0.15);  color:#fca5a5; border:2px solid rgba(239,68,68,0.4); }
+        /* BUTTONS */
+        .btn-add {
+            background:#F0FDF4;
+            border:1px solid #BBF7D0;
+            color:#16A34A;
+            padding:10px 20px;
+            border-radius:10px;
+            cursor:pointer;
+            font-size:13px;
+            font-weight:600;
+            transition:all 0.2s;
+            margin-bottom:6px;
+            font-family:'Inter',sans-serif;
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+        }
+        .btn-add:hover { background:#DCFCE7; border-color:#86EFAC; }
 
-        /* EMPTY */
-        .empty-state { text-align:center; padding:80px 20px; color:rgba(255,255,255,0.3); }
-        .empty-state .ei { font-size:56px; margin-bottom:16px; }
-        .empty-state h3 { font-size:22px; color:rgba(255,255,255,0.6); margin-bottom:8px; }
-        .empty-state p { font-size:14px; margin-bottom:24px; }
-        .btn-cta { background:linear-gradient(135deg,#4ade80,#22c55e); color:white; padding:13px 28px; border-radius:12px; text-decoration:none; font-weight:700; font-size:14px; transition:all 0.3s; display:inline-block; }
-        .btn-cta:hover { transform:translateY(-2px); box-shadow:0 10px 25px rgba(74,222,128,0.3); }
+        .btn-remove {
+            background:#FEF2F2;
+            border:1px solid #FEE2E2;
+            color:#EF4444;
+            padding:10px 12px;
+            border-radius:10px;
+            cursor:pointer;
+            font-size:13px;
+            font-family:'Inter',sans-serif;
+            transition:all 0.2s;
+        }
+        .btn-remove:hover { background:#FEE2E2; border-color:#FECACA; }
+
+        .btn-submit {
+            width:100%;
+            padding:14px;
+            background:#16A34A;
+            border:none;
+            border-radius:14px;
+            color:#FFFFFF;
+            font-size:16px;
+            font-weight:700;
+            cursor:pointer;
+            transition:all 0.25s;
+            font-family:'Inter',sans-serif;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+        }
+        .btn-submit:hover { background:#15803D; transform:translateY(-1px); box-shadow:0 6px 20px rgba(22,163,74,0.2); }
+
+        /* BADGES & HINTS */
+        .optional-badge {
+            background:#F0FDF4;
+            border:1px solid #BBF7D0;
+            color:#16A34A;
+            font-size:11px;
+            font-weight:600;
+            padding:2px 10px;
+            border-radius:20px;
+        }
+        .hint { color:#9CA3AF; font-size:12px; margin-top:5px; }
+
+        /* INFO BOX */
+        .info-box {
+            background:#F0FDF4;
+            border:1px solid #BBF7D0;
+            border-radius:10px;
+            padding:10px 14px;
+            font-size:13px;
+            color:#15803D;
+            font-weight:500;
+            margin-bottom:16px;
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
 
         /* BOTTOM NAV */
-        .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:rgba(15,23,42,0.95); backdrop-filter:blur(20px); border-top:1px solid rgba(255,255,255,0.08); display:none; justify-content:space-around; align-items:center; padding:10px 0 max(10px,env(safe-area-inset-bottom)); z-index:100; }
-        .bottom-nav a { display:flex; flex-direction:column; align-items:center; gap:3px; color:rgba(255,255,255,0.4); text-decoration:none; font-size:10px; font-weight:600; padding:4px 10px; transition:color 0.2s; }
-        .bottom-nav a.active, .bottom-nav a:hover { color:#4ade80; }
-        .nav-icon { font-size:20px; }
+        .bottom-nav {
+            position:fixed;
+            bottom:0; left:0; right:0;
+            background:#FFFFFF;
+            border-top:1px solid #E5E7EB;
+            display:none;
+            justify-content:space-around;
+            align-items:center;
+            padding:10px 0 max(10px,env(safe-area-inset-bottom));
+            z-index:100;
+        }
+        .bottom-nav a {
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap:3px;
+            color:#9CA3AF;
+            text-decoration:none;
+            font-size:10px;
+            font-weight:600;
+            padding:4px 10px;
+            transition:color 0.2s;
+        }
+        .bottom-nav a.active, .bottom-nav a:hover { color:#16A34A; }
+        .bottom-nav svg { width:22px; height:22px; }
 
+        /* RESPONSIVE */
         @media(max-width:768px) {
-            .container { padding:20px 14px 90px; }
+            .container { padding:18px 14px 90px; }
             .navbar { padding:12px 16px; }
             .nav-links .nav-desktop { display:none; }
-            .stats-row { grid-template-columns:1fr 1fr; gap:10px; }
-            .month-card { padding:18px; }
-            .month-name { font-size:17px; }
+            .form-row { grid-template-columns:1fr; }
+            .form-row-2 { grid-template-columns:1fr; }
+            .expense-row {
+                grid-template-columns:1fr 1fr;
+                gap:8px;
+                background:#F9FAFB;
+                border:1px solid #F3F4F6;
+                border-radius:12px;
+                padding:12px;
+                position:relative;
+                padding-bottom:46px;
+            }
+            .expense-row .btn-remove { position:absolute; bottom:8px; right:8px; padding:5px 10px; font-size:11px; }
+            .col-header { display:none; }
             .bottom-nav { display:flex; }
-            .page-header { flex-direction:column; align-items:flex-start; gap:12px; }
+            .page-header { flex-direction:column; align-items:flex-start; }
         }
     </style>
 </head>
 <body>
 
 <nav class="navbar">
-    <h1>💰 FinanceIQ</h1>
+    <h1>FinanceIQ</h1>
     <div class="nav-links">
         <a href="/dashboard" class="nav-desktop">Dashboard</a>
         <a href="/add_data" class="nav-desktop">Add Data</a>
@@ -115,81 +320,198 @@
 </nav>
 
 <div class="container">
+
     <div class="page-header">
-        <div class="page-title">
-            📅 <span>Monthly</span> History
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div class="page-title">
+                <div class="page-title-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </div>
+                Edit Entry
+            </div>
+            <span class="month-pill">{{ entry.month }} {{ entry.year }}</span>
         </div>
-        <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
+        <a href="/history" class="back-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Back to History
+        </a>
     </div>
 
-    {% if history %}
-        {% for row in history %}
-        <div class="month-card" style="animation-delay:{{ loop.index0 * 0.05 }}s">
+    <form method="POST" action="/edit_entry/{{ entry.id }}" id="editForm">
 
-            <div class="month-header">
-                <div class="month-name">{{ row.month }} {{ row.year }}</div>
-                <div class="month-actions">
-                    <a href="/edit_entry/{{ row.id }}" class="btn-edit">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        Edit
-                    </a>
-                    <form method="POST" action="/delete_entry/{{ row.id }}" style="display:inline"
-                          onsubmit="return confirm('Delete {{ row.month }} {{ row.year }}?')">
-                        <button type="submit" class="btn-delete">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                            Delete
-                        </button>
-                    </form>
+        <!-- INCOME -->
+        <div class="card">
+            <div class="card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="1.75"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Income Details
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Monthly Income (&#8377;)</label>
+                    <input type="number" name="income" id="incomeInput"
+                           value="{{ entry.income }}" required min="1"
+                           oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label>Month</label>
+                    <input type="text" value="{{ entry.month }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Year</label>
+                    <input type="text" value="{{ entry.year }}" readonly>
                 </div>
             </div>
+        </div>
 
-            <div class="stats-row">
-                <div class="stat-box income">
-                    <div class="val">₹{{ "{:,.0f}".format(row.income) }}</div>
-                    <div class="lbl">Income</div>
-                </div>
-                <div class="stat-box">
-                    <div class="val">₹{{ "{:,.0f}".format(row.total_expenses) }}</div>
-                    <div class="lbl">Expenses</div>
-                </div>
-                <div class="stat-box savings">
-                    <div class="val">₹{{ "{:,.0f}".format(row.savings) }}</div>
-                    <div class="lbl">Savings</div>
-                </div>
-                <div class="stat-box">
-                    <div class="val">{{ row.savings_rate }}%</div>
-                    <div class="lbl">Savings Rate</div>
-                </div>
-                <div class="stat-box">
-                    <div class="health-box">
-                        <div class="score-ring {% if row.health_score >= 80 %}ring-green{% elif row.health_score >= 60 %}ring-yellow{% else %}ring-red{% endif %}">
-                            {{ row.health_score }}
-                        </div>
-                        <div class="health-label">Health Score</div>
+        <!-- EXPENSES -->
+        <div class="card">
+            <div class="card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="1.75"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                Expenses
+            </div>
+
+            {% if expenses %}
+            <div class="info-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Editing {{ expenses | length }} existing expense{{ 's' if expenses | length != 1 else '' }} for {{ entry.month }} {{ entry.year }}.
+            </div>
+            {% endif %}
+
+            <div class="col-header">
+                <span>Expense Name</span>
+                <span>Category</span>
+                <span>Type</span>
+                <span>Amount (&#8377;)</span>
+                <span></span>
+            </div>
+            <div id="expenses-container">
+                {% if expenses %}
+                    {% for exp in expenses %}
+                    <div class="expense-row">
+                        <input type="text" name="expense_name[]" value="{{ exp.name }}" placeholder="e.g. Rent" required>
+                        <select name="expense_category[]">
+                            {% for cat in categories %}
+                            <option value="{{ cat }}" {% if cat == exp.category %}selected{% endif %}>{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="expense_type[]">
+                            <option value="Fixed" {% if exp.type == 'Fixed' %}selected{% endif %}>Fixed</option>
+                            <option value="Variable" {% if exp.type == 'Variable' %}selected{% endif %}>Variable</option>
+                        </select>
+                        <input type="number" name="expense_amount[]"
+                               value="{{ exp.amount }}" placeholder="Amount" required min="1"
+                               oninput="updatePreview()">
+                        <button type="button" class="btn-remove" onclick="removeRow(this)">&#10005;</button>
                     </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="expense-row">
+                        <input type="text" name="expense_name[]" placeholder="e.g. Rent" required>
+                        <select name="expense_category[]">
+                            {% for cat in categories %}
+                            <option value="{{ cat }}">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="expense_type[]">
+                            <option value="Fixed">Fixed</option>
+                            <option value="Variable">Variable</option>
+                        </select>
+                        <input type="number" name="expense_amount[]"
+                               placeholder="Amount" required min="1"
+                               oninput="updatePreview()">
+                        <button type="button" class="btn-remove" onclick="removeRow(this)">&#10005;</button>
+                    </div>
+                {% endif %}
+            </div>
+            <button type="button" class="btn-add" onclick="addExpense()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Another Expense
+            </button>
+        </div>
+
+        <!-- EMERGENCY FUND -->
+        <div class="card">
+            <div class="card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Emergency Fund
+                <span class="optional-badge">Optional</span>
+            </div>
+            <div class="form-group">
+                <label>Existing Emergency Fund Amount (&#8377;)</label>
+                <input type="number" name="emergency_fund"
+                       value="{{ entry.emergency_fund if entry.emergency_fund else 0 }}"
+                       placeholder="e.g. 50000" min="0">
+                <div class="hint">
+                    Money set aside specifically for emergencies (FD, liquid fund, savings account)
                 </div>
             </div>
-
         </div>
-        {% endfor %}
 
-    {% else %}
-    <div class="empty-state">
-        <div class="ei">📊</div>
-        <h3>No history yet</h3>
-        <p>Start tracking your finances to see monthly history here.</p>
-        <a href="/add_data" class="btn-cta">+ Add First Month</a>
-    </div>
-    {% endif %}
+        <button type="submit" class="btn-submit">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save Changes
+        </button>
+    </form>
 </div>
 
+<!-- BOTTOM NAV -->
 <div class="bottom-nav">
-    <a href="/dashboard"><span class="nav-icon">🏠</span><span>Home</span></a>
-    <a href="/add_data"><span class="nav-icon">➕</span><span>Add Data</span></a>
-    <a href="/history" class="active"><span class="nav-icon">📅</span><span>History</span></a>
-    <a href="/goal"><span class="nav-icon">🎯</span><span>Goals</span></a>
-    <a href="/logout"><span class="nav-icon">🚪</span><span>Logout</span></a>
+    <a href="/dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+    </a>
+    <a href="/add_data">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+        <span>Add Data</span>
+    </a>
+    <a href="/history" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>History</span>
+    </a>
+    <a href="/goal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        <span>Goals</span>
+    </a>
+    <a href="/logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Logout</span>
+    </a>
 </div>
 
+<script>
+    const cats = {{ categories | tojson }};
+
+    function addExpense() {
+        const c   = document.getElementById('expenses-container');
+        const div = document.createElement('div');
+        div.className = 'expense-row';
+        div.innerHTML = `
+            <input type="text" name="expense_name[]" placeholder="e.g. Food" required>
+            <select name="expense_category[]">
+                ${cats.map(c => `<option value="${c}">${c}</option>`).join('')}
+            </select>
+            <select name="expense_type[]">
+                <option value="Fixed">Fixed</option>
+                <option value="Variable">Variable</option>
+            </select>
+            <input type="number" name="expense_amount[]"
+                   placeholder="Amount" required min="1" oninput="updatePreview()">
+            <button type="button" class="btn-remove" onclick="removeRow(this)">&#10005;</button>
+        `;
+        c.appendChild(div);
+    }
+
+    function removeRow(btn) {
+        const rows = document.querySelectorAll('.expense-row');
+        if (rows.length > 1) {
+            btn.parentElement.remove();
+            updatePreview();
+        }
+    }
+
+    function updatePreview() {
+        /* No live preview on edit page — kept as no-op for inline oninput compatibility */
+    }
+</script>
 </body>
 </html>

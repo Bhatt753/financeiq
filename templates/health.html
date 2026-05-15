@@ -3,96 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#F8F5EE">
+    <meta name="theme-color" content="#F8F6F1">
     <title>Health Score — FinanceIQ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         :root {
-            --cream: #F8F5EE;
-            --cream-dark: #EDE8DC;
-            --gold: #C9A227;
-            --gold-dark: #A07E18;
-            --gold-light: rgba(201,162,39,0.12);
-            --text-dark: #1A1610;
-            --text-mid: #5C5344;
-            --text-light: #9C8E7A;
+            --bg: #F8F6F1;
             --white: #FFFFFF;
-            --shadow: 0 2px 20px rgba(26,22,16,0.07);
-            --shadow-hover: 0 8px 32px rgba(26,22,16,0.13);
-            --radius: 22px;
+            --border: #E5E7EB;
+            --accent: #16A34A;
+            --accent-dark: #15803D;
+            --accent-light: rgba(22,163,74,0.08);
+            --text: #111827;
+            --muted: #6B7280;
+            --shadow: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.08);
+            --radius: 20px;
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family:'DM Sans',sans-serif;
-            background: var(--cream);
-            color: var(--text-dark);
-            min-height:100vh;
-        }
-
-        .bg-glow {
-            position:fixed; inset:0; pointer-events:none; z-index:0;
-            background:
-                radial-gradient(ellipse 60% 50% at 80% 10%, rgba(201,162,39,0.06) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 60% at 20% 90%, rgba(201,162,39,0.04) 0%, transparent 60%);
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
         }
 
         .navbar {
-            position:sticky; top:0; z-index:100;
-            background:rgba(248,245,238,0.88);
-            backdrop-filter:blur(20px);
-            border-bottom:1px solid var(--cream-dark);
-            padding:13px 22px;
-            display:flex; justify-content:space-between; align-items:center;
+            position: sticky; top: 0; z-index: 100;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 22px;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
         .nav-brand {
-            font-family:'DM Serif Display',serif;
-            font-size:20px; color:var(--text-dark); text-decoration:none;
+            font-size: 20px; font-weight: 700; color: var(--text);
+            text-decoration: none; letter-spacing: -0.3px;
         }
-        .nav-brand span { color:var(--gold); }
 
         .nav-links a {
-            color:var(--text-mid); text-decoration:none;
-            font-size:14px; font-weight:500; margin-left:18px;
-            transition:color 0.2s;
+            color: var(--muted); text-decoration: none;
+            font-size: 14px; font-weight: 500; margin-left: 18px;
+            transition: color 0.2s;
         }
-        .nav-links a:hover { color:var(--gold); }
+        .nav-links a:hover { color: var(--accent); }
         .nav-links .logout {
-            background:#FEF2F2; color:#DC2626;
-            padding:6px 14px; border-radius:20px; font-size:13px;
+            background: #FEF2F2; color: #EF4444;
+            padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
         }
 
         .container {
-            max-width:680px; margin:0 auto;
-            padding:28px 20px 100px;
-            position:relative; z-index:1;
+            max-width: 680px; margin: 0 auto;
+            padding: 28px 20px 100px;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         .page-title {
-            font-family:'DM Serif Display',serif;
-            font-size:26px; color:var(--text-dark);
-            margin-bottom:6px;
+            font-size: 24px; font-weight: 700; color: var(--text);
+            margin-bottom: 4px;
+            display: flex; align-items: center; gap: 10px;
             animation: fadeUp 0.4s ease both;
         }
 
         .page-sub {
-            font-size:14px; color:var(--text-light);
-            margin-bottom:24px;
+            font-size: 14px; color: var(--muted);
+            margin-bottom: 24px;
             animation: fadeUp 0.4s ease 0.05s both;
-        }
-
-        @keyframes fadeUp {
-            from { opacity:0; transform:translateY(14px); }
-            to   { opacity:1; transform:translateY(0); }
         }
 
         /* ===== BIG SCORE CARD ===== */
         .score-hero {
-            background: var(--text-dark);
+            background: #111827;
             border-radius: var(--radius);
             padding: 32px 28px;
             text-align: center;
@@ -103,288 +92,280 @@
         }
 
         .score-hero::before {
-            content:'';
-            position:absolute;
-            top:-60px; right:-60px;
-            width:200px; height:200px;
-            border-radius:50%;
-            background: rgba(201,162,39,0.08);
-            pointer-events:none;
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: rgba(22,163,74,0.08);
+            pointer-events: none;
         }
 
         .score-month {
-            font-size:12px; font-weight:600;
-            color:rgba(255,255,255,0.35);
-            text-transform:uppercase; letter-spacing:0.8px;
-            margin-bottom:16px;
+            font-size: 12px; font-weight: 600;
+            color: rgba(255,255,255,0.35);
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 16px;
         }
 
         .score-ring-wrap {
-            position:relative;
-            width:160px; height:160px;
-            margin:0 auto 20px;
+            position: relative;
+            width: 160px; height: 160px;
+            margin: 0 auto 20px;
         }
 
         .score-ring-wrap svg {
-            transform:rotate(-90deg);
+            transform: rotate(-90deg);
         }
 
-        .ring-bg { fill:none; stroke:rgba(255,255,255,0.08); stroke-width:10; }
+        .ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 10; }
         .ring-fill {
-            fill:none; stroke:var(--gold);
-            stroke-width:10;
-            stroke-linecap:round;
-            transition:stroke-dashoffset 1.5s cubic-bezier(0.22,1,0.36,1);
+            fill: none; stroke: var(--accent);
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.22,1,0.36,1);
         }
 
         .score-center {
-            position:absolute; inset:0;
-            display:flex; flex-direction:column;
-            align-items:center; justify-content:center;
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
         }
 
         .score-number {
-            font-family:'DM Serif Display',serif;
-            font-size:52px; line-height:1;
-            color:var(--gold);
+            font-size: 52px; line-height: 1; font-weight: 700;
+            color: var(--accent);
         }
 
         .score-total {
-            font-size:13px; color:rgba(255,255,255,0.3);
-            margin-top:2px;
+            font-size: 13px; color: rgba(255,255,255,0.3);
+            margin-top: 2px;
         }
 
         .score-grade {
-            display:inline-flex; align-items:center; gap:8px;
-            background:rgba(201,162,39,0.15);
-            border:1px solid rgba(201,162,39,0.3);
-            border-radius:20px;
-            padding:6px 18px;
-            margin-bottom:12px;
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(22,163,74,0.15);
+            border: 1px solid rgba(22,163,74,0.3);
+            border-radius: 20px;
+            padding: 6px 18px;
+            margin-bottom: 12px;
         }
 
         .score-grade .grade-letter {
-            font-family:'DM Serif Display',serif;
-            font-size:20px; color:var(--gold);
+            font-size: 20px; font-weight: 700; color: var(--accent);
         }
 
         .score-grade .grade-status {
-            font-size:14px; font-weight:600;
-            color:rgba(255,255,255,0.8);
+            font-size: 14px; font-weight: 600;
+            color: rgba(255,255,255,0.8);
         }
 
         .score-summary {
-            font-size:14px; color:rgba(255,255,255,0.45);
-            line-height:1.6; max-width:340px; margin:0 auto;
+            font-size: 14px; color: rgba(255,255,255,0.45);
+            line-height: 1.6; max-width: 340px; margin: 0 auto;
         }
 
         /* ===== COMPONENT CARDS ===== */
         .section-title {
-            font-size:13px; font-weight:700;
-            color:var(--text-light);
-            text-transform:uppercase; letter-spacing:0.6px;
-            margin:24px 0 12px;
+            font-size: 12px; font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.6px;
+            margin: 24px 0 12px;
             animation: fadeUp 0.4s ease 0.2s both;
         }
 
         .component-card {
-            background:var(--white);
-            border-radius:18px;
-            padding:18px 20px;
-            border:1px solid var(--cream-dark);
-            box-shadow:var(--shadow);
-            margin-bottom:10px;
-            transition:box-shadow 0.25s;
+            background: var(--white);
+            border-radius: 18px;
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 10px;
+            transition: box-shadow 0.25s;
             animation: fadeUp 0.4s ease both;
         }
 
-        .component-card:hover { box-shadow:var(--shadow-hover); }
+        .component-card:hover { box-shadow: var(--shadow-hover); }
 
         .comp-header {
-            display:flex; justify-content:space-between;
-            align-items:center; margin-bottom:10px;
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 10px;
         }
 
-        .comp-left { display:flex; align-items:center; gap:10px; }
+        .comp-left { display: flex; align-items: center; gap: 10px; }
 
         .comp-icon {
-            width:38px; height:38px;
-            border-radius:12px;
-            background:var(--gold-light);
-            display:flex; align-items:center; justify-content:center;
-            font-size:18px; flex-shrink:0;
+            width: 38px; height: 38px;
+            border-radius: 12px;
+            background: var(--accent-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
         }
 
         .comp-name {
-            font-size:14px; font-weight:600; color:var(--text-dark);
+            font-size: 14px; font-weight: 600; color: var(--text);
         }
 
         .comp-value {
-            font-size:12px; color:var(--text-light);
-            margin-top:2px;
+            font-size: 12px; color: var(--muted);
+            margin-top: 2px;
         }
 
-        .comp-right { display:flex; align-items:center; gap:10px; }
+        .comp-right { display: flex; align-items: center; gap: 10px; }
 
         .grade-badge {
-            font-size:13px; font-weight:700;
-            padding:3px 12px; border-radius:20px;
-            min-width:36px; text-align:center;
+            font-size: 13px; font-weight: 700;
+            padding: 3px 12px; border-radius: 20px;
+            min-width: 36px; text-align: center;
         }
 
-        .grade-A { background:#DCFCE7; color:#15803D; }
-        .grade-B { background:#D1FAE5; color:#047857; }
-        .grade-C { background:#FEF9C3; color:#A16207; }
-        .grade-D { background:#FEE2E2; color:#B91C1C; }
-        .grade-F { background:#FEE2E2; color:#991B1B; }
+        .grade-A { background: #DCFCE7; color: #15803D; }
+        .grade-B { background: #D1FAE5; color: #047857; }
+        .grade-C { background: #FEF9C3; color: #A16207; }
+        .grade-D { background: #FEE2E2; color: #B91C1C; }
+        .grade-F { background: #FEE2E2; color: #991B1B; }
 
         .comp-score {
-            font-family:'DM Serif Display',serif;
-            font-size:18px; color:var(--text-dark);
+            font-size: 18px; font-weight: 700; color: var(--text);
         }
 
         /* Progress bar */
         .prog-wrap {
-            background:var(--cream-dark);
-            border-radius:6px; height:7px; overflow:hidden;
-            margin-bottom:10px;
+            background: var(--border);
+            border-radius: 6px; height: 7px; overflow: hidden;
+            margin-bottom: 10px;
         }
 
         .prog-fill {
-            height:100%; border-radius:6px;
-            transition:width 1.2s cubic-bezier(0.22,1,0.36,1);
+            height: 100%; border-radius: 6px;
+            transition: width 1.2s cubic-bezier(0.22,1,0.36,1);
         }
 
-        .prog-green  { background:linear-gradient(90deg,#16a34a,#4ade80); }
-        .prog-yellow { background:linear-gradient(90deg,#d97706,#fbbf24); }
-        .prog-red    { background:linear-gradient(90deg,#dc2626,#f87171); }
+        .prog-green  { background: linear-gradient(90deg, #16A34A, #22C55E); }
+        .prog-yellow { background: linear-gradient(90deg, #D97706, #F59E0B); }
+        .prog-red    { background: linear-gradient(90deg, #DC2626, #EF4444); }
 
         .comp-explain {
-            font-size:13px; color:var(--text-mid);
-            line-height:1.55; margin-bottom:8px;
+            font-size: 13px; color: var(--muted);
+            line-height: 1.55; margin-bottom: 8px;
         }
 
         .comp-action {
-            display:flex; align-items:flex-start; gap:7px;
-            background:var(--gold-light);
-            border:1px solid rgba(201,162,39,0.2);
-            border-radius:10px;
-            padding:10px 12px;
+            display: flex; align-items: flex-start; gap: 7px;
+            background: var(--accent-light);
+            border: 1px solid rgba(22,163,74,0.2);
+            border-radius: 10px;
+            padding: 10px 12px;
         }
 
         .comp-action svg {
-            width:14px; height:14px;
-            stroke:var(--gold-dark); flex-shrink:0; margin-top:1px;
+            width: 14px; height: 14px;
+            stroke: var(--accent-dark); flex-shrink: 0; margin-top: 1px;
         }
 
         .comp-action span {
-            font-size:13px; color:var(--gold-dark);
-            font-weight:500; line-height:1.5;
+            font-size: 13px; color: var(--accent-dark);
+            font-weight: 500; line-height: 1.5;
         }
 
         /* ===== PRIORITY ACTIONS ===== */
         .priority-card {
-            background:var(--white);
-            border-radius:var(--radius);
-            padding:20px 22px;
-            border:1px solid var(--cream-dark);
-            box-shadow:var(--shadow);
-            margin-bottom:16px;
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
             animation: fadeUp 0.4s ease 0.35s both;
         }
 
         .priority-title {
-            font-size:15px; font-weight:700;
-            color:var(--text-dark); margin-bottom:14px;
-            display:flex; align-items:center; gap:8px;
+            font-size: 15px; font-weight: 700;
+            color: var(--text); margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
         }
 
         .priority-item {
-            display:flex; align-items:flex-start; gap:12px;
-            padding:12px 0;
-            border-bottom:1px solid var(--cream-dark);
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
         }
 
-        .priority-item:last-child { border-bottom:none; padding-bottom:0; }
+        .priority-item:last-child { border-bottom: none; padding-bottom: 0; }
 
         .priority-num {
-            width:26px; height:26px;
-            border-radius:50%;
-            background:var(--text-dark);
-            color:var(--gold);
-            display:flex; align-items:center; justify-content:center;
-            font-size:12px; font-weight:700;
-            flex-shrink:0;
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: #111827;
+            color: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700;
+            flex-shrink: 0;
         }
 
         .priority-comp {
-            font-size:11px; font-weight:600;
-            color:var(--text-light); text-transform:uppercase;
-            letter-spacing:0.4px; margin-bottom:3px;
+            font-size: 11px; font-weight: 600;
+            color: var(--muted); text-transform: uppercase;
+            letter-spacing: 0.4px; margin-bottom: 3px;
         }
 
         .priority-text {
-            font-size:13px; color:var(--text-mid); line-height:1.5;
+            font-size: 13px; color: #374151; line-height: 1.5;
         }
 
         /* ===== NO DATA ===== */
         .empty-state {
-            text-align:center; padding:60px 20px;
+            text-align: center; padding: 60px 20px;
         }
-
-        .empty-icon { font-size:52px; margin-bottom:16px; }
 
         .empty-state h3 {
-            font-family:'DM Serif Display',serif;
-            font-size:22px; color:var(--text-dark); margin-bottom:8px;
+            font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 8px;
         }
 
-        .empty-state p { font-size:14px; color:var(--text-light); margin-bottom:20px; }
+        .empty-state p { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
 
         .btn-cta {
-            display:inline-block;
-            padding:13px 28px;
-            background:var(--text-dark); color:var(--white);
-            border-radius:14px; font-size:14px; font-weight:600;
-            text-decoration:none; transition:all 0.25s;
+            display: inline-block;
+            padding: 13px 28px;
+            background: var(--accent); color: var(--white);
+            border-radius: 12px; font-size: 14px; font-weight: 600;
+            text-decoration: none; transition: all 0.25s;
         }
 
         .btn-cta:hover {
-            background:var(--gold);
-            transform:translateY(-1px);
-            box-shadow:0 8px 24px rgba(201,162,39,0.3);
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(22,163,74,0.25);
         }
 
         /* Bottom Nav */
         .bottom-nav {
-            position:fixed; bottom:0; left:0; right:0;
-            background:rgba(255,255,255,0.92);
-            backdrop-filter:blur(20px);
-            border-top:1px solid var(--cream-dark);
-            display:flex; justify-content:space-around; align-items:center;
-            padding:10px 0 max(10px,env(safe-area-inset-bottom));
-            z-index:100;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--white);
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 10px 0 max(10px,env(safe-area-inset-bottom));
+            z-index: 100;
         }
 
         .nav-item {
-            display:flex; flex-direction:column;
-            align-items:center; gap:3px;
-            text-decoration:none; color:var(--text-light);
-            transition:color 0.2s; padding:4px 10px;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 3px;
+            text-decoration: none; color: var(--muted);
+            transition: color 0.2s; padding: 4px 10px;
         }
 
-        .nav-item svg { width:22px; height:22px; }
-        .nav-item span { font-size:10px; font-weight:600; letter-spacing:0.3px; }
-        .nav-item.active, .nav-item:hover { color:var(--gold); }
+        .nav-item svg { width: 22px; height: 22px; }
+        .nav-item span { font-size: 10px; font-weight: 600; letter-spacing: 0.3px; }
+        .nav-item.active, .nav-item:hover { color: var(--accent); }
 
-        @media (min-width:769px) { .bottom-nav { display:none; } }
+        @media (min-width: 769px) { .bottom-nav { display: none; } }
     </style>
 </head>
 <body>
-<div class="bg-glow"></div>
 
 <nav class="navbar">
-    <a href="/dashboard" class="nav-brand">Finance<span>IQ</span></a>
+    <a href="/dashboard" class="nav-brand">FinanceIQ</a>
     <div class="nav-links">
         <a href="/dashboard">Dashboard</a>
         <a href="/add_data">Add Data</a>
@@ -394,15 +375,20 @@
 </nav>
 
 <div class="container">
-    <div class="page-title">❤️ Financial Health Score</div>
+    <div class="page-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Financial Health Score
+    </div>
     <div class="page-sub">Based on your {{ month }} {{ year }} data</div>
 
     {% if not has_data %}
     <div class="empty-state">
-        <div class="empty-icon">📊</div>
+        <div style="margin-bottom:16px;">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
         <h3>No Data Yet</h3>
         <p>Add your monthly financial data to see your health score breakdown.</p>
-        <a href="/add_data" class="btn-cta">Add Monthly Data →</a>
+        <a href="/add_data" class="btn-cta">Add Monthly Data</a>
     </div>
 
     {% else %}
@@ -434,7 +420,7 @@
     </div>
 
     <!-- Component Breakdown -->
-    <div class="section-title">📊 Score Breakdown</div>
+    <div class="section-title">Score Breakdown</div>
 
     {% set icons = ['💰', '📉', '🏦', '🛡️', '🎯'] %}
     {% set delays = ['0.15s','0.2s','0.25s','0.3s','0.35s'] %}
@@ -476,12 +462,12 @@
 
         <!-- Loan breakdown if available -->
         {% if comp.loan_breakdown is defined and comp.loan_breakdown %}
-        <div style="margin-top:12px; border-top:1px solid var(--cream-dark); padding-top:12px;">
+        <div style="margin-top:12px; border-top:1px solid #E5E7EB; padding-top:12px;">
             {% for loan in comp.loan_breakdown %}
-            <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-mid); padding:4px 0;">
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:#6B7280; padding:4px 0;">
                 <span>{{ loan.type }}</span>
                 <span>EMI ₹{{ "{:,.0f}".format(loan.emi) }} · {{ loan.rate }}% ·
-                    <span style="color:{% if loan.risk == 'High Risk' %}#DC2626{% elif loan.risk == 'Moderate' %}#D97706{% else %}#16A34A{% endif %}">
+                    <span style="color:{% if loan.risk == 'High Risk' %}#DC2626{% elif loan.risk == 'Moderate' %}#D97706{% else %}#16A34A{% endif %}; font-weight:600;">
                         {{ loan.risk }}
                     </span>
                 </span>
@@ -493,11 +479,12 @@
     {% endfor %}
 
     <!-- Priority Actions -->
-    <div class="section-title">🎯 Top Priority Actions</div>
+    <div class="section-title">Top Priority Actions</div>
 
     <div class="priority-card">
         <div class="priority-title">
-            🚀 What to fix first
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            What to fix first
         </div>
         {% for action in score.priority_actions %}
         <div class="priority-item">
@@ -511,12 +498,12 @@
     </div>
 
     <!-- Benchmark Card -->
-    <div style="background:var(--white); border-radius:var(--radius); padding:20px 22px; border:1px solid var(--cream-dark); box-shadow:var(--shadow); animation:fadeUp 0.4s ease 0.5s both;">
-        <div style="font-size:15px; font-weight:700; color:var(--text-dark); margin-bottom:14px;">📌 Industry Benchmarks</div>
+    <div style="background:#FFFFFF; border-radius:20px; padding:20px 22px; border:1px solid #E5E7EB; box-shadow:0 1px 3px rgba(0,0,0,0.04); animation:fadeUp 0.4s ease 0.5s both;">
+        <div style="font-size:15px; font-weight:700; color:#111827; margin-bottom:14px;">Industry Benchmarks</div>
         {% for comp in score.components %}
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--cream-dark);">
-            <span style="font-size:13px; color:var(--text-mid);">{{ comp.component }}</span>
-            <span style="font-size:12px; color:var(--text-light); font-weight:500;">{{ comp.benchmark }}</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #E5E7EB;">
+            <span style="font-size:13px; color:#374151; font-weight:500;">{{ comp.component }}</span>
+            <span style="font-size:12px; color:#6B7280; font-weight:500;">{{ comp.benchmark }}</span>
         </div>
         {% endfor %}
     </div>
@@ -527,23 +514,23 @@
 <!-- Bottom Nav -->
 <nav class="bottom-nav">
     <a href="/dashboard" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         <span>Home</span>
     </a>
     <a href="/add_data" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
         <span>Add</span>
     </a>
     <a href="/health" class="nav-item active">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         <span>Health</span>
     </a>
     <a href="/loans" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         <span>Loans</span>
     </a>
     <a href="/logout" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         <span>Logout</span>
     </a>
 </nav>
