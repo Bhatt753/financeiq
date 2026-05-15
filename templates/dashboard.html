@@ -693,20 +693,21 @@ function go(i, btn){
 let pStart=0, pDragging=false;
 const outer = document.getElementById('slOuter');
 
+// pointerdown on outer only — no capture so click events reach Chart.js canvas
 outer.addEventListener('pointerdown', e=>{
     pStart = e.clientX;
     pDragging = true;
-    outer.setPointerCapture(e.pointerId);
     track.style.transition = 'none';
 },{passive:true});
 
-outer.addEventListener('pointermove', e=>{
+// move/up/cancel on document so a swipe that leaves the element still registers
+document.addEventListener('pointermove', e=>{
     if(!pDragging) return;
     const diff = e.clientX - pStart;
     track.style.transform = `translateX(calc(-${cur*100}% + ${diff}px))`;
 },{passive:true});
 
-outer.addEventListener('pointerup', e=>{
+document.addEventListener('pointerup', e=>{
     if(!pDragging) return;
     pDragging = false;
     track.style.transition = 'transform 0.42s cubic-bezier(0.25,1,0.5,1)';
@@ -717,12 +718,12 @@ outer.addEventListener('pointerup', e=>{
             : Math.max(cur-1, 0);
         go(n, btns[n]);
     } else {
-        // snap back
         track.style.transform = `translateX(-${cur*100}%)`;
     }
 },{passive:true});
 
-outer.addEventListener('pointercancel', ()=>{
+document.addEventListener('pointercancel', ()=>{
+    if(!pDragging) return;
     pDragging=false;
     track.style.transition='transform 0.42s cubic-bezier(0.25,1,0.5,1)';
     track.style.transform=`translateX(-${cur*100}%)`;
