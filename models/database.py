@@ -59,6 +59,7 @@ def init_db():
                 year           INTEGER NOT NULL,
                 income         REAL NOT NULL,
                 total_expenses REAL NOT NULL,
+                total_emi      REAL NOT NULL DEFAULT 0,
                 savings        REAL NOT NULL,
                 savings_rate   REAL NOT NULL,
                 expense_ratio  REAL NOT NULL DEFAULT 0,
@@ -135,6 +136,7 @@ def init_db():
                 year           INTEGER NOT NULL,
                 income         REAL NOT NULL,
                 total_expenses REAL NOT NULL,
+                total_emi      REAL NOT NULL DEFAULT 0,
                 savings        REAL NOT NULL,
                 savings_rate   REAL NOT NULL,
                 expense_ratio  REAL NOT NULL DEFAULT 0,
@@ -247,12 +249,13 @@ def save_monthly_data(user_id, month, year, income, metrics):
 
         c.execute(f"""
             INSERT INTO monthly_data
-            (user_id, month, year, income, total_expenses, savings,
+            (user_id, month, year, income, total_expenses, total_emi, savings,
              savings_rate, expense_ratio, fixed_total, variable_total, health_score)
-            VALUES ({p},{p},{p},{p},{p},{p},{p},{p},{p},{p},{p})
+            VALUES ({p},{p},{p},{p},{p},{p},{p},{p},{p},{p},{p},{p})
         """, (
             user_id, month, year, income,
             metrics["total_expenses"],
+            metrics.get("total_emi", 0),
             metrics["savings"],
             metrics["savings_rate"],
             metrics.get("expense_ratio", 0),
@@ -293,7 +296,16 @@ def get_monthly_history(user_id):
     try:
         c = conn.cursor()
         c.execute(
-            f"SELECT * FROM monthly_data WHERE user_id={p} ORDER BY year DESC, month DESC",
+            f"""SELECT * FROM monthly_data WHERE user_id={p}
+            ORDER BY year DESC,
+            CASE month
+                WHEN 'January'   THEN 1  WHEN 'February'  THEN 2
+                WHEN 'March'     THEN 3  WHEN 'April'     THEN 4
+                WHEN 'May'       THEN 5  WHEN 'June'      THEN 6
+                WHEN 'July'      THEN 7  WHEN 'August'    THEN 8
+                WHEN 'September' THEN 9  WHEN 'October'   THEN 10
+                WHEN 'November'  THEN 11 WHEN 'December'  THEN 12
+            END DESC""",
             (user_id,)
         )
         rows = c.fetchall()
@@ -348,13 +360,14 @@ def update_monthly_entry(entry_id, income, metrics):
         c = conn.cursor()
         c.execute(f"""
             UPDATE monthly_data SET
-            income={p}, total_expenses={p}, savings={p},
+            income={p}, total_expenses={p}, total_emi={p}, savings={p},
             savings_rate={p}, expense_ratio={p},
             fixed_total={p}, variable_total={p}, health_score={p}
             WHERE id={p}
         """, (
             income,
             metrics["total_expenses"],
+            metrics.get("total_emi", 0),
             metrics["savings"],
             metrics["savings_rate"],
             metrics.get("expense_ratio", 0),
@@ -535,6 +548,7 @@ def migrate_db():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS profession TEXT DEFAULT 'Not specified'",
         "ALTER TABLE loans ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active'",
         "ALTER TABLE users ALTER COLUMN password DROP NOT NULL",
+        "ALTER TABLE monthly_data ADD COLUMN IF NOT EXISTS total_emi REAL DEFAULT 0",
     ]
 
     for migration in migrations:
@@ -543,6 +557,14 @@ def migrate_db():
             print(f"✅ Migration: {migration}")
         except Exception as e:
             print(f"⚠️ Migration skipped: {e}")
+
+    # SQLite doesn't support IF NOT EXISTS on ALTER — run separately
+    if not USE_POSTGRES:
+        try:
+            c.execute("ALTER TABLE monthly_data ADD COLUMN total_emi REAL DEFAULT 0")
+            print("✅ Migration: added total_emi column")
+        except Exception:
+            pass  # Column already exists
 
     # Also add loans table if missing
     try:
@@ -630,6 +652,25 @@ def get_user_loans(user_id):
         c = conn.cursor()
         c.execute(
             f"SELECT * FROM loans WHERE user_id={p} AND status='active' ORDER BY created_at DESC",
+            (user_id,)
+        )
+        rows = c.fetchall()
+        if USE_POSTGRES:
+            cols = [desc[0] for desc in c.description]
+            return [dict(zip(cols, row)) for row in rows]
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def get_all_user_loans(user_id):
+    """Returns ALL loans (active + closed) for historical recalculation."""
+    conn = get_db()
+    p    = placeholder()
+    try:
+        c = conn.cursor()
+        c.execute(
+            f"SELECT * FROM loans WHERE user_id={p} ORDER BY start_year, start_month",
             (user_id,)
         )
         rows = c.fetchall()

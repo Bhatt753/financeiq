@@ -4,6 +4,7 @@ from flask import (Blueprint, render_template, request,
                    redirect, session, url_for)
 from models.database import (
     get_monthly_history, get_user_loans,
+    get_expenses_for_month,
     save_goal, get_user_goals, get_goal_by_id,
     complete_goal, delete_goal
 )
@@ -38,13 +39,23 @@ def goal():
     if history:
         latest         = history[0]
         income         = latest["income"]
-        # savings already has EMI deducted (fixed in metrics)
         savings        = max(latest["savings"], 0)
         variable_total = latest.get("variable_total", 0)
+
+        # Build category_totals from stored expenses for the latest month
+        expenses_raw = get_expenses_for_month(
+            user_id, latest["month"], latest["year"]
+        )
+        cat_totals = {}
+        for e in expenses_raw:
+            cat = e["category"] if isinstance(e, dict) else e[5]
+            amt = float(e["amount"] if isinstance(e, dict) else e[7])
+            cat_totals[cat] = cat_totals.get(cat, 0) + amt
     else:
         income         = 0
         savings        = 0
         variable_total = 0
+        cat_totals     = {}
 
     # Calculate total EMI
     total_emi = loan_analysis["total_emi"] if loan_analysis["has_loans"] else 0
@@ -82,7 +93,7 @@ def goal():
             income         = income,
             current_savings= savings,
             variable_total = variable_total,
-            category_totals= {}
+            category_totals= cat_totals
         )
 
         if err:

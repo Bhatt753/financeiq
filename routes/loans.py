@@ -1,11 +1,12 @@
 # routes/loans.py
 
 from flask import (Blueprint, render_template, request,
-                   redirect, session, url_for, jsonify)
+                   redirect, session, url_for)
 from models.database import (save_loan, get_user_loans,
-                              get_loan_by_id, delete_loan)
-from services.loan_engine import (analyze_all_loans,
-                                   generate_loan_advice)
+                              get_loan_by_id, delete_loan,
+                              get_user_goals)
+from services.loan_engine import (analyze_all_loans, generate_loan_advice,
+                                   sync_user_history_with_loans)
 from functools import wraps
 
 loans_bp = Blueprint("loans", __name__)
@@ -41,8 +42,9 @@ def loans():
     income  = history[0]["income"] if history else 0
     savings = history[0]["savings"] if history else 0
 
+    goals  = get_user_goals(session["user_id"])
     advice = generate_loan_advice(
-        loan_analysis, income, savings
+        loan_analysis, income, savings, goals
     )
 
     return render_template("loans.html",
@@ -75,6 +77,7 @@ def add_loan():
             principal, emi, interest_rate,
             tenure, start_month, start_year
         )
+        sync_user_history_with_loans(session["user_id"])
     except Exception as e:
         print(f"Error adding loan: {e}")
 
@@ -85,4 +88,5 @@ def add_loan():
 @login_required
 def remove_loan(loan_id):
     delete_loan(loan_id, session["user_id"])
+    sync_user_history_with_loans(session["user_id"])
     return redirect(url_for("loans.loans"))

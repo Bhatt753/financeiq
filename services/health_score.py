@@ -428,10 +428,12 @@ def calculate_health_score(income, expenses, loans=None,
             "summary"      : "Invalid data"
         }
 
-    total_expenses   = sum(e["amount"] for e in expenses) if expenses else 0
-    savings          = income - total_expenses
-    savings_rate     = round((max(savings, 0) / income) * 100, 2)
-    expense_ratio    = round((total_expenses / income) * 100, 2)
+    total_expenses = sum(e["amount"] for e in expenses) if expenses else 0
+    total_emi      = sum(loan.get("emi", 0) for loan in (loans or []))
+    savings        = income - total_expenses - total_emi
+    total_outflow  = total_expenses + total_emi
+    savings_rate   = round((max(savings, 0) / income) * 100, 2)
+    expense_ratio  = round((total_outflow / income) * 100, 2)
 
     # Category percentages
     category_totals  = {}

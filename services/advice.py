@@ -4,12 +4,14 @@ from config import Config
 
 
 def generate_advice(metrics, profession=None):
-    advice   = []
-    income   = metrics["income"]
-    savings  = metrics["savings"]
-    save_rate= metrics["savings_rate"]
-    cat_totals = metrics["category_totals"]
-    cat_pct    = metrics["category_percent"]
+    advice      = []
+    income      = metrics["income"]
+    savings     = metrics["savings"]
+    save_rate   = metrics["savings_rate"]
+    cat_totals  = metrics["category_totals"]
+    cat_pct     = metrics["category_percent"]
+    total_emi   = metrics.get("total_emi", 0)
+    total_outflow = metrics.get("total_outflow", metrics["total_expenses"])
 
     # --- Critical: Overspending ---
     if savings < 0:
@@ -63,6 +65,37 @@ def generate_advice(metrics, profession=None):
             "impact"  : "Positive"
         })
 
+    # --- EMI Debt Burden ---
+    if total_emi > 0:
+        emi_ratio = round((total_emi / income) * 100, 1)
+        if emi_ratio > 40:
+            advice.append({
+                "type"   : "danger",
+                "icon"   : "🚨",
+                "title"  : f"High EMI Burden ({emi_ratio}% of income)",
+                "message": f"Your EMIs consume ₹{total_emi:,.0f}/month — {emi_ratio}% of income. Banks flag >40% as high risk.",
+                "action" : "Avoid new debt. Use any bonus to prepay the highest-interest loan first.",
+                "impact" : "High"
+            })
+        elif emi_ratio > 25:
+            advice.append({
+                "type"   : "warning",
+                "icon"   : "⚠️",
+                "title"  : f"Moderate EMI Load ({emi_ratio}% of income)",
+                "message": f"₹{total_emi:,.0f}/month in EMIs limits your savings flexibility.",
+                "action" : f"Prepay one loan early to free up ₹{total_emi:,.0f}/month and boost savings.",
+                "impact" : "Medium"
+            })
+        else:
+            advice.append({
+                "type"   : "info",
+                "icon"   : "🏦",
+                "title"  : f"Healthy EMI Ratio ({emi_ratio}% of income)",
+                "message": f"₹{total_emi:,.0f}/month in EMIs is within safe limits.",
+                "action" : "When loans finish, redirect EMI amounts straight into investments.",
+                "impact" : "Positive"
+            })
+
     # --- Category-wise advice ---
     over_limit_cats = []
     for cat, amt in cat_totals.items():
@@ -82,15 +115,16 @@ def generate_advice(metrics, profession=None):
             })
 
     # --- Emergency Fund ---
-    emergency_needed = metrics["total_expenses"] * 6
+    emergency_needed = total_outflow * 6  # covers expenses + EMI for 6 months
     if savings > 0:
         months_away = round(emergency_needed / savings)
+        label = "expenses + EMI" if total_emi > 0 else "expenses"
         advice.append({
             "type"    : "info",
-            "icon"    : "🏦",
+            "icon"    : "🛡️",
             "title"   : "Emergency Fund Status",
-            "message" : f"You need ₹{emergency_needed:,.0f} (6 months of expenses).",
-            "action"  : f"At current savings, you'll build it in {months_away} months. Keep a separate FD for this.",
+            "message" : f"You need ₹{emergency_needed:,.0f} (6 months of {label}).",
+            "action"  : f"At current savings rate, you'll build it in {months_away} months. Keep in a separate FD.",
             "impact"  : "Medium"
         })
 

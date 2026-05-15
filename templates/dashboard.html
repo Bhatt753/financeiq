@@ -315,7 +315,7 @@
                     <td>{{ row.month }}</td>
                     <td>{{ row.year }}</td>
                     <td>₹{{ "{:,.0f}".format(row.income) }}</td>
-                    <td>₹{{ "{:,.0f}".format(row.total_expenses) }}</td>
+                    <td>₹{{ "{:,.0f}".format(row.total_expenses + (row.total_emi or 0)) }}</td>
                     <td>₹{{ "{:,.0f}".format(row.savings) }}</td>
                     <td>{{ row.savings_rate }}%</td>
                     <td>
@@ -352,17 +352,29 @@
 <script>
 const hData = {{ history | tojson if history else '[]' }};
 
-let labels=[], inc=[], exp=[], sav=[];
+// Derive EMI for a row: use stored total_emi if present,
+// otherwise back-calculate from income - expenses - savings
+// (works for data saved before total_emi column was added)
+function rowEmi(h) {
+    const stored = h.total_emi || 0;
+    if (stored > 0) return stored;
+    return Math.max(0, h.income - h.total_expenses - (h.savings || 0));
+}
+
+let labels=[], inc=[], exp=[], emi=[], sav=[];
 if(hData.length > 0){
     const recent = [...hData].reverse().slice(-6);
     labels = recent.map(h => h.month.slice(0,3));
     inc    = recent.map(h => h.income);
     exp    = recent.map(h => h.total_expenses);
-    sav    = recent.map(h => Math.max(h.savings,0));
+    emi    = recent.map(h => rowEmi(h));
+    sav    = recent.map(h => Math.max(h.savings, 0));
 } else {
     labels=['Jan','Feb','Mar','Apr','May','Jun'];
-    inc=exp=sav=[0,0,0,0,0,0];
+    inc=exp=emi=sav=[0,0,0,0,0,0];
 }
+// Total outflow per month (expenses + EMI) for chart display
+const outflow = exp.map((e, i) => e + emi[i]);
 
 const G='#4ade80', R='rgba(248,113,113,0.85)',
       B='rgba(96,165,250,0.85)', TM='rgba(255,255,255,0.35)';
@@ -382,12 +394,12 @@ const sc={
 const lg={display:true,position:'top',align:'end',
     labels:{color:TM,font:{size:11},boxWidth:9,boxHeight:9,borderRadius:3,padding:10}};
 
-// Slide 0 — Monthly Bar
+// Slide 0 — Monthly Bar (expenses = regular + EMI)
 new Chart(document.getElementById('barC'),{
     type:'bar',
     data:{labels,datasets:[
-        {label:'Income',  data:inc,backgroundColor:G,borderRadius:7,borderSkipped:false},
-        {label:'Expenses',data:exp,backgroundColor:'rgba(255,255,255,0.1)',borderRadius:7,borderSkipped:false}
+        {label:'Income',       data:inc,    backgroundColor:G,   borderRadius:7,borderSkipped:false},
+        {label:'Expenses+EMI', data:outflow,backgroundColor:'rgba(255,255,255,0.1)',borderRadius:7,borderSkipped:false}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
         animation:{duration:700,easing:'easeOutQuart'},
@@ -398,12 +410,12 @@ new Chart(document.getElementById('barC'),{
 new Chart(document.getElementById('lineC'),{
     type:'line',
     data:{labels,datasets:[
-        {label:'Income',  data:inc,borderColor:G,backgroundColor:'rgba(74,222,128,0.08)',
+        {label:'Income',       data:inc,    borderColor:G,backgroundColor:'rgba(74,222,128,0.08)',
          fill:true,tension:0.45,borderWidth:2.5,pointBackgroundColor:G,pointRadius:3},
-        {label:'Expenses',data:exp,borderColor:'rgba(248,113,113,0.8)',
+        {label:'Expenses+EMI', data:outflow,borderColor:'rgba(248,113,113,0.8)',
          backgroundColor:'rgba(248,113,113,0.05)',fill:true,tension:0.45,borderWidth:2,
          pointBackgroundColor:'rgba(248,113,113,0.8)',pointRadius:3},
-        {label:'Savings', data:sav,borderColor:'rgba(96,165,250,0.8)',
+        {label:'Savings',      data:sav,   borderColor:'rgba(96,165,250,0.8)',
          backgroundColor:'rgba(96,165,250,0.05)',fill:true,tension:0.45,borderWidth:2,
          pointBackgroundColor:'rgba(96,165,250,0.8)',pointRadius:3}
     ]},
@@ -412,9 +424,10 @@ new Chart(document.getElementById('lineC'),{
         plugins:{legend:lg,tooltip:tt},scales:sc}
 });
 
-const latestExp = exp.length>0?exp[exp.length-1]:0;
+const latestOut = outflow.length>0?outflow[outflow.length-1]:0;
 const latestInc = inc.length>0?inc[inc.length-1]:0;
 const latestSav = sav.length>0?sav[sav.length-1]:0;
+const latestExp = exp.length>0?exp[exp.length-1]:0;
 const catD=[0.30,0.20,0.12,0.10,0.08,0.08,0.12].map(p=>Math.round(latestExp*p));
 const catC=['#4ade80','#60a5fa','#fbbf24','#f87171','#a78bfa','#34d399','#fb923c'];
 const catL=['Rent/Housing','Food & Groceries','Transport','Shopping','Healthcare','Entertainment','Other'];
@@ -443,11 +456,11 @@ new Chart(document.getElementById('donutDesk'),{
     options:dOpts
 });
 
-// Desktop summary bar
+// Desktop summary bar (Expenses column = expenses + EMI)
 new Chart(document.getElementById('summaryDesk'),{
     type:'bar',
-    data:{labels:['Income','Expenses','Savings'],
-        datasets:[{data:[latestInc,latestExp,latestSav],
+    data:{labels:['Income','Expenses+EMI','Savings'],
+        datasets:[{data:[latestInc,latestOut,latestSav],
             backgroundColor:[G,R,B],borderRadius:12,borderSkipped:false}]},
     options:{responsive:true,maintainAspectRatio:false,
         animation:{duration:700,easing:'easeOutQuart'},

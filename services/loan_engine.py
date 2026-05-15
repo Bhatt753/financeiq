@@ -268,6 +268,68 @@ def generate_loan_advice(loan_analysis, income, savings,
     return advice
 
 
+def get_active_loans_for_month(all_loans, month_name, year):
+    """
+    Returns the subset of loans that were actively running
+    during the given calendar month + year.
+    """
+    month_num = MONTH_ORDER.get(month_name, 1)
+    target    = year * 12 + month_num
+    active    = []
+    for loan in all_loans:
+        start_num = MONTH_ORDER.get(loan["start_month"], 1)
+        start     = loan["start_year"] * 12 + start_num
+        end       = start + loan["tenure_months"] - 1
+        if start <= target <= end:
+            active.append(loan)
+    return active
+
+
+def sync_user_history_with_loans(user_id):
+    """
+    Recalculates every stored monthly entry so that savings and
+    health score always reflect the loans that were active in that
+    specific month.  Called whenever loans are added or removed.
+    """
+    from models.database import (
+        get_all_user_loans, get_monthly_history,
+        get_expenses_for_month, update_monthly_entry
+    )
+    from services.metrics import calculate_metrics
+
+    all_loans = get_all_user_loans(user_id)
+    history   = get_monthly_history(user_id)
+
+    for entry in history:
+        expenses_raw = get_expenses_for_month(
+            user_id, entry["month"], entry["year"]
+        )
+        expenses = []
+        for e in expenses_raw:
+            expenses.append({
+                "name"    : e["name"]     if isinstance(e, dict) else e[4],
+                "category": e["category"] if isinstance(e, dict) else e[5],
+                "type"    : e["type"]     if isinstance(e, dict) else e[6],
+                "amount"  : float(e["amount"] if isinstance(e, dict) else e[7])
+            })
+
+        active = get_active_loans_for_month(
+            all_loans, entry["month"], entry["year"]
+        )
+        loan_params = [{
+            "type"         : l["loan_type"],
+            "emi"          : l["emi"],
+            "interest_rate": l["interest_rate"],
+            "outstanding"  : l.get("principal", 0)
+        } for l in active]
+
+        metrics, _ = calculate_metrics(
+            entry["income"], expenses, loan_params, 0
+        )
+        if metrics:
+            update_monthly_entry(entry["id"], entry["income"], metrics)
+
+
 def _suggest_freed_emi_use(freed_amount, emergency_fund,
                             goals, current_savings):
     """Suggest best use of freed EMI amount"""
