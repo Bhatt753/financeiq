@@ -283,9 +283,12 @@
             .mp-insight-left{border-right:none;border-bottom:1px solid #E5E7EB;}
         }
         @media(min-width:769px){
-            .mp-page{max-width:600px;left:50%;right:auto;transform:translateX(-50%) translateY(100%);}
-            .mp-page.open{transform:translateX(-50%) translateY(0);}
             .mp-overlay{backdrop-filter:blur(6px);}
+            .mp-body{max-width:900px;margin:0 auto;padding:28px 40px 60px;}
+            .mp-trends{grid-template-columns:repeat(4,1fr);}
+            .mp-metrics{grid-template-columns:repeat(4,1fr);}
+            .mp-actions{grid-template-columns:repeat(4,1fr);}
+            .mp-insight-card{grid-template-columns:1fr 1fr;}
         }
     </style>
 </head>
@@ -459,29 +462,33 @@ if(hData.length>0){
 }else{labels=['Jan','Feb','Mar','Apr','May','Jun'];inc=exp=emi=sav=[0,0,0,0,0,0];}
 const outflow=exp.map((e,i)=>e+emi[i]);
 
-// Colors — indigo for income, green for savings
-const INC='#4F46E5',SAV='#16A34A',
-      R='rgba(239,68,68,0.85)',Y='#F59E0B',TM='#9CA3AF';
+// Chart colors — indigo=income, emerald=savings, rose=expenses, amber=EMI
+const INC='#6366F1',SAV='#16A34A',R='#EF4444',Y='#F59E0B',TM='#9CA3AF';
 
-const tt={backgroundColor:'#111827',borderColor:'#374151',borderWidth:1,titleColor:'#fff',bodyColor:'rgba(255,255,255,0.7)',padding:10,cornerRadius:10,callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN')}};
-const sc={x:{grid:{display:false},border:{display:false},ticks:{color:TM,font:{size:11}}},y:{grid:{color:'rgba(0,0,0,0.05)'},border:{display:false},ticks:{color:TM,font:{size:11},callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}};
-const scStacked={x:{grid:{display:false},border:{display:false},ticks:{color:TM,font:{size:11}}},y:{grid:{color:'rgba(0,0,0,0.05)'},border:{display:false},stacked:true,ticks:{color:TM,font:{size:11},callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)}}};
-const lg={display:true,position:'top',align:'end',labels:{color:'#374151',font:{size:11},boxWidth:9,boxHeight:9,borderRadius:3,padding:10}};
+const tt={backgroundColor:'#18181B',borderColor:'#3F3F46',borderWidth:1,titleColor:'#FAFAFA',bodyColor:'rgba(255,255,255,0.72)',padding:12,cornerRadius:10,callbacks:{label:c=>' ₹'+c.raw.toLocaleString('en-IN')}};
+const gridCol='rgba(0,0,0,0.07)';
+const tickOpts={color:'#6B7280',font:{size:11,family:"'Inter',sans-serif"}};
+const axY={grid:{color:gridCol,drawBorder:false},border:{display:false},ticks:{...tickOpts,callback:v=>'₹'+(v>=1000?(v/1000).toFixed(0)+'K':v)}};
+const axX={grid:{display:false},border:{display:false},ticks:tickOpts};
+const sc={x:axX,y:axY};
+const scStacked={x:axX,y:{...axY,stacked:true}};
+const lg={display:true,position:'top',align:'end',labels:{color:'#374151',font:{size:11,family:"'Inter',sans-serif"},boxWidth:10,boxHeight:10,borderRadius:4,padding:12,usePointStyle:true,pointStyle:'circle'}};
 
 new Chart(document.getElementById('barC'),{type:'bar',data:{labels,datasets:[
-    {label:'Income',  data:inc,backgroundColor:INC,borderRadius:7,borderSkipped:false,stack:'income'},
+    {label:'Income',  data:inc,backgroundColor:INC,borderRadius:8,borderSkipped:false,stack:'income'},
     {label:'Expenses',data:exp,backgroundColor:R,  borderRadius:0,borderSkipped:false,stack:'breakdown'},
     {label:'EMI',     data:emi,backgroundColor:Y,  borderRadius:0,borderSkipped:false,stack:'breakdown'},
-    {label:'Savings', data:sav,backgroundColor:SAV,borderRadius:{topLeft:6,topRight:6,bottomLeft:0,bottomRight:0},borderSkipped:false,stack:'breakdown'}
+    {label:'Savings', data:sav,backgroundColor:SAV,borderRadius:{topLeft:7,topRight:7,bottomLeft:0,bottomRight:0},borderSkipped:false,stack:'breakdown'}
 ]},options:{responsive:true,maintainAspectRatio:false,
     onClick:(evt,els)=>{if(els.length)openDetail(els[0].index);},
-    animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:lg,tooltip:tt},scales:scStacked}});
+    animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:lg,tooltip:tt},scales:scStacked,
+    barPercentage:0.65,categoryPercentage:0.7}});
 
 new Chart(document.getElementById('lineC'),{type:'line',data:{labels,datasets:[
-    {label:'Income',  data:inc,borderColor:INC,backgroundColor:'rgba(79,70,229,0.06)',  fill:true,tension:0.45,borderWidth:2.5,pointBackgroundColor:INC,pointRadius:3},
-    {label:'Expenses',data:exp,borderColor:'rgba(239,68,68,0.8)',backgroundColor:'rgba(239,68,68,0.04)', fill:true,tension:0.45,borderWidth:2,pointBackgroundColor:'rgba(239,68,68,0.8)',pointRadius:3},
-    {label:'EMI',     data:emi,borderColor:Y,  backgroundColor:'rgba(245,158,11,0.05)', fill:true,tension:0.45,borderWidth:2,borderDash:[5,4],pointBackgroundColor:Y,pointRadius:3},
-    {label:'Savings', data:sav,borderColor:SAV,backgroundColor:'rgba(22,163,74,0.06)',  fill:true,tension:0.45,borderWidth:2,pointBackgroundColor:SAV,pointRadius:3}
+    {label:'Income',  data:inc,borderColor:INC,backgroundColor:'rgba(99,102,241,0.08)', fill:true,tension:0.4,borderWidth:2.5,pointBackgroundColor:'#fff',pointBorderColor:INC,pointBorderWidth:2,pointRadius:4,pointHoverRadius:6},
+    {label:'Expenses',data:exp,borderColor:R,  backgroundColor:'rgba(239,68,68,0.07)',  fill:true,tension:0.4,borderWidth:2,  pointBackgroundColor:'#fff',pointBorderColor:R,  pointBorderWidth:2,pointRadius:4,pointHoverRadius:6},
+    {label:'EMI',     data:emi,borderColor:Y,  backgroundColor:'rgba(245,158,11,0.07)', fill:true,tension:0.4,borderWidth:2,  borderDash:[5,4],pointBackgroundColor:'#fff',pointBorderColor:Y,  pointBorderWidth:2,pointRadius:4,pointHoverRadius:6},
+    {label:'Savings', data:sav,borderColor:SAV,backgroundColor:'rgba(22,163,74,0.08)',  fill:true,tension:0.4,borderWidth:2.5,pointBackgroundColor:'#fff',pointBorderColor:SAV,pointBorderWidth:2,pointRadius:4,pointHoverRadius:6}
 ]},options:{responsive:true,maintainAspectRatio:false,
     onClick:(evt,els)=>{if(els.length)openDetail(els[0].index);},
     animation:{duration:700,easing:'easeOutQuart'},plugins:{legend:lg,tooltip:tt},scales:sc}});
@@ -490,7 +497,7 @@ const li=inc.length>0?inc[inc.length-1]:0,le=exp.length>0?exp[exp.length-1]:0,
       ls=sav.length>0?sav[sav.length-1]:0,lemi=emi.length>0?emi[emi.length-1]:0;
 const catEB=[0.30,0.20,0.12,0.10,0.08,0.08,0.12].map(p=>Math.round(le*p));
 const catLB=['Rent/Housing','Food & Groceries','Transport','Shopping','Healthcare','Entertainment','Other'];
-const catCB=[SAV,'#3B82F6','#06B6D4','#F87171','#A78BFA','#818CF8','#FB923C'];
+const catCB=[INC,'#22C55E','#06B6D4',R,'#A855F7',Y,'#FB923C'];
 const catD=lemi>0?[...catEB,Math.round(lemi)]:catEB;
 const catL=lemi>0?[...catLB,'Loan EMI']:catLB;
 const catC=lemi>0?[...catCB,Y]:catCB;
@@ -522,13 +529,13 @@ document.addEventListener('pointercancel',()=>{if(!pD)return;pD=false;track.styl
 
 // ── MONTH DETAIL PAGE ────────────────────────────────────────────────────
 const CAT_DETAIL=[
-    {n:'Rent/Housing',  p:0.30,c:'#16A34A'},
-    {n:'Food & Groceries',p:0.20,c:'#3B82F6'},
-    {n:'Transport',     p:0.12,c:'#06B6D4'},
-    {n:'Shopping',      p:0.10,c:'#F87171'},
-    {n:'Healthcare',    p:0.08,c:'#A78BFA'},
-    {n:'Entertainment', p:0.08,c:'#818CF8'},
-    {n:'Other',         p:0.12,c:'#FB923C'}
+    {n:'Rent/Housing',    p:0.30,c:'#6366F1'},
+    {n:'Food & Groceries',p:0.20,c:'#22C55E'},
+    {n:'Transport',       p:0.12,c:'#06B6D4'},
+    {n:'Shopping',        p:0.10,c:'#EF4444'},
+    {n:'Healthcare',      p:0.08,c:'#A855F7'},
+    {n:'Entertainment',   p:0.08,c:'#F59E0B'},
+    {n:'Other',           p:0.12,c:'#FB923C'}
 ];
 
 function fmt(n){return'₹'+Math.round(n).toLocaleString('en-IN');}
