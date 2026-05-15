@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#F8F6F1">
     <title>Health Score — FinanceIQ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         :root {
@@ -81,46 +81,34 @@
 
         /* ===== BIG SCORE CARD ===== */
         .score-hero {
-            background: #111827;
+            background: linear-gradient(160deg, #111827 0%, #0c1a10 100%);
             border-radius: var(--radius);
-            padding: 32px 28px;
+            padding: 36px 28px 32px;
             text-align: center;
             margin-bottom: 16px;
-            position: relative;
-            overflow: hidden;
             animation: fadeUp 0.4s ease 0.1s both;
         }
 
-        .score-hero::before {
-            content: '';
-            position: absolute;
-            top: -60px; right: -60px;
-            width: 200px; height: 200px;
-            border-radius: 50%;
-            background: rgba(22,163,74,0.08);
-            pointer-events: none;
-        }
-
         .score-month {
-            font-size: 12px; font-weight: 600;
-            color: rgba(255,255,255,0.35);
-            text-transform: uppercase; letter-spacing: 0.8px;
-            margin-bottom: 16px;
+            font-size: 11px; font-weight: 600;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase; letter-spacing: 1.2px;
+            margin-bottom: 32px;
         }
 
         .score-ring-wrap {
             position: relative;
-            width: 160px; height: 160px;
-            margin: 0 auto 20px;
+            width: 164px; height: 164px;
+            margin: 0 auto 32px;
         }
 
         .score-ring-wrap svg {
             transform: rotate(-90deg);
         }
 
-        .ring-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 10; }
+        .ring-bg  { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 10; }
         .ring-fill {
-            fill: none; stroke: var(--accent);
+            fill: none; stroke: #22C55E;
             stroke-width: 10;
             stroke-linecap: round;
             transition: stroke-dashoffset 1.5s cubic-bezier(0.22,1,0.36,1);
@@ -130,39 +118,96 @@
             position: absolute; inset: 0;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
+            gap: 2px;
         }
 
         .score-number {
-            font-size: 52px; line-height: 1; font-weight: 700;
-            color: var(--accent);
+            font-size: 54px; line-height: 1; font-weight: 800;
+            color: #22C55E;
+            letter-spacing: -2px;
         }
 
         .score-total {
-            font-size: 13px; color: rgba(255,255,255,0.3);
-            margin-top: 2px;
+            font-size: 13px; color: rgba(255,255,255,0.35);
+            font-weight: 500;
         }
 
-        .score-grade {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(22,163,74,0.15);
-            border: 1px solid rgba(22,163,74,0.3);
-            border-radius: 20px;
-            padding: 6px 18px;
-            margin-bottom: 12px;
+        /* Grade + status row */
+        .score-grade-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 14px 20px;
+            margin-bottom: 20px;
         }
 
-        .score-grade .grade-letter {
-            font-size: 20px; font-weight: 700; color: var(--accent);
+        .grade-block {
+            display: flex; flex-direction: column; align-items: center;
+            padding-right: 20px;
+            border-right: 1px solid rgba(255,255,255,0.12);
+            margin-right: 20px;
+            min-width: 48px;
         }
 
-        .score-grade .grade-status {
-            font-size: 14px; font-weight: 600;
-            color: rgba(255,255,255,0.8);
+        .grade-letter {
+            font-size: 36px; font-weight: 800;
+            line-height: 1;
+            letter-spacing: -1px;
         }
 
-        .score-summary {
-            font-size: 14px; color: rgba(255,255,255,0.45);
-            line-height: 1.6; max-width: 340px; margin: 0 auto;
+        .grade-label {
+            font-size: 10px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 3px;
+        }
+
+        .status-block {
+            text-align: left;
+        }
+
+        .status-title {
+            font-size: 16px; font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 5px;
+        }
+
+        .status-sub {
+            font-size: 13px;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.5;
+        }
+
+        /* Quick stats row inside card */
+        .score-stats {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .score-stat {
+            background: rgba(255,255,255,0.04);
+            padding: 14px 12px;
+            text-align: center;
+        }
+
+        .score-stat-val {
+            font-size: 17px; font-weight: 700;
+            color: #FFFFFF;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .score-stat-lbl {
+            font-size: 10px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.6px;
+            color: rgba(255,255,255,0.38);
         }
 
         /* ===== COMPONENT CARDS ===== */
@@ -170,14 +215,14 @@
             font-size: 12px; font-weight: 700;
             color: var(--muted);
             text-transform: uppercase; letter-spacing: 0.6px;
-            margin: 24px 0 12px;
+            margin: 28px 0 12px;
             animation: fadeUp 0.4s ease 0.2s both;
         }
 
         .component-card {
             background: var(--white);
             border-radius: 18px;
-            padding: 18px 20px;
+            padding: 20px;
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
             margin-bottom: 10px;
@@ -189,13 +234,13 @@
 
         .comp-header {
             display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 10px;
+            align-items: center; margin-bottom: 14px;
         }
 
-        .comp-left { display: flex; align-items: center; gap: 10px; }
+        .comp-left { display: flex; align-items: center; gap: 12px; }
 
         .comp-icon {
-            width: 38px; height: 38px;
+            width: 40px; height: 40px;
             border-radius: 12px;
             background: var(--accent-light);
             display: flex; align-items: center; justify-content: center;
@@ -203,19 +248,19 @@
         }
 
         .comp-name {
-            font-size: 14px; font-weight: 600; color: var(--text);
+            font-size: 15px; font-weight: 600; color: var(--text);
+            margin-bottom: 3px;
         }
 
         .comp-value {
             font-size: 12px; color: var(--muted);
-            margin-top: 2px;
         }
 
         .comp-right { display: flex; align-items: center; gap: 10px; }
 
         .grade-badge {
             font-size: 13px; font-weight: 700;
-            padding: 3px 12px; border-radius: 20px;
+            padding: 4px 12px; border-radius: 20px;
             min-width: 36px; text-align: center;
         }
 
@@ -226,14 +271,13 @@
         .grade-F { background: #FEE2E2; color: #991B1B; }
 
         .comp-score {
-            font-size: 18px; font-weight: 700; color: var(--text);
+            font-size: 20px; font-weight: 700; color: var(--text);
         }
 
-        /* Progress bar */
         .prog-wrap {
-            background: var(--border);
+            background: #F3F4F6;
             border-radius: 6px; height: 7px; overflow: hidden;
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
 
         .prog-fill {
@@ -246,16 +290,16 @@
         .prog-red    { background: linear-gradient(90deg, #DC2626, #EF4444); }
 
         .comp-explain {
-            font-size: 13px; color: var(--muted);
-            line-height: 1.55; margin-bottom: 8px;
+            font-size: 13px; color: #4B5563;
+            line-height: 1.6; margin-bottom: 12px;
         }
 
         .comp-action {
-            display: flex; align-items: flex-start; gap: 7px;
+            display: flex; align-items: flex-start; gap: 8px;
             background: var(--accent-light);
             border: 1px solid rgba(22,163,74,0.2);
             border-radius: 10px;
-            padding: 10px 12px;
+            padding: 11px 14px;
         }
 
         .comp-action svg {
@@ -272,7 +316,7 @@
         .priority-card {
             background: var(--white);
             border-radius: var(--radius);
-            padding: 20px 22px;
+            padding: 22px;
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
             margin-bottom: 16px;
@@ -281,36 +325,36 @@
 
         .priority-title {
             font-size: 15px; font-weight: 700;
-            color: var(--text); margin-bottom: 14px;
+            color: var(--text); margin-bottom: 16px;
             display: flex; align-items: center; gap: 8px;
         }
 
         .priority-item {
-            display: flex; align-items: flex-start; gap: 12px;
-            padding: 12px 0;
+            display: flex; align-items: flex-start; gap: 14px;
+            padding: 14px 0;
             border-bottom: 1px solid var(--border);
         }
 
+        .priority-item:first-of-type { padding-top: 0; }
         .priority-item:last-child { border-bottom: none; padding-bottom: 0; }
 
         .priority-num {
-            width: 26px; height: 26px;
+            width: 26px; height: 26px; flex-shrink: 0;
             border-radius: 50%;
             background: #111827;
-            color: var(--accent);
+            color: #22C55E;
             display: flex; align-items: center; justify-content: center;
             font-size: 12px; font-weight: 700;
-            flex-shrink: 0;
         }
 
         .priority-comp {
             font-size: 11px; font-weight: 600;
             color: var(--muted); text-transform: uppercase;
-            letter-spacing: 0.4px; margin-bottom: 3px;
+            letter-spacing: 0.4px; margin-bottom: 4px;
         }
 
         .priority-text {
-            font-size: 13px; color: #374151; line-height: 1.5;
+            font-size: 13px; color: #374151; line-height: 1.55;
         }
 
         /* ===== NO DATA ===== */
@@ -360,6 +404,11 @@
         .nav-item.active, .nav-item:hover { color: var(--accent); }
 
         @media (min-width: 769px) { .bottom-nav { display: none; } }
+
+        /* Grade color helpers for dynamic grade letter */
+        .gl-A, .gl-B { color: #4ADE80; }
+        .gl-C         { color: #FCD34D; }
+        .gl-D, .gl-F  { color: #F87171; }
     </style>
 </head>
 <body>
@@ -395,15 +444,15 @@
 
     <!-- Big Score Card -->
     <div class="score-hero">
-        <div class="score-month">{{ month }} {{ year }} · Financial Health</div>
+        <div class="score-month">{{ month }} {{ year }} &middot; Financial Health</div>
 
         <div class="score-ring-wrap">
-            <svg width="160" height="160" viewBox="0 0 160 160">
-                <circle class="ring-bg" cx="80" cy="80" r="70"/>
-                <circle class="ring-fill" cx="80" cy="80" r="70"
-                    stroke-dasharray="{{ (70 * 2 * 3.14159)|round(1) }}"
-                    stroke-dashoffset="{{ ((70 * 2 * 3.14159) * (1 - score.final_score / 100))|round(1) }}"
-                    id="ringFill"/>
+            <svg width="164" height="164" viewBox="0 0 164 164">
+                <circle class="ring-bg" cx="82" cy="82" r="70"/>
+                <circle class="ring-fill" cx="82" cy="82" r="70"
+                    id="ringFill"
+                    stroke-dasharray="439.8"
+                    stroke-dashoffset="439.8"/>
             </svg>
             <div class="score-center">
                 <div class="score-number">{{ score.final_score }}</div>
@@ -411,12 +460,35 @@
             </div>
         </div>
 
-        <div class="score-grade">
-            <span class="grade-letter">{{ score.grade }}</span>
-            <span class="grade-status">{{ score.status }}</span>
+        <!-- Grade + Status -->
+        <div class="score-grade-row">
+            <div class="grade-block">
+                <span class="grade-letter gl-{{ score.grade }}">{{ score.grade }}</span>
+                <span class="grade-label">Grade</span>
+            </div>
+            <div class="status-block">
+                <div class="status-title">{{ score.status }}</div>
+                <div class="status-sub">{{ score.summary }}</div>
+            </div>
         </div>
 
-        <p class="score-summary">{{ score.summary }}</p>
+        <!-- Quick stat strip -->
+        {% set comp_count = score.components | length %}
+        {% set good_count = score.components | selectattr('raw_score', '>=', 70) | list | length %}
+        <div class="score-stats">
+            <div class="score-stat">
+                <div class="score-stat-val">{{ score.final_score }}</div>
+                <div class="score-stat-lbl">Score</div>
+            </div>
+            <div class="score-stat">
+                <div class="score-stat-val">{{ comp_count }}</div>
+                <div class="score-stat-lbl">Metrics</div>
+            </div>
+            <div class="score-stat">
+                <div class="score-stat-val">{{ good_count }}</div>
+                <div class="score-stat-lbl">Passing</div>
+            </div>
+        </div>
     </div>
 
     <!-- Component Breakdown -->
@@ -432,7 +504,7 @@
                 <div class="comp-icon">{{ icons[loop.index0] }}</div>
                 <div>
                     <div class="comp-name">{{ comp.component }}</div>
-                    <div class="comp-value">{{ comp.value }} · Weight {{ (comp.weight * 100)|int }}%</div>
+                    <div class="comp-value">{{ comp.value }} &middot; Weight {{ (comp.weight * 100)|int }}%</div>
                 </div>
             </div>
             <div class="comp-right">
@@ -441,7 +513,6 @@
             </div>
         </div>
 
-        <!-- Progress Bar -->
         <div class="prog-wrap">
             <div class="prog-fill
                 {% if comp.raw_score >= 70 %}prog-green
@@ -460,16 +531,13 @@
             <span>{{ comp.action }}</span>
         </div>
 
-        <!-- Loan breakdown if available -->
         {% if comp.loan_breakdown is defined and comp.loan_breakdown %}
-        <div style="margin-top:12px; border-top:1px solid #E5E7EB; padding-top:12px;">
+        <div style="margin-top:14px; border-top:1px solid #E5E7EB; padding-top:14px; display:flex; flex-direction:column; gap:8px;">
             {% for loan in comp.loan_breakdown %}
-            <div style="display:flex; justify-content:space-between; font-size:12px; color:#6B7280; padding:4px 0;">
-                <span>{{ loan.type }}</span>
-                <span>EMI ₹{{ "{:,.0f}".format(loan.emi) }} · {{ loan.rate }}% ·
-                    <span style="color:{% if loan.risk == 'High Risk' %}#DC2626{% elif loan.risk == 'Moderate' %}#D97706{% else %}#16A34A{% endif %}; font-weight:600;">
-                        {{ loan.risk }}
-                    </span>
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:#6B7280;">
+                <span style="font-weight:600; color:#374151;">{{ loan.type }}</span>
+                <span>EMI ₹{{ "{:,.0f}".format(loan.emi) }} &middot; {{ loan.rate }}% &middot;
+                    <span style="color:{% if loan.risk == 'High Risk' %}#DC2626{% elif loan.risk == 'Moderate' %}#D97706{% else %}#16A34A{% endif %}; font-weight:600;">{{ loan.risk }}</span>
                 </span>
             </div>
             {% endfor %}
@@ -498,12 +566,12 @@
     </div>
 
     <!-- Benchmark Card -->
-    <div style="background:#FFFFFF; border-radius:20px; padding:20px 22px; border:1px solid #E5E7EB; box-shadow:0 1px 3px rgba(0,0,0,0.04); animation:fadeUp 0.4s ease 0.5s both;">
-        <div style="font-size:15px; font-weight:700; color:#111827; margin-bottom:14px;">Industry Benchmarks</div>
+    <div style="background:#FFFFFF; border-radius:20px; padding:22px; border:1px solid #E5E7EB; box-shadow:0 1px 3px rgba(0,0,0,0.04); animation:fadeUp 0.4s ease 0.5s both; margin-bottom:16px;">
+        <div style="font-size:15px; font-weight:700; color:#111827; margin-bottom:16px;">Industry Benchmarks</div>
         {% for comp in score.components %}
-        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #E5E7EB;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #F3F4F6;">
             <span style="font-size:13px; color:#374151; font-weight:500;">{{ comp.component }}</span>
-            <span style="font-size:12px; color:#6B7280; font-weight:500;">{{ comp.benchmark }}</span>
+            <span style="font-size:12px; color:#6B7280; font-weight:500; text-align:right; max-width:55%;">{{ comp.benchmark }}</span>
         </div>
         {% endfor %}
     </div>
@@ -536,19 +604,20 @@
 </nav>
 
 <script>
-    // Animate ring on load
     window.addEventListener('load', () => {
         const ring = document.getElementById('ringFill');
-        if (ring) {
-            const circumference = 2 * Math.PI * 70;
-            const score = {{ score.final_score if score else 0 }};
-            const offset = circumference * (1 - score / 100);
-            ring.style.strokeDasharray = circumference;
-            ring.style.strokeDashoffset = circumference; // start at 0
-            setTimeout(() => {
-                ring.style.strokeDashoffset = offset;
-            }, 300);
-        }
+        if (!ring) return;
+        const score = {{ score.final_score if score else 0 }};
+        const r = 70;
+        const circ = 2 * Math.PI * r;
+        ring.style.strokeDasharray = circ;
+        ring.style.strokeDashoffset = circ;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                ring.style.transition = 'stroke-dashoffset 1.6s cubic-bezier(0.22,1,0.36,1)';
+                ring.style.strokeDashoffset = circ * (1 - score / 100);
+            });
+        });
     });
 </script>
 </body>
