@@ -623,7 +623,6 @@ const catC = latestEmi > 0 ? [...catCBase, Y]                       : catCBase;
 
 const dOpts={
     responsive:true,maintainAspectRatio:false,cutout:'65%',
-    onClick:()=>openSheet(recentData.length-1),
     animation:{duration:700,easing:'easeOutQuart'},
     plugins:{
         legend:{display:true,position:'top',
@@ -664,7 +663,6 @@ new Chart(document.getElementById('summaryDesk'),{
         datasets:[{data:summData,
             backgroundColor:summColors,borderRadius:12,borderSkipped:false}]},
     options:{responsive:true,maintainAspectRatio:false,
-        onClick:()=>openSheet(recentData.length-1),
         animation:{duration:700,easing:'easeOutQuart'},
         plugins:{legend:{display:false},tooltip:tt},scales:sc}
 });
