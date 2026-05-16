@@ -59,8 +59,8 @@
         .tbtn{padding:5px 14px;border-radius:16px;font-size:12px;font-weight:600;border:none;background:none;cursor:pointer;color:#6B7280;font-family:'Inter',sans-serif;transition:all 0.2s;}
         .tbtn.active{background:#16A34A;color:#fff;}
 
-        .slider-outer{overflow:hidden;width:100%;border-radius:10px;user-select:none;}
-        .slider-track{display:flex;transition:transform 0.42s cubic-bezier(0.25,1,0.5,1);will-change:transform;}
+        .slider-outer{overflow:hidden;width:100%;border-radius:10px;user-select:none;touch-action:pan-y;}
+        .slider-track{display:flex;will-change:transform;transform:translateZ(0);}
         .slider-item{flex:0 0 100%;min-width:100%;}
         .ch-wrap{position:relative;height:260px;width:100%;}
         .chart-dots{display:flex;justify-content:center;gap:6px;margin-top:12px;}
@@ -552,14 +552,43 @@ const btns=[document.getElementById('tb0'),document.getElementById('tb1'),docume
 let cur=0;
 const isMob=()=>window.innerWidth<=768;
 const maxS=()=>isMob()?2:1;
-function go(i,btn){i=Math.max(0,Math.min(i,maxS()));cur=i;track.style.transform=`translateX(-${i*100}%)`;btns.forEach(b=>b&&b.classList.remove('active'));if(btn)btn.classList.add('active');dots.forEach((d,j)=>d.classList.toggle('active',j===i));}
+const EASE='transform 0.44s cubic-bezier(0.25,1,0.5,1)';
+function go(i,btn){
+    i=Math.max(0,Math.min(i,maxS()));cur=i;
+    track.style.transition=EASE;
+    track.style.transform=`translate3d(-${i*100}%,0,0)`;
+    btns.forEach(b=>b&&b.classList.remove('active'));
+    if(btn)btn.classList.add('active');
+    dots.forEach((d,j)=>d.classList.toggle('active',j===i));
+}
 
-let pS=0,pD=false;
+let pS=0,pD=false,rafId=null,rafDx=0;
 const outer=document.getElementById('slOuter');
-outer.addEventListener('pointerdown',e=>{pS=e.clientX;pD=true;track.style.transition='none';},{passive:true});
-document.addEventListener('pointermove',e=>{if(!pD)return;track.style.transform=`translateX(calc(-${cur*100}% + ${e.clientX-pS}px))`;},{passive:true});
-document.addEventListener('pointerup',e=>{if(!pD)return;pD=false;track.style.transition='transform 0.42s cubic-bezier(0.25,1,0.5,1)';const d=pS-e.clientX;if(Math.abs(d)>50){const n=d>0?Math.min(cur+1,maxS()):Math.max(cur-1,0);go(n,btns[n]);}else{track.style.transform=`translateX(-${cur*100}%)`;}},{passive:true});
-document.addEventListener('pointercancel',()=>{if(!pD)return;pD=false;track.style.transition='transform 0.42s cubic-bezier(0.25,1,0.5,1)';track.style.transform=`translateX(-${cur*100}%)`;});
+outer.addEventListener('pointerdown',e=>{
+    pS=e.clientX;pD=true;rafDx=0;
+    track.style.transition='none';
+},{passive:true});
+document.addEventListener('pointermove',e=>{
+    if(!pD)return;
+    rafDx=e.clientX-pS;
+    if(rafId)return;
+    rafId=requestAnimationFrame(()=>{
+        rafId=null;
+        if(pD)track.style.transform=`translate3d(calc(-${cur*100}% + ${rafDx}px),0,0)`;
+    });
+},{passive:true});
+document.addEventListener('pointerup',e=>{
+    if(!pD)return;pD=false;
+    if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+    const d=pS-e.clientX;
+    if(Math.abs(d)>40){const n=d>0?Math.min(cur+1,maxS()):Math.max(cur-1,0);go(n,btns[n]);}
+    else{track.style.transition=EASE;track.style.transform=`translate3d(-${cur*100}%,0,0)`;}
+},{passive:true});
+document.addEventListener('pointercancel',()=>{
+    if(!pD)return;pD=false;
+    if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+    track.style.transition=EASE;track.style.transform=`translate3d(-${cur*100}%,0,0)`;
+});
 
 // ── MONTH DETAIL PAGE ────────────────────────────────────────────────────
 const CAT_DETAIL=[
