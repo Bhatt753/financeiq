@@ -87,13 +87,10 @@
         .empty-state{text-align:center;padding:60px 20px;color:#9CA3AF;}
         .empty-state h3{font-size:18px;font-weight:600;color:#374151;margin-bottom:8px;}
 
-        .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-top:1px solid #E5E7EB;display:none;justify-content:space-around;align-items:center;padding:10px 0 max(10px,env(safe-area-inset-bottom));z-index:100;}
-        .bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:3px;color:#9CA3AF;text-decoration:none;font-size:10px;font-weight:600;padding:4px 10px;transition:color 0.2s;}
-        .bottom-nav a.active,.bottom-nav a:hover{color:#16A34A;}
         .nav-icon svg{width:22px;height:22px;}
 
         @media(max-width:768px){
-            .container{padding:16px 14px 90px;}
+            .container{padding:16px 14px 40px;}
             .navbar{padding:0 16px;}
             .nav-links .nav-desktop{display:none;}
             .welcome{flex-direction:column;padding:20px;gap:12px;}
@@ -101,7 +98,6 @@
             .btn-add-data{width:100%;text-align:center;}
             .mobile-actions{display:flex;}
             .quick-links{display:none;}
-            .bottom-nav{display:flex;}
             .ch-wrap{height:220px;}
             .spending-section{display:none;}
             .dot-spending{display:flex;}
@@ -109,7 +105,6 @@
         @media(min-width:769px){
             .mobile-actions{display:none;}
             .quick-links{display:grid;}
-            .bottom-nav{display:none;}
             .spending-section{display:grid;}
             .dot-spending{display:none;}
             .slide-spending{display:none;}
@@ -450,29 +445,6 @@
     </div>
 </div>
 
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-    <a href="/dashboard" class="active">
-        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
-        <span>Home</span>
-    </a>
-    <a href="/add_data">
-        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg></span>
-        <span>Add</span>
-    </a>
-    <a href="/health">
-        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
-        <span>Health</span>
-    </a>
-    <a href="/goal">
-        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></span>
-        <span>Goals</span>
-    </a>
-    <a href="/setup_profile">
-        <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
-        <span>Profile</span>
-    </a>
-</div>
 
 <script>
 const hData     = {{ history | tojson if history else '[]' }};
