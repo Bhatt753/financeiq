@@ -417,7 +417,7 @@
                 </div>
                 <div class="form-group">
                     <label>Month</label>
-                    <select name="month" required>
+                    <select name="month" id="monthSelect" required onchange="filterLoans()">
                         {% for m in months %}
                         <option value="{{ m }}">{{ m }}</option>
                         {% endfor %}
@@ -425,7 +425,7 @@
                 </div>
                 <div class="form-group">
                     <label>Year</label>
-                    <input type="number" name="year" value="2026" required>
+                    <input type="number" name="year" id="yearInput" value="2026" required oninput="filterLoans()">
                 </div>
             </div>
         </div>
@@ -483,14 +483,18 @@
             {% set total_emi = namespace(v=0) %}
             {% for loan in existing_loans %}
             {% set total_emi.v = total_emi.v + loan.emi %}
-            <div class="loan-item">
+            <div class="loan-item"
+                 data-emi="{{ loan.emi }}"
+                 data-start-month="{{ loan.start_month or '' }}"
+                 data-start-year="{{ loan.start_year or '' }}"
+                 data-tenure="{{ loan.tenure_months or 0 }}">
                 <div class="loan-item-left">
                     <h4>{{ loan.loan_name }}</h4>
                     <p>{{ loan.loan_type }} &middot; {{ loan.interest_rate }}% p.a.</p>
                 </div>
                 <div style="text-align:right">
                     <div class="loan-emi-amount">&#8377;{{ "{:,.0f}".format(loan.emi) }}/month</div>
-                    <span class="loan-badge">Active EMI</span>
+                    <span class="loan-badge loan-status-badge">Active EMI</span>
                 </div>
             </div>
             {% endfor %}
@@ -502,14 +506,22 @@
                     EMI Auto-Deduction Summary
                 </div>
                 {% for loan in existing_loans %}
-                <div class="emi-row">
+                <div class="emi-row emi-deduction-row"
+                     data-emi="{{ loan.emi }}"
+                     data-start-month="{{ loan.start_month or '' }}"
+                     data-start-year="{{ loan.start_year or '' }}"
+                     data-tenure="{{ loan.tenure_months or 0 }}">
                     <span>{{ loan.loan_name }}</span>
                     <span>&#8722; &#8377;{{ "{:,.0f}".format(loan.emi) }}</span>
                 </div>
                 {% endfor %}
+                <div class="emi-row" id="inactive-emi-note" style="display:none;">
+                    <span id="inactive-emi-text" style="color:#9CA3AF;font-size:12px;font-style:italic;"></span>
+                    <span></span>
+                </div>
                 <div class="emi-row total">
-                    <span>Total EMI Deduction</span>
-                    <span>&#8722; &#8377;{{ "{:,.0f}".format(total_emi.v) }}/month</span>
+                    <span>Total Active EMI</span>
+                    <span id="emi-total-span">&#8722; &#8377;{{ "{:,.0f}".format(total_emi.v) }}/month</span>
                 </div>
             </div>
 
@@ -528,8 +540,8 @@
                     <span id="prev-expenses" style="color:#EF4444;">&#8722; &#8377;0</span>
                 </div>
                 <div class="preview-row">
-                    <span>Total EMI</span>
-                    <span style="color:#D97706;">&#8722; &#8377;{{ "{:,.0f}".format(total_emi.v) }}</span>
+                    <span>Active EMI</span>
+                    <span id="preview-emi-amount" style="color:#D97706;">&#8722; &#8377;{{ "{:,.0f}".format(total_emi.v) }}</span>
                 </div>
                 <div class="preview-row result">
                     <span>Available Savings</span>
@@ -599,7 +611,81 @@
 </div>
 
 <script>
-    const totalEMI = {{ existing_loans | sum(attribute='emi') if existing_loans else 0 }};
+    const MONTH_ORDER = {"January":1,"February":2,"March":3,"April":4,"May":5,"June":6,"July":7,"August":8,"September":9,"October":10,"November":11,"December":12};
+    let activeEMI = {{ existing_loans | sum(attribute='emi') if existing_loans else 0 }};
+
+    function filterLoans() {
+        const sel   = document.getElementById('monthSelect');
+        const yInp  = document.getElementById('yearInput');
+        if (!sel || !yInp) { updatePreview(); return; }
+        const month = sel.value;
+        const year  = parseInt(yInp.value) || 2026;
+        const givenTotal = year * 12 + (MONTH_ORDER[month] || 1) - 1;
+
+        let newActive = 0;
+        let inactiveCount = 0;
+
+        document.querySelectorAll('.loan-item[data-emi]').forEach(item => {
+            const emi    = parseFloat(item.dataset.emi) || 0;
+            const startM = item.dataset.startMonth;
+            const startY = parseInt(item.dataset.startYear) || 0;
+            const tenure = parseInt(item.dataset.tenure) || 0;
+            const badge  = item.querySelector('.loan-status-badge');
+
+            let isActive = true;
+            if (startM && startY && tenure) {
+                const sm = MONTH_ORDER[startM] || 1;
+                const startTotal = startY * 12 + sm - 1;
+                const endTotal   = startTotal + tenure - 1;
+                isActive = startTotal <= givenTotal && givenTotal <= endTotal;
+            }
+
+            if (isActive) {
+                newActive += emi;
+                if (badge) { badge.textContent = 'Active EMI'; badge.style.background = '#DCFCE7'; badge.style.color = '#15803D'; }
+                item.style.opacity = '1';
+            } else {
+                inactiveCount++;
+                if (badge) { badge.textContent = 'Not active this month'; badge.style.background = '#FEF3C7'; badge.style.color = '#92400E'; }
+                item.style.opacity = '0.6';
+            }
+        });
+
+        document.querySelectorAll('.emi-deduction-row').forEach(row => {
+            const startM = row.dataset.startMonth;
+            const startY = parseInt(row.dataset.startYear) || 0;
+            const tenure = parseInt(row.dataset.tenure) || 0;
+            let isActive = true;
+            if (startM && startY && tenure) {
+                const sm = MONTH_ORDER[startM] || 1;
+                const startTotal = startY * 12 + sm - 1;
+                const endTotal   = startTotal + tenure - 1;
+                isActive = startTotal <= givenTotal && givenTotal <= endTotal;
+            }
+            row.style.display = isActive ? '' : 'none';
+        });
+
+        activeEMI = newActive;
+
+        const totalSpan = document.getElementById('emi-total-span');
+        if (totalSpan) totalSpan.textContent = '− ₹' + newActive.toLocaleString('en-IN') + '/month';
+
+        const previewEMI = document.getElementById('preview-emi-amount');
+        if (previewEMI) previewEMI.textContent = '− ₹' + newActive.toLocaleString('en-IN');
+
+        const note     = document.getElementById('inactive-emi-note');
+        const noteText = document.getElementById('inactive-emi-text');
+        if (note && noteText) {
+            if (inactiveCount > 0) {
+                noteText.textContent = inactiveCount + ' loan' + (inactiveCount > 1 ? 's' : '') + ' not active this month — skipped';
+                note.style.display = '';
+            } else {
+                note.style.display = 'none';
+            }
+        }
+
+        updatePreview();
+    }
 
     function updatePreview() {
         const income   = parseFloat(document.getElementById('incomeInput').value) || 0;
@@ -607,17 +693,22 @@
         let   expenses = 0;
         amounts.forEach(a => expenses += parseFloat(a.value) || 0);
 
-        const savings  = income - expenses - totalEMI;
-        const preview  = document.getElementById('savingsPreview');
+        const savings = income - expenses - activeEMI;
+        const preview = document.getElementById('savingsPreview');
+        if (!preview) return;
 
-        if (income > 0 && totalEMI > 0) {
+        if (income > 0) {
             preview.style.display = 'block';
             document.getElementById('prev-income').textContent   = '₹' + income.toLocaleString('en-IN');
             document.getElementById('prev-expenses').textContent = '− ₹' + expenses.toLocaleString('en-IN');
             document.getElementById('prev-savings').textContent  = '₹' + savings.toLocaleString('en-IN');
             document.getElementById('prev-savings').style.color  = savings >= 0 ? '#16A34A' : '#EF4444';
+        } else {
+            preview.style.display = 'none';
         }
     }
+
+    document.addEventListener('DOMContentLoaded', filterLoans);
 
     const cats = {{ categories | tojson }};
 

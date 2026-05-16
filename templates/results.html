@@ -268,15 +268,29 @@
         <div class="emi-card">
             <div class="emi-title">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-                EMI Deduction Breakdown
+                Active EMI Deduction Breakdown
             </div>
 
             {% for loan in metrics.loans %}
             <div class="emi-row">
-                <span>{{ loan.type }} EMI</span>
+                <span>{{ loan.loan_name if loan.loan_name else loan.type }} EMI</span>
                 <span>− ₹{{ "{:,.0f}".format(loan.emi) }}</span>
             </div>
             {% endfor %}
+
+            {% if inactive_loans %}
+            <div style="margin-top:6px;padding:8px 0 2px;border-top:1px dashed #FDE68A;">
+                <div style="font-size:11px;color:#9CA3AF;margin-bottom:6px;">Loans not active this month — not deducted:</div>
+                {% for loan in inactive_loans %}
+                <div class="emi-row" style="opacity:0.6;">
+                    <span>{{ loan.loan_name if loan.loan_name else loan.type }}
+                        <span style="font-size:10px;background:#FEF3C7;color:#92400E;padding:1px 5px;border-radius:4px;margin-left:4px;">{{ loan.status_note }}</span>
+                    </span>
+                    <span style="color:#9CA3AF;">— skipped</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
 
             <div class="emi-divider"></div>
             <div class="emi-summary-row">
@@ -288,7 +302,7 @@
                 <span style="color:#EF4444; font-weight:500;">− ₹{{ "{:,.0f}".format(metrics.total_expenses) }}</span>
             </div>
             <div class="emi-summary-row">
-                <span>Total EMI</span>
+                <span>Active EMI Deducted</span>
                 <span style="color:#F59E0B; font-weight:600;">− ₹{{ "{:,.0f}".format(metrics.total_emi) }}</span>
             </div>
             <div class="emi-total-row">

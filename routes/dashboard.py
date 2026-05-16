@@ -51,7 +51,7 @@ def delete_entry(entry_id):
 @login_required
 def edit_entry(entry_id):
     from models.database import get_expenses_for_month, delete_expenses_for_month
-    from models.database import update_monthly_entry, save_expenses, get_user_loans
+    from models.database import update_monthly_entry, save_expenses
     from services.metrics import calculate_metrics
     from config import Config
 
@@ -85,15 +85,9 @@ def edit_entry(entry_id):
             except (ValueError, IndexError):
                 continue
 
-        user_loans = get_user_loans(user_id)
-        loans = []
-        for loan in user_loans:
-            loans.append({
-                "type"         : loan["loan_type"],
-                "emi"          : loan["emi"],
-                "interest_rate": loan["interest_rate"],
-                "outstanding"  : loan.get("principal", 0)
-            })
+        from utils.loan_utils import get_active_loans
+        active_loans, _ = get_active_loans(user_id, month, year)
+        loans = active_loans
 
         metrics, err = calculate_metrics(income, expenses, loans, emergency_fund)
         if err:

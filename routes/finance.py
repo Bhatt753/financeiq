@@ -54,19 +54,10 @@ def add_data():
                 months=_get_months(),
                 error=errors[0])
         
-        # Use saved loans from database
-        from models.database import get_user_loans
-        user_loans     = get_user_loans(session["user_id"])
+        from utils.loan_utils import get_active_loans
+        active_loans, inactive_loans = get_active_loans(session["user_id"], month, year)
         emergency_fund = float(request.form.get("emergency_fund", 0) or 0)
-
-        loans = []
-        for loan in user_loans:
-            loans.append({
-                "type"         : loan["loan_type"],
-                "emi"          : loan["emi"],
-                "interest_rate": loan["interest_rate"],
-                "outstanding"  : loan.get("principal", 0)
-            })
+        loans = active_loans
 
         # Build expenses list
         expenses = []
@@ -102,15 +93,16 @@ def add_data():
         advice = generate_advice(metrics, session.get("profession"))
 
         return render_template("results.html",
-            metrics  = metrics,
-            advice   = advice,
-            expenses = expenses,
-            month    = month,
-            year     = year
+            metrics        = metrics,
+            advice         = advice,
+            expenses       = expenses,
+            month          = month,
+            year           = year,
+            inactive_loans = inactive_loans
         )
 
     from models.database import get_user_loans
-    existing_loans = get_user_loans(session["user_id"])
+    existing_loans = [l for l in get_user_loans(session["user_id"]) if l.get("status") != "closed"]
 
     return render_template("add_data.html",
         categories     = Config.CATEGORIES,
