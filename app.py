@@ -16,12 +16,14 @@ from routes.dashboard import dashboard_bp
 from routes.finance   import finance_bp
 from routes.goals     import goals_bp
 from routes.loans     import loans_bp
+from routes.api       import api_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(finance_bp)
 app.register_blueprint(goals_bp)
 app.register_blueprint(loans_bp)
+app.register_blueprint(api_bp)
 
 init_oauth(app)
 
