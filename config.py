@@ -7,9 +7,6 @@ load_dotenv()
 
 class Config:
     SECRET_KEY           = os.environ.get("SECRET_KEY", "change-this")
-
-class Config:
-    SECRET_KEY           = os.environ.get("SECRET_KEY", "change-this")
     DATABASE_URL         = os.environ.get("DATABASE_URL", "")
     DEBUG                = os.environ.get("DEBUG", "False") == "True"
     GOOGLE_CLIENT_ID     = os.environ.get("GOOGLE_CLIENT_ID")

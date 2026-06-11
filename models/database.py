@@ -2,18 +2,29 @@
 
 import os
 import sqlite3
+from dotenv import load_dotenv
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "")
-USE_POSTGRES = DATABASE_URL.startswith("postgres")
+load_dotenv()
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+USE_POSTGRES = bool(DATABASE_URL and DATABASE_URL.startswith("postgres"))
 
 if USE_POSTGRES:
     import psycopg2
     import psycopg2.extras
 
 
+def _postgres_url():
+    """Append sslmode=require if not present (required by Supabase)."""
+    url = DATABASE_URL
+    if 'sslmode' not in url:
+        url += ('&' if '?' in url else '?') + 'sslmode=require'
+    return url
+
+
 def get_db():
     if USE_POSTGRES:
-        conn = psycopg2.connect(DATABASE_URL)
+        conn = psycopg2.connect(_postgres_url())
         return conn
     else:
         db_path = os.path.join(
