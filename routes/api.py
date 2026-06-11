@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from config import Config
 from models.database import (
     get_user_by_username, get_user_by_email,
+    get_user_by_google_id, create_google_user,
     create_user_with_email,
     get_monthly_history, get_monthly_entry,
     save_monthly_data, save_expenses,
@@ -139,6 +140,59 @@ def api_register():
             "email"     : user.get("email", ""),
         }
     }), 201
+
+
+@api_bp.route("/auth/google_login", methods=["POST"])
+def api_google_login():
+    data      = request.get_json(force=True) or {}
+    google_id = (data.get("google_id") or "").strip()
+    email     = (data.get("email")     or "").strip()
+    name      = (data.get("name")      or "").strip()
+    avatar    = (data.get("avatar")    or "").strip()
+
+    if not google_id or not email:
+        return jsonify({"error": "google_id and email required"}), 400
+
+    user = get_user_by_google_id(google_id)
+
+    if user is None:
+        # Link an existing email-only account to this Google ID
+        user = get_user_by_email(email)
+        if user:
+            from models.database import get_db, placeholder
+            conn = get_db()
+            p    = placeholder()
+            try:
+                c = conn.cursor()
+                c.execute(f"UPDATE users SET google_id={p} WHERE id={p}",
+                          (google_id, user["id"]))
+                conn.commit()
+            finally:
+                conn.close()
+            user = get_user_by_google_id(google_id)
+
+    if user is None:
+        user = create_google_user(google_id, email, name, avatar)
+
+    if user is None:
+        return jsonify({"error": "Could not create account. Please try again."}), 500
+
+    token      = _gen_token(user["id"])
+    profession = (user["profession"] or "") if user["profession"] else ""
+    needs_setup = profession.strip() in ("", "Not specified")
+
+    return jsonify({
+        "token"      : token,
+        "user"       : {
+            "id"        : user["id"],
+            "username"  : user["username"],
+            "name"      : user["name"]       or "",
+            "profession": user["profession"] or "",
+            "email"     : user["email"]      or "",
+            "avatar"    : user["avatar"]     or "",
+        },
+        "needs_setup": needs_setup,
+    })
 
 
 # ──────────────────────────────────────────────

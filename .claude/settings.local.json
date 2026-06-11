@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'Complete Income-Savings-Loans integration *)",
+      "Bash(git commit -m ' *)",
+      "Bash(ls *.py)",
+      "Bash(dir /b *.py)",
+      "Bash(pip list *)",
+      "Bash(flutter pub *)"
+    ]
+  }
+}

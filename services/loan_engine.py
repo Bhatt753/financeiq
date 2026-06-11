@@ -1,6 +1,4 @@
 # services/loan_engine.py
-# Smart loan analysis and advice engine
-
 MONTH_ORDER = {
     "January": 1, "February": 2, "March": 3,
     "April": 4, "May": 5, "June": 6,
